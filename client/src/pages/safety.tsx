@@ -244,14 +244,14 @@ export default function Safety() {
         </div>
       </section>
 
-      {/* Emergency Protocols */}
-      <section className="py-16 bg-red-50">
+      {/* Urgent Situation Protocols */}
+      <section className="py-16 bg-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Emergency Protocols</h2>
+            <AlertTriangle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Urgent Situation Protocols</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Clear procedures in place for any emergency situations during home visits.
+              Clear procedures in place for any urgent situations during home visits.
             </p>
           </div>
           
@@ -259,31 +259,31 @@ export default function Safety() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <div className="flex items-center mb-4">
-                  <Phone className="w-6 h-6 text-red-500 mr-3" />
-                  <h3 className="text-xl font-bold text-gray-900">24/7 Emergency Line</h3>
+                  <Phone className="w-6 h-6 text-blue-500 mr-3" />
+                  <h3 className="text-xl font-bold text-gray-900">24/7 Support Line</h3>
                 </div>
                 <p className="text-gray-600 mb-4">
-                  Direct access to emergency support during all appointments with immediate response protocols.
+                  Direct access to urgent support during all appointments with immediate response protocols.
                 </p>
-                <Badge className="bg-red-100 text-red-800">Call: 1-844-MEDLINK</Badge>
+                <Badge className="bg-blue-100 text-blue-800">Call: 1-844-MEDLINK</Badge>
               </div>
               
               <div>
                 <div className="flex items-center mb-4">
-                  <Clock className="w-6 h-6 text-blue-500 mr-3" />
+                  <Clock className="w-6 h-6 text-purple-500 mr-3" />
                   <h3 className="text-xl font-bold text-gray-900">Rapid Response</h3>
                 </div>
                 <p className="text-gray-600 mb-4">
-                  Emergency services contacted within minutes if medical emergency occurs during care.
+                  Medical assistance contacted within minutes if urgent situation occurs during care.
                 </p>
-                <Badge className="bg-blue-100 text-blue-800">Response Time: &lt; 5 minutes</Badge>
+                <Badge className="bg-purple-100 text-purple-800">Response Time: &lt; 5 minutes</Badge>
               </div>
             </div>
             
-            <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-              <p className="text-sm text-yellow-800 font-medium">
+            <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <p className="text-sm text-amber-800 font-medium">
                 <strong>Important:</strong> For life-threatening emergencies, always call 911 first. 
-                Our emergency line is for urgent situations during scheduled appointments.
+                Our support line is for urgent situations during scheduled appointments.
               </p>
             </div>
           </div>

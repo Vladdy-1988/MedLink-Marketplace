@@ -71,7 +71,7 @@ const supportCategories = [
     icon: Shield,
     title: "Safety & Security",
     description: "Report safety concerns or security issues",
-    color: "red"
+    color: "blue"
   }
 ];
 
@@ -110,33 +110,33 @@ export default function Support() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="text-center p-8 hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Emergency During Visit</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Urgent Support During Visit</h3>
               <p className="text-gray-600 mb-6">
                 For urgent issues during your appointment
               </p>
-              <Button className="bg-red-600 hover:bg-red-700 w-full">
+              <Button className="bg-blue-600 hover:bg-blue-700 w-full">
                 <Phone className="w-4 h-4 mr-2" />
                 Call 1-844-MEDLINK
               </Button>
-              <Badge className="mt-2 bg-red-100 text-red-800">Available 24/7</Badge>
+              <Badge className="mt-2 bg-blue-100 text-blue-800">Available 24/7</Badge>
             </Card>
 
             <Card className="text-center p-8 hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Live Chat</h3>
               <p className="text-gray-600 mb-6">
                 Get instant help with booking and general questions
               </p>
-              <Button className="bg-blue-600 hover:bg-blue-700 w-full">
+              <Button className="bg-purple-600 hover:bg-purple-700 w-full">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Start Live Chat
               </Button>
-              <Badge className="mt-2 bg-blue-100 text-blue-800">Response in &lt; 2 min</Badge>
+              <Badge className="mt-2 bg-purple-100 text-purple-800">Response in &lt; 2 min</Badge>
             </Card>
 
             <Card className="text-center p-8 hover:shadow-xl transition-all duration-300">
