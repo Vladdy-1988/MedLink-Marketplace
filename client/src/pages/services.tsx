@@ -245,7 +245,7 @@ export default function Services() {
               </Button>
             </Link>
             <Link href="/apply">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-[hsl(207,90%,54%)] font-semibold px-8 py-3 rounded-xl">
+              <Button size="lg" className="border border-white bg-transparent text-white hover:bg-white hover:text-[hsl(207,90%,54%)] font-semibold px-8 py-3 rounded-xl transition-all duration-300">
                 Become a Provider
               </Button>
             </Link>
