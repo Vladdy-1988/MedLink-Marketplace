@@ -258,36 +258,22 @@ export default function Landing() {
             <div>
               <h3 className="text-lg font-semibold mb-6">Services</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Nursing Care</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Physiotherapy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Dental Services</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Lab Services</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Alternative Therapy</a></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Nursing Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Physical Therapy</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Dental Care</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Mobile Lab Tests</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">All Services</Link></li>
               </ul>
             </div>
             
             <div>
               <h3 className="text-lg font-semibold mb-6">Company</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li>
-                  <button 
-                    onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="hover:text-white transition-colors"
-                  >
-                    How It Works
-                  </button>
-                </li>
-                <li><a href="#" className="hover:text-white transition-colors">Safety & Trust</a></li>
-                <li>
-                  <button 
-                    onClick={() => document.getElementById('become-provider')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="hover:text-white transition-colors"
-                  >
-                    Become a Provider
-                  </button>
-                </li>
-                <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
+                <li><Link href="/apply" className="hover:text-white transition-colors">Become a Provider</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
               </ul>
             </div>
           </div>
