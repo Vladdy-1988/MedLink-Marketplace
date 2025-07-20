@@ -20,8 +20,12 @@ import {
   Star,
   Settings,
   CreditCard,
-  Users
+  Users,
+  Facebook,
+  Twitter,
+  Linkedin
 } from "lucide-react";
+import { MedlinkLogo } from "@/components/MedlinkLogo";
 
 export default function PatientDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -348,6 +352,60 @@ export default function PatientDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center mb-6">
+                <MedlinkLogo size="md" />
+              </div>
+              <p className="text-gray-400 mb-6 max-w-md">
+                Connecting patients with qualified healthcare providers for professional in-home medical services across Calgary. Safe, convenient, and trusted healthcare at your doorstep.
+              </p>
+              <div className="flex space-x-4">
+                <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Linkedin className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Services</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/services" className="hover:text-white transition-colors">Nursing Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Physical Therapy</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Dental Care</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Mobile Lab Tests</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">All Services</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Company</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
+                <li><Link href="/apply" className="hover:text-white transition-colors">Become a Provider</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <div className="text-gray-400 text-sm">
+              © 2024 MedLink. All rights reserved.
+            </div>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Contact</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
