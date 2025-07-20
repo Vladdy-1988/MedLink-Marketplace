@@ -28,10 +28,43 @@ export default function Navigation() {
                 <Link href="/providers" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">
                   Find Providers
                 </Link>
-                <a href="#services" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">Services</a>
-                <a href="#how-it-works" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">How It Works</a>
+                <button 
+                  onClick={() => {
+                    if (location === '/') {
+                      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      window.location.href = '/#services';
+                    }
+                  }}
+                  className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
+                >
+                  Services
+                </button>
+                <button 
+                  onClick={() => {
+                    if (location === '/') {
+                      document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      window.location.href = '/#how-it-works';
+                    }
+                  }}
+                  className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
+                >
+                  How It Works
+                </button>
                 {!isAuthenticated && (
-                  <a href="#become-provider" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">Become a Provider</a>
+                  <button 
+                    onClick={() => {
+                      if (location === '/') {
+                        document.getElementById('become-provider')?.scrollIntoView({ behavior: 'smooth' });
+                      } else {
+                        window.location.href = '/#become-provider';
+                      }
+                    }}
+                    className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
+                  >
+                    Become a Provider
+                  </button>
                 )}
               </div>
             </div>

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link } from "wouter";
 import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 
 export default function Landing() {
@@ -105,7 +106,7 @@ export default function Landing() {
       <section className="py-16 bg-white" id="how-it-works">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How MedLink Works</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How Medlink Works</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">Simple, secure, and convenient healthcare at your doorstep</p>
           </div>
           
@@ -124,6 +125,44 @@ export default function Landing() {
                 <p className="text-gray-600">{step.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Become a Provider */}
+      <section className="py-16 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white" id="become-provider">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Join Our Network of Healthcare Providers</h2>
+            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+              Expand your practice by offering convenient in-home services to patients across Calgary. Join hundreds of verified healthcare professionals already using Medlink.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserCheck className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Flexible Schedule</h3>
+                <p className="text-blue-100">Set your own hours and availability</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <DollarSign className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Competitive Rates</h3>
+                <p className="text-blue-100">Earn premium rates for home visits</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Activity className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Growing Demand</h3>
+                <p className="text-blue-100">Connect with patients seeking home care</p>
+              </div>
+            </div>
+            <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+              Apply to Become a Provider
+            </Button>
           </div>
         </div>
       </section>
@@ -162,9 +201,23 @@ export default function Landing() {
               <h3 className="text-lg font-semibold mb-6">Company</h3>
               <ul className="space-y-3 text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+                <li>
+                  <button 
+                    onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="hover:text-white transition-colors"
+                  >
+                    How It Works
+                  </button>
+                </li>
                 <li><a href="#" className="hover:text-white transition-colors">Safety & Trust</a></li>
-                <li><a href="#become-provider" className="hover:text-white transition-colors">Become a Provider</a></li>
+                <li>
+                  <button 
+                    onClick={() => document.getElementById('become-provider')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="hover:text-white transition-colors"
+                  >
+                    Become a Provider
+                  </button>
+                </li>
                 <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
               </ul>
             </div>
@@ -172,7 +225,7 @@ export default function Landing() {
           
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
-              © 2024 MedLink House Calls. All rights reserved.
+              © 2024 Medlink. All rights reserved.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
