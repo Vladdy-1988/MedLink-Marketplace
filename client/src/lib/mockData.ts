@@ -1,69 +1,138 @@
-export const serviceCategories = [
+export const coreServiceCategories = [
   {
     id: 1,
-    name: "Nursing Care",
-    description: "Professional in-home nursing, wound care, and medication management",
-    icon: "fas fa-user-nurse",
+    name: "General Practice",
+    description: "In-home check-ups, consultations, and family medicine",
+    icon: "Stethoscope",
     color: "blue",
-    price: "Starting at $85/visit"
+    price: "Starting at $150/visit"
   },
   {
     id: 2,
-    name: "Physiotherapy",
-    description: "Rehabilitation therapy and mobility support at home",
-    icon: "fas fa-dumbbell",
+    name: "Nursing Services",
+    description: "Wound care, medication management, post-op care",
+    icon: "UserCheck",
     color: "green",
-    price: "Starting at $120/session"
+    price: "Starting at $85/visit"
   },
   {
     id: 3,
-    name: "Dental Services",
-    description: "Dental hygiene and denture care services",
-    icon: "fas fa-tooth",
+    name: "Physical Therapy",
+    description: "In-home rehabilitation and recovery",
+    icon: "Activity",
     color: "purple",
-    price: "Starting at $95/visit"
+    price: "Starting at $120/session"
   },
   {
     id: 4,
-    name: "Lab Services",
-    description: "Blood work and diagnostic testing at home",
-    icon: "fas fa-vial",
+    name: "Occupational Therapy",
+    description: "Daily living support and assessments",
+    icon: "Home",
     color: "orange",
-    price: "Starting at $65/test"
+    price: "Starting at $110/session"
   },
   {
     id: 5,
-    name: "Alternative Therapy",
-    description: "Acupuncture, massage therapy, and holistic care",
-    icon: "fas fa-leaf",
-    color: "teal",
-    price: "Starting at $90/session"
+    name: "Palliative Care",
+    description: "Compassionate end-of-life support",
+    icon: "Heart",
+    color: "pink",
+    price: "Starting at $125/visit"
   },
   {
     id: 6,
+    name: "Mobile Lab Tests",
+    description: "Phlebotomy and sample collection at home",
+    icon: "TestTube",
+    color: "teal",
+    price: "Starting at $65/test"
+  },
+  {
+    id: 7,
+    name: "Mental Health",
+    description: "Counseling and therapy sessions at home",
+    icon: "Brain",
+    color: "indigo",
+    price: "Starting at $140/session"
+  },
+  {
+    id: 8,
+    name: "Vaccinations",
+    description: "Immunizations administered at home",
+    icon: "Syringe",
+    color: "red",
+    price: "Starting at $45/vaccine"
+  }
+];
+
+export const additionalServiceCategories = [
+  {
+    id: 9,
+    name: "Dental Care",
+    description: "Mobile checkups, cleanings, denture care",
+    icon: "Smile",
+    color: "blue",
+    price: "Starting at $95/visit"
+  },
+  {
+    id: 10,
+    name: "Hearing Services",
+    description: "Hearing tests and hearing aid fitting",
+    icon: "Ear",
+    color: "green",
+    price: "Starting at $100/assessment"
+  },
+  {
+    id: 11,
+    name: "Vision Care",
+    description: "Mobile eye exams and vision screening",
+    icon: "Eye",
+    color: "purple",
+    price: "Starting at $95/exam"
+  },
+  {
+    id: 12,
+    name: "Podiatry",
+    description: "Foot care and diabetic foot assessments",
+    icon: "Footprints",
+    color: "orange",
+    price: "Starting at $90/visit"
+  },
+  {
+    id: 13,
+    name: "Speech Therapy",
+    description: "Communication and swallowing therapy",
+    icon: "MessageCircle",
+    color: "teal",
+    price: "Starting at $115/session"
+  },
+  {
+    id: 14,
     name: "Nutrition",
     description: "Dietitian consultations and meal planning",
-    icon: "fas fa-apple-alt",
+    icon: "Apple",
     color: "pink",
     price: "Starting at $75/consultation"
   },
   {
-    id: 7,
-    name: "Vision & Hearing",
-    description: "Comprehensive vision and hearing assessments",
-    icon: "fas fa-eye",
+    id: 15,
+    name: "Pharmacy",
+    description: "Medication reviews and coordination",
+    icon: "Pill",
     color: "indigo",
-    price: "Starting at $100/assessment"
+    price: "Starting at $60/consultation"
   },
   {
-    id: 8,
-    name: "Pharmacy",
-    description: "Medication reviews and consultation services",
-    icon: "fas fa-pills",
+    id: 16,
+    name: "IV Therapy",
+    description: "Intravenous treatments and hydration",
+    icon: "Droplets",
     color: "red",
-    price: "Starting at $60/consultation"
+    price: "Starting at $180/session"
   }
 ];
+
+export const serviceCategories = [...coreServiceCategories, ...additionalServiceCategories];
 
 export const featuredProviders = [
   {
