@@ -22,15 +22,15 @@ import {
 const rapidServices = [
   {
     title: "Rapid Nursing Care",
-    description: "Urgent nursing care for non-life-threatening medical situations requiring immediate professional attention.",
+    description: "ASAP nursing care for non-life-threatening medical situations requiring immediate professional attention.",
     icon: Stethoscope,
     features: [
-      "Wound assessment and urgent care",
+      "Wound assessment and rapid care",
       "Vital signs monitoring and evaluation", 
       "Medication administration and guidance",
       "Health crisis management",
       "Pain assessment and management",
-      "Urgent health education"
+      "Rapid health education"
     ],
     pricing: "Starting at $150/visit",
     responseTime: "Within 2-4 hours",
@@ -38,10 +38,10 @@ const rapidServices = [
   },
   {
     title: "Rapid Lab Services",
-    description: "Urgent blood work and diagnostic testing with expedited processing and same-day results.",
+    description: "ASAP blood work and diagnostic testing with expedited processing and same-day results.",
     icon: Syringe,
     features: [
-      "Urgent blood draws",
+      "Rapid blood draws",
       "Priority diagnostic testing",
       "Expedited sample processing",
       "Same-day results delivery",
@@ -54,11 +54,11 @@ const rapidServices = [
   },
   {
     title: "Rapid Mental Health Support",
-    description: "Crisis intervention and urgent mental health support for immediate psychological needs.",
+    description: "Crisis intervention and ASAP mental health support for immediate psychological needs.",
     icon: Brain,
     features: [
       "Crisis intervention counseling",
-      "Urgent mental health assessment",
+      "Rapid mental health assessment",
       "Safety planning and support",
       "Immediate coping strategies",
       "Resource coordination",
@@ -70,11 +70,11 @@ const rapidServices = [
   },
   {
     title: "Rapid Physiotherapy",
-    description: "Urgent mobility and pain management for acute injuries and movement crises.",
+    description: "ASAP mobility and pain management for acute injuries and movement situations.",
     icon: Activity,
     features: [
       "Acute injury assessment",
-      "Urgent pain management",
+      "Rapid pain management",
       "Mobility restoration techniques",
       "Immediate exercise therapy",
       "Safety evaluation",
@@ -89,7 +89,7 @@ const rapidServices = [
 const pricingFactors = [
   {
     factor: "Priority Scheduling",
-    description: "Jump ahead of regular bookings for urgent care",
+    description: "Jump ahead of regular bookings for ASAP care",
     icon: Timer
   },
   {
@@ -113,10 +113,10 @@ const safetyGuidelines = [
   {
     title: "When to Use Rapid Services",
     items: [
-      "Urgent health concerns that can't wait for regular appointments",
+      "ASAP health concerns that can't wait for regular appointments",
       "Non-life-threatening situations requiring prompt attention",
       "Acute pain or discomfort needing immediate assessment",
-      "Medication issues requiring urgent professional guidance",
+      "Medication issues requiring rapid professional guidance",
       "Health crises during evenings, nights, or weekends"
     ]
   },
@@ -148,7 +148,7 @@ export default function RapidServices() {
               </h1>
             </div>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-              When you need urgent healthcare that can't wait, our rapid services provide 
+              When you need ASAP healthcare that can't wait, our rapid services provide 
               priority response with immediate scheduling and professional care.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -172,7 +172,7 @@ export default function RapidServices() {
             <AlertTriangle className="h-8 w-8 text-amber-600 mr-4" />
             <div className="text-center">
               <p className="text-lg font-semibold text-amber-800">
-                Rapid services are for urgent, non-life-threatening situations only.
+                Rapid services are for ASAP, non-life-threatening situations only.
               </p>
               <p className="text-amber-700">
                 For life-threatening situations, always call 911 first.

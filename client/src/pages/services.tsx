@@ -42,21 +42,21 @@ const organizedServices = {
 const rapidServices = [
   {
     title: "Rapid Nursing Care",
-    description: "Urgent nursing care for non-life-threatening medical situations",
+    description: "ASAP nursing care for non-life-threatening medical situations",
     pricing: "Starting at $150/visit",
     features: ["24/7 availability", "Priority response", "Rapid assessment", "Care coordination"]
   },
   {
     title: "Rapid Lab Services",
-    description: "Urgent blood work and diagnostic testing with expedited results",
+    description: "ASAP blood work and diagnostic testing with expedited results",
     pricing: "Starting at $120/test",
     features: ["Same-day results", "Priority scheduling", "Rapid sample collection", "Expedited processing"]
   },
   {
     title: "Rapid Mental Health Support",
-    description: "Crisis intervention and urgent mental health support",
+    description: "ASAP mental health support and priority counseling",
     pricing: "Starting at $180/session",
-    features: ["Crisis intervention", "Same-day appointments", "Priority assessment", "Support coordination"]
+    features: ["Priority scheduling", "Same-day appointments", "Rapid assessment", "Support coordination"]
   }
 ];
 
@@ -166,7 +166,7 @@ export default function Services() {
               </h2>
             </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              When you need urgent care, our rapid services provide fast response 
+              When you need ASAP care, our rapid services provide fast response 
               with priority scheduling and immediate attention.
             </p>
           </div>
@@ -221,7 +221,7 @@ export default function Services() {
           <div className="mt-8 text-center">
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 max-w-2xl mx-auto">
               <p className="text-sm text-amber-800 font-medium">
-                <strong>Important:</strong> Rapid services are for urgent, non-life-threatening situations only. 
+                <strong>Important:</strong> Rapid services are for ASAP, non-life-threatening situations only. 
                 For life-threatening situations, please call 911 immediately.
               </p>
             </div>

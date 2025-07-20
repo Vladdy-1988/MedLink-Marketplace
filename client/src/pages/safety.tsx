@@ -244,14 +244,14 @@ export default function Safety() {
         </div>
       </section>
 
-      {/* Urgent Situation Protocols */}
+      {/* Rapid Response Protocols */}
       <section className="py-16 bg-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <AlertTriangle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Urgent Situation Protocols</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Rapid Response Protocols</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Clear procedures in place for any urgent situations during home visits.
+              Clear procedures in place for any situations requiring rapid assistance during home visits.
             </p>
           </div>
           
@@ -263,7 +263,7 @@ export default function Safety() {
                   <h3 className="text-xl font-bold text-gray-900">24/7 Support Line</h3>
                 </div>
                 <p className="text-gray-600 mb-4">
-                  Direct access to urgent support during all appointments with immediate response protocols.
+                  Direct access to rapid support during all appointments with immediate response protocols.
                 </p>
                 <Badge className="bg-blue-100 text-blue-800">Call: 1-844-MEDLINK</Badge>
               </div>
@@ -274,7 +274,7 @@ export default function Safety() {
                   <h3 className="text-xl font-bold text-gray-900">Rapid Response</h3>
                 </div>
                 <p className="text-gray-600 mb-4">
-                  Medical assistance contacted within minutes if urgent situation occurs during care.
+                  Medical assistance contacted within minutes if any situation requires rapid response during care.
                 </p>
                 <Badge className="bg-purple-100 text-purple-800">Response Time: &lt; 5 minutes</Badge>
               </div>
@@ -282,8 +282,8 @@ export default function Safety() {
             
             <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
               <p className="text-sm text-amber-800 font-medium">
-                <strong>Important:</strong> For life-threatening emergencies, always call 911 first. 
-                Our support line is for urgent situations during scheduled appointments.
+                <strong>Important:</strong> For life-threatening situations, always call 911 first. 
+                Our support line is for rapid assistance during scheduled appointments.
               </p>
             </div>
           </div>

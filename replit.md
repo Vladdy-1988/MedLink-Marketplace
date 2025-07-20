@@ -126,10 +126,10 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 ## Recent Changes (January 2025)
 
 ### Terminology and Branding Update (Latest)
-- **Emergency to Rapid Services**: Changed all "emergency" terminology to "rapid services" for better market positioning
-- **Color Scheme Update**: Replaced red/orange emergency branding with blue/purple rapid service theme
+- **Emergency to Rapid Services**: Changed all "emergency" and "urgent" terminology to "rapid services" and "ASAP" for better market positioning
+- **Color Scheme Update**: Replaced red/orange branding with blue/purple rapid service theme  
 - **Route Updates**: Changed `/emergency-care` to `/rapid-services` throughout the application
-- **Content Alignment**: Updated all service descriptions, pricing, and messaging to reflect urgent but non-emergency care
+- **Content Alignment**: Updated all service descriptions, pricing, and messaging to reflect ASAP but non-emergency care positioning
 - **Footer Navigation**: Fixed all footer links to work properly with dedicated pages
 
 ### Design System Overhaul

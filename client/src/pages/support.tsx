@@ -113,9 +113,9 @@ export default function Support() {
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Urgent Support During Visit</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Rapid Support During Visit</h3>
               <p className="text-gray-600 mb-6">
-                For urgent issues during your appointment
+                For rapid assistance during your appointment
               </p>
               <Button className="bg-blue-600 hover:bg-blue-700 w-full">
                 <Phone className="w-4 h-4 mr-2" />
@@ -145,7 +145,7 @@ export default function Support() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Email Support</h3>
               <p className="text-gray-600 mb-6">
-                For detailed questions and non-urgent matters
+                For detailed questions and non-rapid matters
               </p>
               <Button className="bg-green-600 hover:bg-green-700 w-full">
                 <Mail className="w-4 h-4 mr-2" />
@@ -315,11 +315,11 @@ export default function Support() {
             </Card>
 
             <Card className="bg-gray-800 border-gray-700 p-6">
-              <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-3">Emergency Line</h3>
+              <AlertTriangle className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-3">Rapid Support Line</h3>
               <div className="text-gray-300">
                 <p>Available 24/7</p>
-                <p>For urgent issues during appointments</p>
+                <p>For rapid assistance during appointments</p>
               </div>
             </Card>
           </div>

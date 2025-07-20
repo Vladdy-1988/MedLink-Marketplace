@@ -141,7 +141,7 @@ export default function Home() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">Access urgent healthcare services with priority scheduling</p>
+                  <p className="text-gray-600">Access rapid healthcare services with priority scheduling</p>
                 </CardContent>
               </Card>
             </Link>

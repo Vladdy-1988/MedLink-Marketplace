@@ -124,8 +124,8 @@ const faqs = [
     answer: "Some services may be covered by Alberta Health or private insurance. We provide detailed receipts that you can submit to your insurance provider for potential reimbursement."
   },
   {
-    question: "What if I need urgent care?",
-    answer: "For life-threatening situations, always call 911. Our rapid services are for urgent, non-life-threatening situations that require prompt professional attention."
+    question: "What if I need rapid care?",
+    answer: "For life-threatening situations, always call 911. Our rapid services are for ASAP, non-life-threatening situations that require prompt professional attention."
   }
 ];
 
