@@ -258,22 +258,22 @@ export default function Landing() {
             <div>
               <h3 className="text-lg font-semibold mb-6">Services</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/services" className="hover:text-white transition-colors">Nursing Services</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Physical Therapy</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Dental Care</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Mobile Lab Tests</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">All Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Nursing Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Physical Therapy</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Dental Care</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Mobile Lab Tests</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>All Services</Link></li>
               </ul>
             </div>
             
             <div>
               <h3 className="text-lg font-semibold mb-6">Company</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
-                <li><Link href="/apply" className="hover:text-white transition-colors">Become a Provider</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>About Us</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>How It Works</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Safety & Trust</Link></li>
+                <li><Link href="/apply" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Become a Provider</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Support</Link></li>
               </ul>
             </div>
           </div>
