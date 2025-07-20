@@ -218,7 +218,7 @@ export default function Providers() {
             </div>
             
             {/* Provider Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               {sortedProviders.map((provider) => (
                 <ProviderCard key={provider.id} provider={provider} />
               ))}

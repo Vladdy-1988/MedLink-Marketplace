@@ -86,8 +86,8 @@ export default function Landing() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProviders.map((provider) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            {featuredProviders.slice(0, 8).map((provider) => (
               <ProviderCard key={provider.id} provider={provider} />
             ))}
           </div>
@@ -106,7 +106,7 @@ export default function Landing() {
       <section className="py-16 bg-white" id="how-it-works">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How Medlink Works</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How MedLink Works</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">Simple, secure, and convenient healthcare at your doorstep</p>
           </div>
           
@@ -135,7 +135,7 @@ export default function Landing() {
           <div className="text-center">
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Join Our Network of Healthcare Providers</h2>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Expand your practice by offering convenient in-home services to patients across Calgary. Join hundreds of verified healthcare professionals already using Medlink.
+              Expand your practice by offering convenient in-home services to patients across Calgary. Join hundreds of verified healthcare professionals already using MedLink.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
               <div className="text-center">

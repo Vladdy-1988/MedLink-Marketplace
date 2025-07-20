@@ -35,29 +35,21 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
             className="drop-shadow-md"
           />
           
-          {/* House outline */}
+          {/* House outline without door */}
           <path
             d="M10 18l10-8 10 8v12a2 2 0 01-2 2H12a2 2 0 01-2-2V18z"
             stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-          <path
-            d="M15 32v-8a2 2 0 012-2h6a2 2 0 012 2v8"
-            stroke="white"
-            strokeWidth="1.5"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
           />
           
-          {/* Heart inside */}
+          {/* Centered Heart */}
           <path
-            d="M20 26l-2.5-2.3c-2.8-2.5-4.5-4.1-4.5-6.2 0-1.7 1.3-3 3-3 .8 0 1.6.4 2 1 .4-.6 1.2-1 2-1 1.7 0 3 1.3 3 3 0 2.1-1.7 3.7-4.5 6.2L20 26z"
+            d="M20 24l-3-2.7c-3.2-2.9-5-4.6-5-7 0-2 1.5-3.5 3.5-3.5 1 0 1.9.5 2.5 1.2.6-.7 1.5-1.2 2.5-1.2 2 0 3.5 1.5 3.5 3.5 0 2.4-1.8 4.1-5 7L20 24z"
             fill="white"
-            opacity="0.9"
+            opacity="0.95"
           />
           
           {/* Gradient definition */}

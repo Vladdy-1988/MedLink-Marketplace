@@ -23,7 +23,7 @@ export default function Home() {
               Welcome back, {user?.firstName || "Patient"}!
             </h1>
             <p className="text-xl text-blue-100 mb-8">
-              Ready to book your next healthcare appointment through Medlink?
+              Ready to book your next healthcare appointment through MedLink?
             </p>
             <Link href="/providers">
               <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100">
