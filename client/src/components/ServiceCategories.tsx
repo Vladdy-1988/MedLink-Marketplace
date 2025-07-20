@@ -147,9 +147,9 @@ export default function ServiceCategories() {
           </p>
         </motion.div>
 
-        {/* Core Medical Services */}
+        {/* Popular Services - Show only 6 most common ones on homepage */}
         <motion.div 
-          className="mb-20"
+          className="mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -157,42 +157,102 @@ export default function ServiceCategories() {
         >
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Core Medical Services</h3>
-              <p className="text-gray-600 dark:text-gray-300">Essential healthcare services for comprehensive care</p>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Most Popular Services</h3>
+              <p className="text-gray-600 dark:text-gray-300">The most requested healthcare services in Calgary</p>
             </div>
             <Link href="/services">
               <Button className="hidden md:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-6 py-3 group">
-                View All Services
+                View All 16 Services
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {coreServiceCategories.map((service, index) => (
+          {/* Show only the 6 most popular services */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              coreServiceCategories[0], // General Practice
+              coreServiceCategories[1], // Nursing Services  
+              coreServiceCategories[2], // Physical Therapy
+              coreServiceCategories[5], // Mobile Lab Tests
+              coreServiceCategories[6], // Mental Health
+              additionalServiceCategories[0] // Dental Care
+            ].map((service, index) => (
               <ServiceCard key={service.id} service={service} index={index} />
             ))}
           </div>
         </motion.div>
 
-        {/* Additional Services */}
+        {/* Service Categories Overview */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Specialized Services</h3>
-              <p className="text-gray-600 dark:text-gray-300">Additional healthcare services for complete wellness</p>
-            </div>
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Complete Healthcare Coverage</h3>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Browse our comprehensive range of healthcare services organized by specialty
+            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {additionalServiceCategories.map((service, index) => (
-              <ServiceCard key={service.id} service={service} index={index + 8} />
-            ))}
+            {/* Essential Care Category */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 cursor-pointer group hover:-translate-y-2">
+              <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Stethoscope className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 transition-colors">
+                Essential Care
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                General practice, nursing, lab tests, vaccinations
+              </p>
+              <div className="text-sm text-blue-600 font-semibold">4 Services Available</div>
+            </div>
+
+            {/* Therapy Services Category */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 cursor-pointer group hover:-translate-y-2">
+              <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-green-600 transition-colors">
+                Therapy Services
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Physical, occupational, speech, mental health therapy
+              </p>
+              <div className="text-sm text-green-600 font-semibold">4 Services Available</div>
+            </div>
+
+            {/* Specialized Care Category */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 cursor-pointer group hover:-translate-y-2">
+              <div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Eye className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 transition-colors">
+                Specialized Care
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Dental, vision, hearing, podiatry services
+              </p>
+              <div className="text-sm text-purple-600 font-semibold">4 Services Available</div>
+            </div>
+
+            {/* Advanced Services Category */}
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/30 rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 cursor-pointer group hover:-translate-y-2">
+              <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Droplets className="w-6 h-6 text-white" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-orange-600 transition-colors">
+                Advanced Services
+              </h4>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                IV therapy, palliative care, pharmacy, nutrition
+              </p>
+              <div className="text-sm text-orange-600 font-semibold">4 Services Available</div>
+            </div>
           </div>
         </motion.div>
 

@@ -4,103 +4,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { serviceCategories } from "@/lib/mockData";
 import { 
-  Stethoscope, 
-  Heart, 
-  Activity, 
-  Syringe, 
-  Thermometer, 
-  Pill, 
-  UserCheck, 
-  Brain,
-  Eye,
-  Ear,
-  Zap,
-  Clock
+  Stethoscope, UserCheck, Activity, Home, Heart, TestTube, Brain, Syringe, 
+  Smile, Ear, Eye, Footprints, MessageCircle, Apple, Pill, Droplets,
+  Zap, Clock, CheckCircle
 } from "lucide-react";
 
-const services = [
-  {
-    id: 1,
-    title: "Nursing Care",
-    description: "Professional nursing services including wound care, medication management, and health monitoring.",
-    icon: Stethoscope,
-    features: ["Wound care", "Medication administration", "Vital signs monitoring", "Health assessments"],
-    pricing: "Starting at $80/visit",
-    duration: "30-60 minutes",
-    category: "Primary Care"
-  },
-  {
-    id: 2,
-    title: "Physiotherapy",
-    description: "Rehabilitation and mobility therapy to help you recover and maintain physical health.",
-    icon: Activity,
-    features: ["Movement therapy", "Pain management", "Exercise programs", "Mobility assessment"],
-    pricing: "Starting at $100/session",
-    duration: "45-60 minutes",
-    category: "Rehabilitation"
-  },
-  {
-    id: 3,
-    title: "Lab Services",
-    description: "Convenient blood work and diagnostic testing in the comfort of your home.",
-    icon: Syringe,
-    features: ["Blood draws", "Diagnostic testing", "Sample collection", "Results coordination"],
-    pricing: "Starting at $60/test",
-    duration: "15-30 minutes",
-    category: "Diagnostics"
-  },
-  {
-    id: 4,
-    title: "Mental Health Counseling",
-    description: "Professional mental health support and counseling services.",
-    icon: Brain,
-    features: ["Individual therapy", "Stress management", "Coping strategies", "Mental health assessment"],
-    pricing: "Starting at $120/session",
-    duration: "50-60 minutes",
-    category: "Mental Health"
-  },
-  {
-    id: 5,
-    title: "Dental Hygiene",
-    description: "Professional dental cleaning and oral health maintenance services.",
-    icon: Thermometer,
-    features: ["Teeth cleaning", "Oral health assessment", "Preventive care", "Hygiene education"],
-    pricing: "Starting at $90/session",
-    duration: "45-60 minutes",
-    category: "Dental Care"
-  },
-  {
-    id: 6,
-    title: "Massage Therapy",
-    description: "Therapeutic massage for pain relief, relaxation, and wellness.",
-    icon: Heart,
-    features: ["Therapeutic massage", "Pain relief", "Stress reduction", "Wellness therapy"],
-    pricing: "Starting at $100/session",
-    duration: "60-90 minutes",
-    category: "Wellness"
-  },
-  {
-    id: 7,
-    title: "Nutrition Counseling",
-    description: "Personalized nutrition planning and dietary guidance from certified nutritionists.",
-    icon: Pill,
-    features: ["Diet planning", "Nutritional assessment", "Health coaching", "Meal planning"],
-    pricing: "Starting at $85/consultation",
-    duration: "45-60 minutes",
-    category: "Wellness"
-  },
-  {
-    id: 8,
-    title: "Vision Care",
-    description: "Comprehensive eye exams and vision health services at home.",
-    icon: Eye,
-    features: ["Eye exams", "Vision testing", "Prescription updates", "Eye health assessment"],
-    pricing: "Starting at $95/exam",
-    duration: "30-45 minutes",
-    category: "Specialty Care"
-  }
-];
+// Icon mapping for service types
+const iconMap = {
+  'Stethoscope': Stethoscope,
+  'UserCheck': UserCheck,
+  'Activity': Activity,
+  'Home': Home,
+  'Heart': Heart,
+  'TestTube': TestTube,
+  'Brain': Brain,
+  'Syringe': Syringe,
+  'Smile': Smile,
+  'Ear': Ear,
+  'Eye': Eye,
+  'Footprints': Footprints,
+  'MessageCircle': MessageCircle,
+  'Apple': Apple,
+  'Pill': Pill,
+  'Droplets': Droplets
+};
+
+// Organize services by categories
+const organizedServices = {
+  'Essential Care': serviceCategories.filter(s => ['General Practice', 'Nursing Services', 'Mobile Lab Tests', 'Vaccinations'].includes(s.name)),
+  'Therapy Services': serviceCategories.filter(s => ['Physical Therapy', 'Occupational Therapy', 'Mental Health', 'Speech Therapy'].includes(s.name)),
+  'Specialized Care': serviceCategories.filter(s => ['Dental Care', 'Vision Care', 'Hearing Services', 'Podiatry'].includes(s.name)),
+  'Advanced Services': serviceCategories.filter(s => ['Palliative Care', 'IV Therapy', 'Nutrition', 'Pharmacy'].includes(s.name))
+};
 
 const emergencyServices = [
   {
@@ -148,7 +85,7 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Regular Services */}
+      {/* All Services by Category */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -161,61 +98,60 @@ export default function Services() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => {
-              const IconComponent = service.icon;
-              return (
-                <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <IconComponent className="h-6 w-6 text-white" />
-                      </div>
-                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 font-medium">
-                        {service.category}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-[hsl(207,90%,54%)] transition-colors">
-                      {service.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-gray-600 leading-relaxed">
-                      {service.description}
-                    </p>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Clock className="h-4 w-4 mr-2 text-[hsl(207,90%,54%)]" />
-                        {service.duration}
-                      </div>
-                      <div className="text-lg font-semibold text-[hsl(207,90%,54%)]">
-                        {service.pricing}
-                      </div>
-                    </div>
+          {Object.entries(organizedServices).map(([categoryName, services], categoryIndex) => (
+            <div key={categoryName} className="mb-16">
+              <div className="flex items-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mr-4">{categoryName}</h3>
+                <div className="flex-1 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                <Badge variant="outline" className="ml-4 text-sm">
+                  {services.length} Services
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {services.map((service) => {
+                  const IconComponent = iconMap[service.icon as keyof typeof iconMap];
+                  return (
+                    <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
+                      <CardHeader className="pb-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            {IconComponent && <IconComponent className="h-6 w-6 text-white" />}
+                          </div>
+                        </div>
+                        <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-[hsl(207,90%,54%)] transition-colors">
+                          {service.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-gray-600 leading-relaxed text-sm">
+                          {service.description}
+                        </p>
+                        
+                        <div className="space-y-2">
+                          <div className="text-lg font-semibold text-[hsl(207,90%,54%)]">
+                            {service.price}
+                          </div>
+                          {service.insurance && (
+                            <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              {service.insurance}
+                            </div>
+                          )}
+                        </div>
 
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-gray-900 text-sm">What's included:</h4>
-                      <ul className="space-y-1">
-                        {service.features.map((feature, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-[hsl(207,90%,54%)] rounded-full mr-2"></div>
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <Link href="/providers">
-                      <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
-                        Book Now
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                        <Link href="/providers">
+                          <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
+                            Book Now
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
