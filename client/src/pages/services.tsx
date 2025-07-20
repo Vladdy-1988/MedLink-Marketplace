@@ -39,24 +39,24 @@ const organizedServices = {
   'Advanced Services': serviceCategories.filter(s => ['Palliative Care', 'IV Therapy', 'Nutrition', 'Pharmacy'].includes(s.name))
 };
 
-const emergencyServices = [
+const rapidServices = [
   {
-    title: "Emergency Nursing",
+    title: "Rapid Nursing Care",
     description: "Urgent nursing care for non-life-threatening medical situations",
     pricing: "Starting at $150/visit",
-    features: ["24/7 availability", "Rapid response", "Emergency assessment", "Care coordination"]
+    features: ["24/7 availability", "Priority response", "Rapid assessment", "Care coordination"]
   },
   {
-    title: "Emergency Lab Services",
+    title: "Rapid Lab Services",
     description: "Urgent blood work and diagnostic testing with expedited results",
     pricing: "Starting at $120/test",
-    features: ["Same-day results", "Priority scheduling", "Urgent sample collection", "Rapid processing"]
+    features: ["Same-day results", "Priority scheduling", "Rapid sample collection", "Expedited processing"]
   },
   {
-    title: "Emergency Mental Health",
+    title: "Rapid Mental Health Support",
     description: "Crisis intervention and urgent mental health support",
     pricing: "Starting at $180/session",
-    features: ["Crisis intervention", "Same-day appointments", "Emergency assessment", "Support coordination"]
+    features: ["Crisis intervention", "Same-day appointments", "Priority assessment", "Support coordination"]
   }
 ];
 
@@ -155,32 +155,32 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Emergency Services */}
-      <section className="py-16 bg-gradient-to-r from-red-50 to-orange-50">
+      {/* Rapid Services */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-4">
-              <Zap className="h-8 w-8 text-red-600 mr-3" />
+              <Zap className="h-8 w-8 text-blue-600 mr-3" />
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">
-                Emergency Care Services
+                Rapid Care Services
               </h2>
             </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              When you need urgent care, our emergency services provide rapid response 
-              with higher priority scheduling and premium pricing.
+              When you need urgent care, our rapid services provide fast response 
+              with priority scheduling and immediate attention.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {emergencyServices.map((service, index) => (
-              <Card key={index} className="border-2 border-red-200 hover:border-red-300 transition-all duration-300 shadow-lg hover:shadow-xl">
+            {rapidServices.map((service, index) => (
+              <Card key={index} className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl">
                 <CardHeader>
                   <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center mr-3">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
                       <Zap className="h-5 w-5 text-white" />
                     </div>
-                    <Badge className="bg-red-600 text-white font-medium">
-                      EMERGENCY
+                    <Badge className="bg-blue-600 text-white font-medium">
+                      RAPID
                     </Badge>
                   </div>
                   <CardTitle className="text-xl font-bold text-gray-900">
@@ -192,16 +192,16 @@ export default function Services() {
                     {service.description}
                   </p>
                   
-                  <div className="text-lg font-semibold text-red-600">
+                  <div className="text-lg font-semibold text-blue-600">
                     {service.pricing}
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-900 text-sm">Emergency features:</h4>
+                    <h4 className="font-semibold text-gray-900 text-sm">Rapid service features:</h4>
                     <ul className="space-y-1">
                       {service.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="text-sm text-gray-600 flex items-center">
-                          <div className="w-1.5 h-1.5 bg-red-600 rounded-full mr-2"></div>
+                          <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></div>
                           {feature}
                         </li>
                       ))}
@@ -209,8 +209,8 @@ export default function Services() {
                   </div>
 
                   <Link href="/providers">
-                    <Button className="w-full bg-red-600 hover:bg-red-700 font-semibold rounded-lg">
-                      Request Emergency Care
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg">
+                      Request Rapid Care
                     </Button>
                   </Link>
                 </CardContent>
@@ -219,10 +219,10 @@ export default function Services() {
           </div>
 
           <div className="mt-8 text-center">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 max-w-2xl mx-auto">
-              <p className="text-sm text-yellow-800 font-medium">
-                <strong>Important:</strong> Emergency services are for urgent, non-life-threatening situations only. 
-                For life-threatening emergencies, please call 911 immediately.
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 max-w-2xl mx-auto">
+              <p className="text-sm text-amber-800 font-medium">
+                <strong>Important:</strong> Rapid services are for urgent, non-life-threatening situations only. 
+                For life-threatening situations, please call 911 immediately.
               </p>
             </div>
           </div>

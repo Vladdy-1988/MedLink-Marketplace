@@ -16,7 +16,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import ProviderRegistration from "@/pages/provider-registration-optimized";
 import Services from "@/pages/services";
 import HowItWorks from "@/pages/how-it-works";
-import EmergencyCare from "@/pages/emergency-care";
+import RapidServices from "@/pages/rapid-services";
 import About from "@/pages/about";
 import Safety from "@/pages/safety";
 import Support from "@/pages/support";
@@ -34,7 +34,7 @@ function Router() {
           <Route path="/apply" component={ProviderRegistration} />
           <Route path="/services" component={Services} />
           <Route path="/how-it-works" component={HowItWorks} />
-          <Route path="/emergency-care" component={EmergencyCare} />
+          <Route path="/rapid-services" component={RapidServices} />
           <Route path="/about" component={About} />
           <Route path="/safety" component={Safety} />
           <Route path="/support" component={Support} />
@@ -48,7 +48,7 @@ function Router() {
           <Route path="/apply" component={ProviderRegistration} />
           <Route path="/services" component={Services} />
           <Route path="/how-it-works" component={HowItWorks} />
-          <Route path="/emergency-care" component={EmergencyCare} />
+          <Route path="/rapid-services" component={RapidServices} />
           <Route path="/about" component={About} />
           <Route path="/safety" component={Safety} />
           <Route path="/support" component={Support} />

@@ -125,6 +125,13 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 
 ## Recent Changes (January 2025)
 
+### Terminology and Branding Update (Latest)
+- **Emergency to Rapid Services**: Changed all "emergency" terminology to "rapid services" for better market positioning
+- **Color Scheme Update**: Replaced red/orange emergency branding with blue/purple rapid service theme
+- **Route Updates**: Changed `/emergency-care` to `/rapid-services` throughout the application
+- **Content Alignment**: Updated all service descriptions, pricing, and messaging to reflect urgent but non-emergency care
+- **Footer Navigation**: Fixed all footer links to work properly with dedicated pages
+
 ### Design System Overhaul
 - **Rebranded to MedLink**: Updated logo to house-with-heart design, changed name from "Medlink" to "MedLink" (capital L)
 - **Logo Redesign**: Updated to clean house outline with rounded corners, no door, and perfectly centered heart (matching reference design)
@@ -149,9 +156,12 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Interactive Service Cards**: Added hover effects and animations to service displays
 
 ### New Pages Added
-- **Services Page**: Comprehensive overview of all medical services with emergency care section
+- **Services Page**: Comprehensive overview of all medical services with rapid care section
 - **How It Works Page**: 5-step process explanation with benefits and FAQ sections  
-- **Emergency Care Page**: Dedicated page explaining premium pricing for urgent services
+- **Rapid Services Page**: Dedicated page explaining priority pricing for urgent services
+- **About Us Page**: Comprehensive company information with mission, vision, and story
+- **Safety & Trust Page**: Provider verification process and security measures  
+- **Support Center Page**: FAQ, contact forms, and help categories
 - **Optimized Routes**: All menu options now have functional dedicated pages
 
 ### Performance Optimizations

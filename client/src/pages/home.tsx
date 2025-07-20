@@ -132,12 +132,12 @@ export default function Home() {
               </Card>
             </Link>
             
-            <Link href="/emergency-care">
+            <Link href="/rapid-services">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <UserCheck className="h-5 w-5 mr-2 text-[hsl(259,78%,60%)]" />
-                    Emergency Care
+                    Rapid Services
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

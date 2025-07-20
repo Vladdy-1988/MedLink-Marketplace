@@ -113,7 +113,7 @@ const faqs = [
   },
   {
     question: "How much do services cost?",
-    answer: "Pricing varies by service type and provider. You'll see transparent pricing before booking, with no hidden fees. Most services range from $60-150 per visit, with emergency services having premium pricing."
+    answer: "Pricing varies by service type and provider. You'll see transparent pricing before booking, with no hidden fees. Most services range from $60-150 per visit, with rapid services having priority pricing."
   },
   {
     question: "What if I need to cancel or reschedule?",
@@ -124,8 +124,8 @@ const faqs = [
     answer: "Some services may be covered by Alberta Health or private insurance. We provide detailed receipts that you can submit to your insurance provider for potential reimbursement."
   },
   {
-    question: "What happens in case of an emergency?",
-    answer: "For life-threatening emergencies, always call 911. Our emergency services are for urgent, non-life-threatening situations that require prompt professional attention."
+    question: "What if I need urgent care?",
+    answer: "For life-threatening situations, always call 911. Our rapid services are for urgent, non-life-threatening situations that require prompt professional attention."
   }
 ];
 
