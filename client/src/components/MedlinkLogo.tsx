@@ -26,7 +26,7 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full"
         >
-          {/* Medical cross background */}
+          {/* Background circle */}
           <circle
             cx="20"
             cy="20"
@@ -35,23 +35,29 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
             className="drop-shadow-md"
           />
           
-          {/* Medical cross */}
+          {/* House outline */}
           <path
-            d="M20 8v24M12 20h16"
-            stroke="white"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-          
-          {/* Pulse line overlay */}
-          <path
-            d="M6 20h4l2-4 3 8 3-12 2 4h4l2-2h4"
+            d="M10 18l10-8 10 8v12a2 2 0 01-2 2H12a2 2 0 01-2-2V18z"
             stroke="white"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            opacity="0.8"
             fill="none"
+          />
+          <path
+            d="M15 32v-8a2 2 0 012-2h6a2 2 0 012 2v8"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+          
+          {/* Heart inside */}
+          <path
+            d="M20 26l-2.5-2.3c-2.8-2.5-4.5-4.1-4.5-6.2 0-1.7 1.3-3 3-3 .8 0 1.6.4 2 1 .4-.6 1.2-1 2-1 1.7 0 3 1.3 3 3 0 2.1-1.7 3.7-4.5 6.2L20 26z"
+            fill="white"
+            opacity="0.9"
           />
           
           {/* Gradient definition */}
@@ -66,8 +72,8 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
       </div>
       
       {showText && (
-        <span className={`font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent ${textSizeClasses[size]}`}>
-          Medlink
+        <span className={`font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent ${textSizeClasses[size]} tracking-tight`}>
+          Med<span className="text-[hsl(207,90%,54%)]">L</span>ink
         </span>
       )}
     </div>

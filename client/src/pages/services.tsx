@@ -1,0 +1,321 @@
+import React from "react";
+import Navigation from "@/components/Navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { 
+  Stethoscope, 
+  Heart, 
+  Activity, 
+  Syringe, 
+  Thermometer, 
+  Pill, 
+  UserCheck, 
+  Brain,
+  Eye,
+  Ear,
+  Zap,
+  Clock
+} from "lucide-react";
+
+const services = [
+  {
+    id: 1,
+    title: "Nursing Care",
+    description: "Professional nursing services including wound care, medication management, and health monitoring.",
+    icon: Stethoscope,
+    features: ["Wound care", "Medication administration", "Vital signs monitoring", "Health assessments"],
+    pricing: "Starting at $80/visit",
+    duration: "30-60 minutes",
+    category: "Primary Care"
+  },
+  {
+    id: 2,
+    title: "Physiotherapy",
+    description: "Rehabilitation and mobility therapy to help you recover and maintain physical health.",
+    icon: Activity,
+    features: ["Movement therapy", "Pain management", "Exercise programs", "Mobility assessment"],
+    pricing: "Starting at $100/session",
+    duration: "45-60 minutes",
+    category: "Rehabilitation"
+  },
+  {
+    id: 3,
+    title: "Lab Services",
+    description: "Convenient blood work and diagnostic testing in the comfort of your home.",
+    icon: Syringe,
+    features: ["Blood draws", "Diagnostic testing", "Sample collection", "Results coordination"],
+    pricing: "Starting at $60/test",
+    duration: "15-30 minutes",
+    category: "Diagnostics"
+  },
+  {
+    id: 4,
+    title: "Mental Health Counseling",
+    description: "Professional mental health support and counseling services.",
+    icon: Brain,
+    features: ["Individual therapy", "Stress management", "Coping strategies", "Mental health assessment"],
+    pricing: "Starting at $120/session",
+    duration: "50-60 minutes",
+    category: "Mental Health"
+  },
+  {
+    id: 5,
+    title: "Dental Hygiene",
+    description: "Professional dental cleaning and oral health maintenance services.",
+    icon: Thermometer,
+    features: ["Teeth cleaning", "Oral health assessment", "Preventive care", "Hygiene education"],
+    pricing: "Starting at $90/session",
+    duration: "45-60 minutes",
+    category: "Dental Care"
+  },
+  {
+    id: 6,
+    title: "Massage Therapy",
+    description: "Therapeutic massage for pain relief, relaxation, and wellness.",
+    icon: Heart,
+    features: ["Therapeutic massage", "Pain relief", "Stress reduction", "Wellness therapy"],
+    pricing: "Starting at $100/session",
+    duration: "60-90 minutes",
+    category: "Wellness"
+  },
+  {
+    id: 7,
+    title: "Nutrition Counseling",
+    description: "Personalized nutrition planning and dietary guidance from certified nutritionists.",
+    icon: Pill,
+    features: ["Diet planning", "Nutritional assessment", "Health coaching", "Meal planning"],
+    pricing: "Starting at $85/consultation",
+    duration: "45-60 minutes",
+    category: "Wellness"
+  },
+  {
+    id: 8,
+    title: "Vision Care",
+    description: "Comprehensive eye exams and vision health services at home.",
+    icon: Eye,
+    features: ["Eye exams", "Vision testing", "Prescription updates", "Eye health assessment"],
+    pricing: "Starting at $95/exam",
+    duration: "30-45 minutes",
+    category: "Specialty Care"
+  }
+];
+
+const emergencyServices = [
+  {
+    title: "Emergency Nursing",
+    description: "Urgent nursing care for non-life-threatening medical situations",
+    pricing: "Starting at $150/visit",
+    features: ["24/7 availability", "Rapid response", "Emergency assessment", "Care coordination"]
+  },
+  {
+    title: "Emergency Lab Services",
+    description: "Urgent blood work and diagnostic testing with expedited results",
+    pricing: "Starting at $120/test",
+    features: ["Same-day results", "Priority scheduling", "Urgent sample collection", "Rapid processing"]
+  },
+  {
+    title: "Emergency Mental Health",
+    description: "Crisis intervention and urgent mental health support",
+    pricing: "Starting at $180/session",
+    features: ["Crisis intervention", "Same-day appointments", "Emergency assessment", "Support coordination"]
+  }
+];
+
+export default function Services() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <Navigation />
+      
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
+              Our Healthcare Services
+            </h1>
+            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Professional, convenient, and personalized healthcare services delivered to your home in Calgary. 
+              Experience quality care without the hassle of travel.
+            </p>
+            <Link href="/providers">
+              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl">
+                Book a Service
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Regular Services */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+              Complete Healthcare Solutions
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              From routine care to specialized treatments, our certified healthcare professionals 
+              bring quality medical services directly to your doorstep.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service) => {
+              const IconComponent = service.icon;
+              return (
+                <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <IconComponent className="h-6 w-6 text-white" />
+                      </div>
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 font-medium">
+                        {service.category}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-[hsl(207,90%,54%)] transition-colors">
+                      {service.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-gray-600 leading-relaxed">
+                      {service.description}
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Clock className="h-4 w-4 mr-2 text-[hsl(207,90%,54%)]" />
+                        {service.duration}
+                      </div>
+                      <div className="text-lg font-semibold text-[hsl(207,90%,54%)]">
+                        {service.pricing}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-gray-900 text-sm">What's included:</h4>
+                      <ul className="space-y-1">
+                        {service.features.map((feature, index) => (
+                          <li key={index} className="text-sm text-gray-600 flex items-center">
+                            <div className="w-1.5 h-1.5 bg-[hsl(207,90%,54%)] rounded-full mr-2"></div>
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <Link href="/providers">
+                      <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
+                        Book Now
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Emergency Services */}
+      <section className="py-16 bg-gradient-to-r from-red-50 to-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-4">
+              <Zap className="h-8 w-8 text-red-600 mr-3" />
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">
+                Emergency Care Services
+              </h2>
+            </div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              When you need urgent care, our emergency services provide rapid response 
+              with higher priority scheduling and premium pricing.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {emergencyServices.map((service, index) => (
+              <Card key={index} className="border-2 border-red-200 hover:border-red-300 transition-all duration-300 shadow-lg hover:shadow-xl">
+                <CardHeader>
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center mr-3">
+                      <Zap className="h-5 w-5 text-white" />
+                    </div>
+                    <Badge className="bg-red-600 text-white font-medium">
+                      EMERGENCY
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-900">
+                    {service.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 leading-relaxed">
+                    {service.description}
+                  </p>
+                  
+                  <div className="text-lg font-semibold text-red-600">
+                    {service.pricing}
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-gray-900 text-sm">Emergency features:</h4>
+                    <ul className="space-y-1">
+                      {service.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="text-sm text-gray-600 flex items-center">
+                          <div className="w-1.5 h-1.5 bg-red-600 rounded-full mr-2"></div>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Link href="/providers">
+                    <Button className="w-full bg-red-600 hover:bg-red-700 font-semibold rounded-lg">
+                      Request Emergency Care
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 max-w-2xl mx-auto">
+              <p className="text-sm text-yellow-800 font-medium">
+                <strong>Important:</strong> Emergency services are for urgent, non-life-threatening situations only. 
+                For life-threatening emergencies, please call 911 immediately.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-16 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight">
+            Ready to Get Started?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Book your appointment today and experience the convenience of professional healthcare at home.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/providers">
+              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl">
+                Browse Providers
+              </Button>
+            </Link>
+            <Link href="/apply">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-[hsl(207,90%,54%)] font-semibold px-8 py-3 rounded-xl">
+                Become a Provider
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

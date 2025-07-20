@@ -204,13 +204,13 @@ export default function PatientDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center">
                     <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <DollarSign className="h-6 w-6 text-[hsl(259,78%,60%)]" />
+                      <Users className="h-6 w-6 text-[hsl(259,78%,60%)]" />
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">
-                        {bookingsLoading ? <Skeleton className="h-6 w-12" /> : `$${totalSpent.toFixed(0)}`}
+                        {bookingsLoading ? <Skeleton className="h-6 w-8" /> : totalProviders}
                       </div>
-                      <div className="text-sm text-gray-600">Total Spent</div>
+                      <div className="text-sm text-gray-600">Providers Used</div>
                     </div>
                   </div>
                 </CardContent>

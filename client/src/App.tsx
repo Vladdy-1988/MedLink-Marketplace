@@ -14,6 +14,9 @@ import PatientDashboard from "@/pages/patient-dashboard";
 import ProviderDashboard from "@/pages/provider-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
 import ProviderRegistration from "@/pages/provider-registration-optimized";
+import Services from "@/pages/services";
+import HowItWorks from "@/pages/how-it-works";
+import EmergencyCare from "@/pages/emergency-care";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -26,6 +29,9 @@ function Router() {
           <Route path="/providers" component={Providers} />
           <Route path="/provider/:id" component={ProviderProfile} />
           <Route path="/apply" component={ProviderRegistration} />
+          <Route path="/services" component={Services} />
+          <Route path="/how-it-works" component={HowItWorks} />
+          <Route path="/emergency-care" component={EmergencyCare} />
         </>
       ) : (
         <>
@@ -34,6 +40,9 @@ function Router() {
           <Route path="/provider/:id" component={ProviderProfile} />
           <Route path="/booking/:providerId/:serviceId" component={Booking} />
           <Route path="/apply" component={ProviderRegistration} />
+          <Route path="/services" component={Services} />
+          <Route path="/how-it-works" component={HowItWorks} />
+          <Route path="/emergency-care" component={EmergencyCare} />
           <Route path="/dashboard/patient" component={PatientDashboard} />
           <Route path="/dashboard/provider" component={ProviderDashboard} />
           <Route path="/dashboard/admin" component={AdminDashboard} />

@@ -21,12 +21,12 @@ export default function Landing() {
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-display text-5xl lg:text-7xl font-black mb-6 leading-[0.9] text-balance">
               Quality Healthcare
               <span className="block">Delivered to Your Door</span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-              Connect with licensed healthcare providers in Calgary for professional in-home medical services through Medlink. Safe, convenient, and trusted.
+            <p className="text-xl lg:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto font-medium text-balance leading-relaxed">
+              Connect with licensed healthcare providers in Calgary for professional in-home medical services through MedLink. Safe, convenient, and trusted.
             </p>
             
             {/* Search Bar */}

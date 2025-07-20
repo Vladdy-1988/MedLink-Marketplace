@@ -7,6 +7,8 @@ MedLink House Calls is a comprehensive healthcare marketplace application that c
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Design preference: Modern Dribbble-inspired marketplace design with sophisticated typography.
+Branding: MedLink (capital L) with house-with-heart logo design.
 
 ## System Architecture
 
@@ -120,6 +122,26 @@ Preferred communication style: Simple, everyday language.
 - **Request Logging**: Built-in Express middleware for API monitoring
 - **Error Handling**: Centralized error handling with proper HTTP status codes
 - **Performance**: Query optimization through Drizzle ORM
+
+## Recent Changes (January 2025)
+
+### Design System Overhaul
+- **Rebranded to MedLink**: Updated logo to house-with-heart design, changed name from "Medlink" to "MedLink" (capital L)
+- **Modern Typography**: Implemented Dribbble-inspired design with DM Sans and Inter fonts
+- **Enhanced UX**: Added dedicated pages for Services, How It Works, and Emergency Care
+- **Navigation Updates**: Fixed all hyperlinks and menu items to have proper dedicated pages
+- **Dashboard Improvements**: Removed "Total Spent" feature from patient dashboard, replaced with "Providers Used" metric
+
+### New Pages Added
+- **Services Page**: Comprehensive overview of all medical services with emergency care section
+- **How It Works Page**: 5-step process explanation with benefits and FAQ sections  
+- **Emergency Care Page**: Dedicated page explaining premium pricing for urgent services
+- **Optimized Routes**: All menu options now have functional dedicated pages
+
+### Performance Optimizations
+- **React Optimization**: Fixed infinite re-rendering issues in provider registration
+- **Component Memoization**: Added React.memo and useCallback optimizations throughout
+- **Enhanced Caching**: Improved query client configuration with better error handling
 
 ## Notable Architectural Decisions
 

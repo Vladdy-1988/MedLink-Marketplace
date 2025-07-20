@@ -45,18 +45,12 @@ export default function Navigation() {
                 <Link href="/providers" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">
                   Find Providers
                 </Link>
-                <button 
-                  onClick={handleServicesClick}
-                  className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
-                >
+                <Link href="/services" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">
                   Services
-                </button>
-                <button 
-                  onClick={handleHowItWorksClick}
-                  className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
-                >
+                </Link>
+                <Link href="/how-it-works" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">
                   How It Works
-                </button>
+                </Link>
                 {!isAuthenticated && (
                   <Link href="/apply">
                     <button 

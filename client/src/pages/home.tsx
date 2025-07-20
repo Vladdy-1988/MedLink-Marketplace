@@ -132,17 +132,19 @@ export default function Home() {
               </Card>
             </Link>
             
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <UserCheck className="h-5 w-5 mr-2 text-[hsl(259,78%,60%)]" />
-                  Emergency Care
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Access urgent healthcare services</p>
-              </CardContent>
-            </Card>
+            <Link href="/emergency-care">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <UserCheck className="h-5 w-5 mr-2 text-[hsl(259,78%,60%)]" />
+                    Emergency Care
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">Access urgent healthcare services with priority scheduling</p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
