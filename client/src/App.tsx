@@ -13,6 +13,7 @@ import Booking from "@/pages/booking";
 import PatientDashboard from "@/pages/patient-dashboard";
 import ProviderDashboard from "@/pages/provider-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
+import ProviderRegistration from "@/pages/provider-registration";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/providers" component={Providers} />
           <Route path="/provider/:id" component={ProviderProfile} />
+          <Route path="/apply" component={ProviderRegistration} />
         </>
       ) : (
         <>
@@ -31,6 +33,7 @@ function Router() {
           <Route path="/providers" component={Providers} />
           <Route path="/provider/:id" component={ProviderProfile} />
           <Route path="/booking/:providerId/:serviceId" component={Booking} />
+          <Route path="/apply" component={ProviderRegistration} />
           <Route path="/dashboard/patient" component={PatientDashboard} />
           <Route path="/dashboard/provider" component={ProviderDashboard} />
           <Route path="/dashboard/admin" component={AdminDashboard} />

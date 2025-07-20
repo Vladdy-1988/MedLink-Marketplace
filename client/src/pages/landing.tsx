@@ -160,9 +160,11 @@ export default function Landing() {
                 <p className="text-blue-100">Connect with patients seeking home care</p>
               </div>
             </div>
-            <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
-              Apply to Become a Provider
-            </Button>
+            <Link href="/apply">
+              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+                Apply to Become a Provider
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -53,18 +53,13 @@ export default function Navigation() {
                   How It Works
                 </button>
                 {!isAuthenticated && (
-                  <button 
-                    onClick={() => {
-                      if (location === '/') {
-                        document.getElementById('become-provider')?.scrollIntoView({ behavior: 'smooth' });
-                      } else {
-                        window.location.href = '/#become-provider';
-                      }
-                    }}
-                    className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
-                  >
-                    Become a Provider
-                  </button>
+                  <Link href="/apply">
+                    <button 
+                      className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
+                    >
+                      Become a Provider
+                    </button>
+                  </Link>
                 )}
               </div>
             </div>
