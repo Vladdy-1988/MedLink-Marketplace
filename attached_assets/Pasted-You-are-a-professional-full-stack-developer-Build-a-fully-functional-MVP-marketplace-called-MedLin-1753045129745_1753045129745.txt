@@ -1,0 +1,52 @@
+You are a professional full-stack developer. Build a fully functional MVP marketplace called "MedLink House Calls," using Next.js, React, Tailwind CSS, and Firebase, specifically designed to connect patients with qualified healthcare providers who offer home-visit medical services.
+
+About MedLink House Calls:
+MedLink House Calls is an online marketplace (similar to Airbnb but for healthcare) based in Calgary, Canada, that helps patients conveniently book a wide range of in-home medical and wellness services. Each provider is vetted, background-checked, and licensed, providing transparency, security, and trust for patients.
+
+Services Offered by Providers:
+Nursing (in-home care, wound care, medication management)
+Dental hygiene and Denture services
+Physiotherapy and rehabilitation
+Occupational and speech therapy
+Palliative care and Post-operative care
+Blood work and lab services
+Vision and hearing care
+Chiropractic care
+Dietitian and nutritionist consultations
+Pharmacy consultations and medication reviews
+Alternative therapies (acupuncture, massage)
+Core Marketplace Features Needed:
+Patient Side:
+
+Homepage: Search/filter by service type, availability, provider location (Calgary area).
+Provider Listings: Profile cards with photo, services, ratings, prices.
+Provider Profile Page: Detailed bio, certifications, reviews, offered services, calendar-based availability.
+Booking Form: Step-by-step booking workflow (service selection, address, date/time, patient notes, payment via Stripe integration).
+User Dashboard: See/manage upcoming and past bookings, message providers securely.
+Review & Rating: Allow patients to leave feedback after services.
+Provider Side:
+
+Provider Onboarding: Providers sign up, submit credentials/licenses/documents, set services, pricing, and availability; admin approval workflow.
+Provider Dashboard: Edit profile, manage calendar, view booking requests, respond to messages, track earnings/payouts.
+Notifications: Email/SMS notifications for new bookings, changes, and messages.
+Admin Side:
+
+Admin Panel: Approve or reject provider applications, manage providers and patients, oversee bookings and payments, view analytics dashboard.
+Analytics Dashboard: User growth, booking frequency, provider popularity, customer satisfaction.
+Technical Specifications:
+Frontend: Next.js (with React components and pages).
+Styling/UI: Tailwind CSS (mobile-responsive, modern, clean aesthetic).
+Backend: Firebase (Firestore for data storage, Authentication, and secure messaging between patients/providers).
+Payments: Stripe for secure online payments.
+Security/Compliance: HTTPS, user authentication (Firebase Auth), data encryption, consent checkbox (privacy policy), and compliance with Canadian data privacy laws (PIPEDA).
+Project Deliverables:
+A fully scaffolded Next.js + Tailwind CSS application, organized into clearly structured components/pages.
+Firebase integration, including user authentication, data storage in Firestore, secure chat functionality.
+Stripe payment integration, ready-to-use for booking services.
+Admin panel for managing providers, patients, bookings, and analytics.
+Simple instructions on how to run and deploy the project easily on Replit or Vercel.
+First Step:
+
+Create a basic working version of the patient homepage, provider listings, provider profiles, and booking flow using mock data.
+Clearly structure code with comments for easy future expansion and customization.
+Ask for clarification if any detail is unclear before generating the full codebas
