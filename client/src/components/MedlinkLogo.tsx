@@ -35,29 +35,28 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
             className="drop-shadow-md"
           />
           
-          {/* House outline without door */}
+          {/* House outline with rounded corners - no door */}
           <path
-            d="M10 18l10-8 10 8v12a2 2 0 01-2 2H12a2 2 0 01-2-2V18z"
+            d="M8 19l12-10 12 10v13c0 1.5-1.2 3-3 3H11c-1.8 0-3-1.5-3-3V19z"
             stroke="white"
-            strokeWidth="1.8"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
+            rx="3"
           />
           
-          {/* Centered Heart */}
+          {/* Perfectly Centered Heart */}
           <path
-            d="M20 24l-3-2.7c-3.2-2.9-5-4.6-5-7 0-2 1.5-3.5 3.5-3.5 1 0 1.9.5 2.5 1.2.6-.7 1.5-1.2 2.5-1.2 2 0 3.5 1.5 3.5 3.5 0 2.4-1.8 4.1-5 7L20 24z"
+            d="M20 26l-2.5-2.3c-2.5-2.3-4-3.7-4-5.5 0-1.5 1.2-2.7 2.7-2.7.7 0 1.4.3 1.8.8.4-.5 1.1-.8 1.8-.8 1.5 0 2.7 1.2 2.7 2.7 0 1.8-1.5 3.2-4 5.5L20 26z"
             fill="white"
-            opacity="0.95"
           />
           
           {/* Gradient definition */}
           <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" />
-              <stop offset="50%" stopColor="#1E40AF" />
-              <stop offset="100%" stopColor="#1E3A8A" />
+              <stop offset="0%" stopColor="hsl(207, 90%, 54%)" />
+              <stop offset="100%" stopColor="hsl(259, 78%, 60%)" />
             </linearGradient>
           </defs>
         </svg>
