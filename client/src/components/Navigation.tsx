@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Heart } from "lucide-react";
+import { MedlinkLogo } from "./MedlinkLogo";
 
 export default function Navigation() {
   const { isAuthenticated, user } = useAuth();
@@ -21,8 +21,7 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Heart className="h-8 w-8 medical-blue mr-2" />
-              <span className="text-xl font-bold text-gray-900">MedLink House Calls</span>
+              <MedlinkLogo size="md" />
             </Link>
             <div className="hidden md:block ml-10">
               <div className="flex items-center space-x-8">
@@ -41,21 +40,21 @@ export default function Navigation() {
             {isAuthenticated ? (
               <>
                 {user?.userType === 'provider' && (
-                  <Link href="/dashboard/provider">
+                  <Link href="/provider-dashboard">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
                       Provider Dashboard
                     </Button>
                   </Link>
                 )}
                 {user?.userType === 'admin' && (
-                  <Link href="/dashboard/admin">
+                  <Link href="/admin-dashboard">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
                       Admin Panel
                     </Button>
                   </Link>
                 )}
                 {user?.userType === 'patient' && (
-                  <Link href="/dashboard/patient">
+                  <Link href="/patient-dashboard">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
                       My Dashboard
                     </Button>

@@ -42,41 +42,43 @@ export default function PatientDashboard() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
-  const { data: bookings, isLoading: bookingsLoading } = useQuery({
+  const { data: bookings, isLoading: bookingsLoading, error: bookingsError } = useQuery({
     queryKey: ["/api/bookings/patient", user?.id],
-    enabled: !!user?.id,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
+    enabled: !!user?.id && isAuthenticated,
   });
 
-  const { data: conversations, isLoading: conversationsLoading } = useQuery({
+  // Handle booking errors
+  useEffect(() => {
+    if (bookingsError && isUnauthorizedError(bookingsError as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [bookingsError, toast]);
+
+  const { data: conversations, isLoading: conversationsLoading, error: conversationsError } = useQuery({
     queryKey: ["/api/conversations", user?.id],
-    enabled: !!user?.id,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
+    enabled: !!user?.id && isAuthenticated,
   });
+
+  // Handle conversation errors
+  useEffect(() => {
+    if (conversationsError && isUnauthorizedError(conversationsError as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [conversationsError, toast]);
 
   if (authLoading) {
     return (
@@ -106,15 +108,15 @@ export default function PatientDashboard() {
     return null;
   }
 
-  const upcomingBookings = bookings?.filter((booking: any) => 
+  const upcomingBookings = (bookings as any[])?.filter((booking: any) => 
     booking.status === 'confirmed' && new Date(booking.scheduledDate) > new Date()
   ) || [];
   
-  const completedBookings = bookings?.filter((booking: any) => 
+  const completedBookings = (bookings as any[])?.filter((booking: any) => 
     booking.status === 'completed'
   ) || [];
 
-  const totalProviders = new Set(bookings?.map((booking: any) => booking.providerId) || []).size;
+  const totalProviders = new Set((bookings as any[])?.map((booking: any) => booking.providerId) || []).size;
   const totalSpent = completedBookings.reduce((sum: number, booking: any) => 
     sum + parseFloat(booking.totalAmount || 0), 0
   );
@@ -312,14 +314,14 @@ export default function PatientDashboard() {
                       </div>
                     ))}
                   </div>
-                ) : conversations?.length === 0 ? (
+                ) : (conversations as any[])?.length === 0 ? (
                   <div className="text-center py-8">
                     <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">No messages yet</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-200">
-                    {conversations?.slice(0, 3).map((conversation: any, index: number) => (
+                    {(conversations as any[])?.slice(0, 3).map((conversation: any, index: number) => (
                       <div key={index} className="p-6 hover:bg-gray-50 transition-colors cursor-pointer">
                         <div className="flex items-start">
                           <div className="w-10 h-10 bg-[hsl(207,90%,54%)] rounded-full flex items-center justify-center text-white font-semibold">

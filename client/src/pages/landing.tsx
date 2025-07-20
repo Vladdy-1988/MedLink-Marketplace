@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "wouter";
 import { featuredProviders } from "@/lib/mockData";
-import { Search, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { MedlinkLogo } from "@/components/MedlinkLogo";
 
 export default function Landing() {
   return (
@@ -24,7 +25,7 @@ export default function Landing() {
               <span className="block">Delivered to Your Door</span>
             </h1>
             <p className="text-xl lg:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-              Connect with licensed healthcare providers in Calgary for professional in-home medical services. Safe, convenient, and trusted.
+              Connect with licensed healthcare providers in Calgary for professional in-home medical services through Medlink. Safe, convenient, and trusted.
             </p>
             
             {/* Search Bar */}
@@ -133,8 +134,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center mb-6">
-                <Heart className="h-8 w-8 text-[hsl(207,90%,54%)] mr-2" />
-                <span className="text-xl font-bold">MedLink House Calls</span>
+                <MedlinkLogo size="md" />
               </div>
               <p className="text-gray-400 mb-6 max-w-md">
                 Connecting patients with qualified healthcare providers for professional in-home medical services across Calgary. Safe, convenient, and trusted healthcare at your doorstep.

@@ -73,6 +73,19 @@
   }
 }
 
+/* Healthcare specific utility classes */
+.medical-blue {
+  color: hsl(207, 90%, 54%);
+}
+
+.trust-green {
+  color: hsl(159, 100%, 34%);
+}
+
+.medical-purple {
+  color: hsl(259, 78%, 60%);
+}
+
 @layer components {
   .medical-blue {
     @apply text-[hsl(207,90%,54%)];

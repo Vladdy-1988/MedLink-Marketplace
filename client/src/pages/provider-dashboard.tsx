@@ -40,41 +40,43 @@ export default function ProviderDashboard() {
     }
   }, [isAuthenticated, authLoading, user, toast]);
 
-  const { data: provider, isLoading: providerLoading } = useQuery({
+  const { data: provider, isLoading: providerLoading, error: providerError } = useQuery({
     queryKey: ["/api/providers/user", user?.id],
-    enabled: !!user?.id && user?.userType === 'provider',
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
+    enabled: !!user?.id && user?.userType === 'provider' && isAuthenticated,
   });
 
-  const { data: bookings, isLoading: bookingsLoading } = useQuery({
-    queryKey: ["/api/bookings/provider", provider?.id],
-    enabled: !!provider?.id,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
+  // Handle provider errors
+  useEffect(() => {
+    if (providerError && isUnauthorizedError(providerError as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [providerError, toast]);
+
+  const { data: bookings, isLoading: bookingsLoading, error: bookingsError } = useQuery({
+    queryKey: ["/api/bookings/provider", (provider as any)?.id],
+    enabled: !!(provider as any)?.id && isAuthenticated,
   });
+
+  // Handle booking errors
+  useEffect(() => {
+    if (bookingsError && isUnauthorizedError(bookingsError as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [bookingsError, toast]);
 
   if (authLoading || providerLoading) {
     return (
@@ -105,7 +107,7 @@ export default function ProviderDashboard() {
     return null;
   }
 
-  const thisWeekBookings = bookings?.filter((booking: any) => {
+  const thisWeekBookings = (bookings as any[])?.filter((booking: any) => {
     const bookingDate = new Date(booking.scheduledDate);
     const now = new Date();
     const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
@@ -113,11 +115,11 @@ export default function ProviderDashboard() {
     return bookingDate >= weekStart && bookingDate <= weekEnd;
   }) || [];
 
-  const completedBookings = bookings?.filter((booking: any) => 
+  const completedBookings = (bookings as any[])?.filter((booking: any) => 
     booking.status === 'completed'
   ) || [];
 
-  const totalPatients = new Set(bookings?.map((booking: any) => booking.patientId) || []).size;
+  const totalPatients = new Set((bookings as any[])?.map((booking: any) => booking.patientId) || []).size;
   
   const thisMonthEarnings = completedBookings
     .filter((booking: any) => {
@@ -127,7 +129,7 @@ export default function ProviderDashboard() {
     })
     .reduce((sum: number, booking: any) => sum + parseFloat(booking.totalAmount || 0), 0);
 
-  const todayBookings = bookings?.filter((booking: any) => {
+  const todayBookings = (bookings as any[])?.filter((booking: any) => {
     const bookingDate = new Date(booking.scheduledDate);
     const today = new Date();
     return bookingDate.toDateString() === today.toDateString();
@@ -181,7 +183,7 @@ export default function ProviderDashboard() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Provider Status */}
-            {!provider.isApproved && (
+            {!(provider as any)?.isApproved && (
               <Card className="mb-8 border-orange-200 bg-orange-50">
                 <CardContent className="p-6">
                   <div className="flex items-center">
@@ -239,7 +241,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">
-                        {provider.rating || '0.0'}
+                        {(provider as any)?.rating || '0.0'}
                       </div>
                       <div className="text-sm text-gray-600">Rating</div>
                     </div>

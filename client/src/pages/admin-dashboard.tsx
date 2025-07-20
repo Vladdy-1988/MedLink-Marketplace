@@ -43,41 +43,43 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, authLoading, user, toast]);
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ["/api/admin/stats"],
-    enabled: !!user?.id && user?.userType === 'admin',
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
+    enabled: !!user?.id && user?.userType === 'admin' && isAuthenticated,
   });
 
-  const { data: pendingProviders, isLoading: pendingLoading } = useQuery({
+  // Handle stats errors
+  useEffect(() => {
+    if (statsError && isUnauthorizedError(statsError as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [statsError, toast]);
+
+  const { data: pendingProviders, isLoading: pendingLoading, error: pendingError } = useQuery({
     queryKey: ["/api/admin/pending-providers"],
-    enabled: !!user?.id && user?.userType === 'admin',
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
+    enabled: !!user?.id && user?.userType === 'admin' && isAuthenticated,
   });
+
+  // Handle pending provider errors
+  useEffect(() => {
+    if (pendingError && isUnauthorizedError(pendingError as Error)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [pendingError, toast]);
 
   const approveProviderMutation = useMutation({
     mutationFn: async ({ providerId, isApproved }: { providerId: number; isApproved: boolean }) => {
@@ -203,7 +205,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">
-                        {stats?.providers?.approved || 0}
+                        {(stats as any)?.providers?.approved || 0}
                       </div>
                       <div className="text-sm text-gray-600">Active Providers</div>
                     </div>
@@ -219,7 +221,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">
-                        {stats?.patients?.total || 0}
+                        {(stats as any)?.patients?.total || 0}
                       </div>
                       <div className="text-sm text-gray-600">Registered Patients</div>
                     </div>
@@ -235,7 +237,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">
-                        {stats?.bookings?.total || 0}
+                        {(stats as any)?.bookings?.total || 0}
                       </div>
                       <div className="text-sm text-gray-600">Total Bookings</div>
                     </div>
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">
-                        ${Math.round(stats?.bookings?.revenue || 0).toLocaleString()}
+                        ${Math.round((stats as any)?.bookings?.revenue || 0).toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-600">Total Revenue</div>
                     </div>
@@ -266,7 +268,7 @@ export default function AdminDashboard() {
                 <div className="flex justify-between items-center">
                   <CardTitle>Pending Provider Approvals</CardTitle>
                   <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                    {pendingProviders?.length || 0} Pending
+                    {(pendingProviders as any[])?.length || 0} Pending
                   </Badge>
                 </div>
               </CardHeader>
@@ -294,14 +296,14 @@ export default function AdminDashboard() {
                       </div>
                     ))}
                   </div>
-                ) : pendingProviders?.length === 0 ? (
+                ) : (pendingProviders as any[])?.length === 0 ? (
                   <div className="text-center py-8">
                     <UserCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">No pending provider applications</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-200">
-                    {pendingProviders?.map((provider: any) => (
+                    {(pendingProviders as any[])?.map((provider: any) => (
                       <div key={provider.id} className="p-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">

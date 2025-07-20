@@ -126,25 +126,27 @@ export class DatabaseStorage implements IStorage {
     priceRange?: [number, number];
     rating?: number;
   }): Promise<Provider[]> {
-    let query = db
-      .select()
-      .from(providers)
-      .where(and(eq(providers.isApproved, true), eq(providers.isVerified, true)));
+    const conditions = [
+      eq(providers.isApproved, true),
+      eq(providers.isVerified, true)
+    ];
 
     if (filters.rating) {
-      query = query.where(gte(providers.rating, filters.rating.toString()));
+      conditions.push(gte(providers.rating, filters.rating.toString()));
     }
 
     if (filters.priceRange) {
-      query = query.where(
-        and(
-          gte(providers.basePricing, filters.priceRange[0].toString()),
-          lte(providers.basePricing, filters.priceRange[1].toString())
-        )
+      conditions.push(
+        gte(providers.basePricing, filters.priceRange[0].toString()),
+        lte(providers.basePricing, filters.priceRange[1].toString())
       );
     }
 
-    return await query.orderBy(desc(providers.rating));
+    return await db
+      .select()
+      .from(providers)
+      .where(and(...conditions))
+      .orderBy(desc(providers.rating));
   }
 
   // Service operations
