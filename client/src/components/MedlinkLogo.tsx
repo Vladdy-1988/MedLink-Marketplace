@@ -35,20 +35,20 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
             className="drop-shadow-md"
           />
           
-          {/* House outline matching reference - rounded corners, no door */}
+          {/* House outline centered in circle - rounded corners, no door */}
           <path
-            d="M8 18.5l12-9.5 12 9.5v15a2 2 0 01-2 2H10a2 2 0 01-2-2V18.5z"
+            d="M10 22l10-8 10 8v12a2 2 0 01-2 2H12a2 2 0 01-2-2V22z"
             stroke="white"
-            strokeWidth="3"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
             rx="2"
           />
           
-          {/* Heart exactly centered like reference */}
+          {/* Heart perfectly centered in house */}
           <path
-            d="M20 25c-2-1.8-5-4.2-5-7 0-2 1.5-3.5 3.5-3.5.9 0 1.7.4 2.2 1 .5-.6 1.3-1 2.2-1 2 0 3.5 1.5 3.5 3.5 0 2.8-3 5.2-5 7z"
+            d="M20 28c-1.5-1.5-3.5-3-3.5-5 0-1.5 1-2.5 2.5-2.5.6 0 1.1.2 1.5.6.4-.4.9-.6 1.5-.6 1.5 0 2.5 1 2.5 2.5 0 2-2 3.5-3.5 5z"
             fill="white"
           />
           
