@@ -5,7 +5,8 @@ export const coreServiceCategories = [
     description: "In-home check-ups, consultations, and family medicine",
     icon: "Stethoscope",
     color: "blue",
-    price: "Starting at $150/visit"
+    price: "Starting at $150/visit",
+    insurance: "Covered by AHS & most private plans"
   },
   {
     id: 2,
@@ -13,7 +14,8 @@ export const coreServiceCategories = [
     description: "Wound care, medication management, post-op care",
     icon: "UserCheck",
     color: "green",
-    price: "Starting at $85/visit"
+    price: "Starting at $85/visit",
+    insurance: "Often covered by AHS home care"
   },
   {
     id: 3,
@@ -21,7 +23,8 @@ export const coreServiceCategories = [
     description: "In-home rehabilitation and recovery",
     icon: "Activity",
     color: "purple",
-    price: "Starting at $120/session"
+    price: "Starting at $120/session",
+    insurance: "Covered by most extended health plans"
   },
   {
     id: 4,
@@ -29,7 +32,8 @@ export const coreServiceCategories = [
     description: "Daily living support and assessments",
     icon: "Home",
     color: "orange",
-    price: "Starting at $110/session"
+    price: "Starting at $110/session",
+    insurance: "Covered by most extended health plans"
   },
   {
     id: 5,
@@ -37,7 +41,8 @@ export const coreServiceCategories = [
     description: "Compassionate end-of-life support",
     icon: "Heart",
     color: "pink",
-    price: "Starting at $125/visit"
+    price: "Starting at $125/visit",
+    insurance: "Covered by AHS palliative care program"
   },
   {
     id: 6,
@@ -45,7 +50,8 @@ export const coreServiceCategories = [
     description: "Phlebotomy and sample collection at home",
     icon: "TestTube",
     color: "teal",
-    price: "Starting at $65/test"
+    price: "Starting at $65/test",
+    insurance: "Covered by AHS with requisition"
   },
   {
     id: 7,
@@ -53,7 +59,8 @@ export const coreServiceCategories = [
     description: "Counseling and therapy sessions at home",
     icon: "Brain",
     color: "indigo",
-    price: "Starting at $140/session"
+    price: "Starting at $140/session",
+    insurance: "Partially covered by most plans"
   },
   {
     id: 8,
@@ -61,7 +68,8 @@ export const coreServiceCategories = [
     description: "Immunizations administered at home",
     icon: "Syringe",
     color: "red",
-    price: "Starting at $45/vaccine"
+    price: "Starting at $45/vaccine",
+    insurance: "Covered by AHS & most private plans"
   }
 ];
 
@@ -72,7 +80,8 @@ export const additionalServiceCategories = [
     description: "Mobile checkups, cleanings, denture care",
     icon: "Smile",
     color: "blue",
-    price: "Starting at $95/visit"
+    price: "Starting at $95/visit",
+    insurance: "Covered by most dental plans"
   },
   {
     id: 10,
@@ -80,7 +89,8 @@ export const additionalServiceCategories = [
     description: "Hearing tests and hearing aid fitting",
     icon: "Ear",
     color: "green",
-    price: "Starting at $100/assessment"
+    price: "Starting at $100/assessment",
+    insurance: "Covered by most extended health plans"
   },
   {
     id: 11,
@@ -88,7 +98,8 @@ export const additionalServiceCategories = [
     description: "Mobile eye exams and vision screening",
     icon: "Eye",
     color: "purple",
-    price: "Starting at $95/exam"
+    price: "Starting at $95/exam",
+    insurance: "Covered by most vision care plans"
   },
   {
     id: 12,
@@ -96,7 +107,8 @@ export const additionalServiceCategories = [
     description: "Foot care and diabetic foot assessments",
     icon: "Footprints",
     color: "orange",
-    price: "Starting at $90/visit"
+    price: "Starting at $90/visit",
+    insurance: "Often covered for diabetic patients"
   },
   {
     id: 13,
@@ -104,7 +116,8 @@ export const additionalServiceCategories = [
     description: "Communication and swallowing therapy",
     icon: "MessageCircle",
     color: "teal",
-    price: "Starting at $115/session"
+    price: "Starting at $115/session",
+    insurance: "Covered by most extended health plans"
   },
   {
     id: 14,
@@ -112,7 +125,8 @@ export const additionalServiceCategories = [
     description: "Dietitian consultations and meal planning",
     icon: "Apple",
     color: "pink",
-    price: "Starting at $75/consultation"
+    price: "Starting at $75/consultation",
+    insurance: "Covered by most extended health plans"
   },
   {
     id: 15,
@@ -120,7 +134,8 @@ export const additionalServiceCategories = [
     description: "Medication reviews and coordination",
     icon: "Pill",
     color: "indigo",
-    price: "Starting at $60/consultation"
+    price: "Starting at $60/consultation",
+    insurance: "Often covered by medication plans"
   },
   {
     id: 16,
@@ -128,7 +143,8 @@ export const additionalServiceCategories = [
     description: "Intravenous treatments and hydration",
     icon: "Droplets",
     color: "red",
-    price: "Starting at $180/session"
+    price: "Starting at $180/session",
+    insurance: "Check with your insurance provider"
   }
 ];
 

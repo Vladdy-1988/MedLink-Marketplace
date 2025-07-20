@@ -2,7 +2,7 @@ import { coreServiceCategories, additionalServiceCategories } from "@/lib/mockDa
 import { 
   Stethoscope, UserCheck, Activity, Home, Heart, TestTube, Brain, Syringe, 
   Smile, Ear, Eye, Footprints, MessageCircle, Apple, Pill, Droplets, 
-  ArrowRight, Plus 
+  ArrowRight, Plus, CheckCircle 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -110,8 +110,16 @@ export default function ServiceCategories() {
         <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
           {service.description}
         </p>
-        <div className={`text-sm ${colors.price} font-semibold`}>
-          {service.price}
+        <div className="space-y-2">
+          <div className={`text-sm ${colors.price} font-semibold`}>
+            {service.price}
+          </div>
+          {service.insurance && (
+            <div className="flex items-center text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              {service.insurance}
+            </div>
+          )}
         </div>
       </motion.div>
     );
