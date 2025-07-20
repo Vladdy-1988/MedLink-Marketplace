@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,35 +13,35 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertProviderSchema } from "@shared/schema";
 import { z } from "zod";
-import { UserCheck, FileText, MapPin, Star, Clock, CheckCircle } from "lucide-react";
+import { UserCheck, FileText, Star, CheckCircle } from "lucide-react";
 
-const providerFormSchema = z.object({
+// Optimized form schema with proper types
+const formSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   specialization: z.string().min(1, "Please select a specialization"),
   licenseNumber: z.string().min(1, "License number is required"),
-  yearsExperience: z.number().min(0, "Years of experience must be 0 or more").max(50, "Years of experience must be less than 50"),
-  bio: z.string().optional(),
+  yearsExperience: z.coerce.number().min(0).max(50),
+  bio: z.string().min(50, "Bio must be at least 50 characters").optional(),
   serviceAreas: z.string().min(1, "Service area is required"),
-  basePricing: z.number().min(0, "Base pricing must be 0 or more"),
+  basePricing: z.coerce.number().min(0, "Base pricing must be 0 or more"),
   availability: z.string().optional(),
 });
 
-type ProviderFormData = z.infer<typeof providerFormSchema>;
+type FormData = z.infer<typeof formSchema>;
 
-export default function ProviderRegistration() {
+const ProviderRegistrationOptimized = React.memo(() => {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const form = useForm<ProviderFormData>({
-    resolver: zodResolver(providerFormSchema),
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
@@ -53,43 +53,44 @@ export default function ProviderRegistration() {
       bio: "",
       basePricing: 0,
       serviceAreas: "Calgary, AB",
-      availability: ""
+      availability: "",
     },
   });
 
+  // Memoized mutation
   const createProviderMutation = useMutation({
-    mutationFn: async (data: ProviderFormData) => {
+    mutationFn: useCallback(async (data: FormData) => {
       const { firstName, lastName, email, phone, ...formData } = data;
       
-      // Transform data to match backend schema
       const providerData = {
         ...formData,
-        serviceAreas: [formData.serviceAreas], // Convert to array
+        serviceAreas: [formData.serviceAreas],
         availability: formData.availability || null,
         bio: formData.bio || null,
       };
       
-      return await apiRequest("/api/providers", "POST", providerData);
-    },
-    onSuccess: () => {
+      const response = await apiRequest("POST", "/api/providers", providerData);
+      return await response.json();
+    }, []),
+    onSuccess: useCallback(() => {
       toast({
         title: "Application Submitted!",
-        description: "Your provider application has been submitted successfully. We'll review it and get back to you within 3-5 business days.",
+        description: "Your provider application has been submitted successfully.",
       });
       setIsSubmitted(true);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-    },
-    onError: (error: Error) => {
+    }, [toast, queryClient]),
+    onError: useCallback((error: Error) => {
       toast({
         title: "Application Failed",
         description: error.message || "Failed to submit application. Please try again.",
         variant: "destructive",
       });
-    },
+    }, [toast]),
   });
 
-  // Redirect to login if not authenticated
-  React.useEffect(() => {
+  // Handle authentication redirect
+  useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
         title: "Authentication Required",
@@ -102,7 +103,12 @@ export default function ProviderRegistration() {
     }
   }, [isLoading, isAuthenticated, toast]);
 
-  // Return early if not authenticated or still loading
+  // Memoized form submit handler
+  const onSubmit = useCallback((data: FormData) => {
+    createProviderMutation.mutate(data);
+  }, [createProviderMutation]);
+
+  // Early returns for performance
   if (!isLoading && !isAuthenticated) {
     return null;
   }
@@ -130,27 +136,6 @@ export default function ProviderRegistration() {
               <p className="text-xl text-gray-600 mb-8">
                 Thank you for applying to join our network of healthcare providers. We'll review your application and get back to you within 3-5 business days.
               </p>
-              <div className="space-y-4 text-left bg-gray-50 p-6 rounded-lg mb-8">
-                <h3 className="font-semibold text-gray-900">What happens next?</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-[hsl(207,90%,54%)] rounded-full mr-3"></div>
-                    <span className="text-gray-700">Our team will verify your credentials and license</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-[hsl(207,90%,54%)] rounded-full mr-3"></div>
-                    <span className="text-gray-700">Background check and reference verification</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-[hsl(207,90%,54%)] rounded-full mr-3"></div>
-                    <span className="text-gray-700">You'll receive an email with the decision</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-[hsl(207,90%,54%)] rounded-full mr-3"></div>
-                    <span className="text-gray-700">If approved, access to provider dashboard and profile setup</span>
-                  </div>
-                </div>
-              </div>
               <Button onClick={() => setLocation("/")} className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
                 Return to Home
               </Button>
@@ -177,34 +162,20 @@ export default function ProviderRegistration() {
 
         {/* Steps Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-[hsl(207,90%,54%)] rounded-full flex items-center justify-center mx-auto mb-3">
-              <FileText className="h-6 w-6 text-white" />
+          {[
+            { icon: FileText, title: "Application", desc: "Complete the form" },
+            { icon: UserCheck, title: "Verification", desc: "Credential review" },
+            { icon: Star, title: "Approval", desc: "Admin decision" },
+            { icon: CheckCircle, title: "Welcome", desc: "Start practicing" }
+          ].map((step, index) => (
+            <div key={step.title} className="text-center">
+              <div className={`w-12 h-12 ${index === 0 ? 'bg-[hsl(207,90%,54%)]' : 'bg-gray-300'} rounded-full flex items-center justify-center mx-auto mb-3`}>
+                <step.icon className={`h-6 w-6 ${index === 0 ? 'text-white' : 'text-gray-600'}`} />
+              </div>
+              <h3 className={`font-semibold ${index === 0 ? 'text-gray-900' : 'text-gray-600'}`}>{step.title}</h3>
+              <p className="text-sm text-gray-600">{step.desc}</p>
             </div>
-            <h3 className="font-semibold text-gray-900">Application</h3>
-            <p className="text-sm text-gray-600">Complete the form</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-3">
-              <UserCheck className="h-6 w-6 text-gray-600" />
-            </div>
-            <h3 className="font-semibold text-gray-600">Verification</h3>
-            <p className="text-sm text-gray-600">Credential review</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Star className="h-6 w-6 text-gray-600" />
-            </div>
-            <h3 className="font-semibold text-gray-600">Approval</h3>
-            <p className="text-sm text-gray-600">Admin decision</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-3">
-              <CheckCircle className="h-6 w-6 text-gray-600" />
-            </div>
-            <h3 className="font-semibold text-gray-600">Welcome</h3>
-            <p className="text-sm text-gray-600">Start practicing</p>
-          </div>
+          ))}
         </div>
 
         <Card>
@@ -213,7 +184,7 @@ export default function ProviderRegistration() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit((data) => createProviderMutation.mutate(data))} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
@@ -336,7 +307,6 @@ export default function ProviderRegistration() {
                               min="0" 
                               max="50" 
                               {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
                             />
                           </FormControl>
                           <FormMessage />
@@ -356,7 +326,6 @@ export default function ProviderRegistration() {
                               step="0.01" 
                               placeholder="75.00"
                               {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
                             />
                           </FormControl>
                           <FormMessage />
@@ -396,7 +365,6 @@ export default function ProviderRegistration() {
                             placeholder="Tell us about your background, experience, and approach to patient care..."
                             className="min-h-[120px]"
                             {...field}
-                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormDescription>
@@ -416,7 +384,6 @@ export default function ProviderRegistration() {
                           <Textarea 
                             placeholder="e.g., Monday-Friday 9AM-5PM, Weekend availability upon request..."
                             {...field}
-                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormDescription>
@@ -451,4 +418,8 @@ export default function ProviderRegistration() {
       </div>
     </div>
   );
-}
+});
+
+ProviderRegistrationOptimized.displayName = "ProviderRegistrationOptimized";
+
+export default ProviderRegistrationOptimized;

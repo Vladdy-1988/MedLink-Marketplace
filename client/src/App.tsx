@@ -13,7 +13,7 @@ import Booking from "@/pages/booking";
 import PatientDashboard from "@/pages/patient-dashboard";
 import ProviderDashboard from "@/pages/provider-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
-import ProviderRegistration from "@/pages/provider-registration";
+import ProviderRegistration from "@/pages/provider-registration-optimized";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();

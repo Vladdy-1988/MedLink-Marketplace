@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,13 +8,29 @@ export default function Navigation() {
   const { isAuthenticated, user } = useAuth();
   const [location] = useLocation();
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     window.location.href = "/api/login";
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     window.location.href = "/api/logout";
-  };
+  }, []);
+
+  const handleServicesClick = useCallback(() => {
+    if (location === '/') {
+      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.href = '/#services';
+    }
+  }, [location]);
+
+  const handleHowItWorksClick = useCallback(() => {
+    if (location === '/') {
+      document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.href = '/#how-it-works';
+    }
+  }, [location]);
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -29,25 +46,13 @@ export default function Navigation() {
                   Find Providers
                 </Link>
                 <button 
-                  onClick={() => {
-                    if (location === '/') {
-                      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      window.location.href = '/#services';
-                    }
-                  }}
+                  onClick={handleServicesClick}
                   className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
                 >
                   Services
                 </button>
                 <button 
-                  onClick={() => {
-                    if (location === '/') {
-                      document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      window.location.href = '/#how-it-works';
-                    }
-                  }}
+                  onClick={handleHowItWorksClick}
                   className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors"
                 >
                   How It Works
