@@ -74,22 +74,6 @@ export default function About() {
           <h2 className="text-4xl font-bold text-gray-900 text-center mb-16">Our Co-Founders</h2>
           
           <div className="grid md:grid-cols-2 gap-16">
-            {/* Paula Martinez */}
-            <div className="text-center">
-              <div className="relative mb-8">
-                <div className="w-64 h-64 mx-auto bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
-                  <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-4xl font-bold text-white">PM</span>
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Paula Martínez</h3>
-              <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & CEO</p>
-              <p className="text-gray-600 text-left leading-relaxed">
-                A digital-media strategist with 7+ years leading award-winning campaigns for lifestyle and wellness brands, Paula has spent her career making complex services simple and accessible online. She guides MedLink's product vision, patient experience, and growth strategy—translating her passion for community, technology, and inclusive care into a platform that puts people first.
-              </p>
-            </div>
-
             {/* Vlad */}
             <div className="text-center">
               <div className="relative mb-8">
@@ -103,6 +87,22 @@ export default function About() {
               <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & COO</p>
               <p className="text-gray-600 text-left leading-relaxed">
                 With over a decade owning and operating denture clinics across Alberta, Vlad knows first-hand how life-changing in-home care can be for patients with mobility or chronic-health challenges. He oversees provider recruitment, compliance, and quality assurance, ensuring every professional on MedLink is fully licensed, background-checked, and committed to compassionate, patient-centric service.
+              </p>
+            </div>
+
+            {/* Paula Martinez */}
+            <div className="text-center">
+              <div className="relative mb-8">
+                <div className="w-64 h-64 mx-auto bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-4xl font-bold text-white">PM</span>
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Paula Martínez</h3>
+              <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & CEO</p>
+              <p className="text-gray-600 text-left leading-relaxed">
+                A digital-media strategist with 7+ years leading award-winning campaigns for lifestyle and wellness brands, Paula has spent her career making complex services simple and accessible online. She guides MedLink's product vision, patient experience, and growth strategy—translating her passion for community, technology, and inclusive care into a platform that puts people first.
               </p>
             </div>
           </div>
