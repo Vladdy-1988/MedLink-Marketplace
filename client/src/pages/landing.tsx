@@ -16,116 +16,108 @@ export default function Landing() {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Hero Section - Apple Healthcare Style */}
-      <section className="relative min-h-screen bg-white overflow-hidden">
-        {/* High-quality healthcare imagery */}
+      {/* Hero Section */}
+      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          {/* Main healthcare image */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-white"></div>
-          
-          {/* Subtle geometric elements for visual interest */}
-          <div className="absolute top-1/4 right-20 w-96 h-96 bg-blue-50 rounded-full mix-blend-multiply opacity-30"></div>
-          <div className="absolute bottom-1/4 left-20 w-80 h-80 bg-green-50 rounded-full mix-blend-multiply opacity-30"></div>
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='1920' height='1080' viewBox='0 0 1920 1080' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f0f9ff'/%3E%3Cstop offset='50%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23f0fdf4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23bg)'/%3E%3Cg opacity='0.6'%3E%3Ccircle cx='400' cy='300' r='120' fill='%2393c5fd' opacity='0.3'/%3E%3Ccircle cx='1200' cy='200' r='80' fill='%236ee7b7' opacity='0.3'/%3E%3Ccircle cx='1500' cy='600' r='100' fill='%23a5b4fc' opacity='0.3'/%3E%3Ccircle cx='300' cy='700' r='60' fill='%23fde68a' opacity='0.3'/%3E%3C/g%3E%3Cg opacity='0.8'%3E%3Cg transform='translate(1400, 400)'%3E%3Ccircle cx='0' cy='0' r='3' fill='%2360a5fa'/%3E%3Ccircle cx='15' cy='0' r='3' fill='%2334d399'/%3E%3Ccircle cx='30' cy='0' r='3' fill='%23a78bfa'/%3E%3Crect x='-10' y='10' width='50' height='30' rx='15' fill='%23ffffff' opacity='0.9'/%3E%3Ctext x='15' y='28' text-anchor='middle' fill='%23374151' font-size='8' font-family='system-ui'%3E24/7%3C/text%3E%3C/g%3E%3Cg transform='translate(200, 800)'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffffff' opacity='0.9'/%3E%3Cpath d='M15 20 L20 25 L30 15' stroke='%2310b981' stroke-width='2' fill='none'/%3E%3C/g%3E%3Cg transform='translate(800, 150)'%3E%3Crect x='0' y='0' width='40' height='25' rx='12' fill='%23ffffff' opacity='0.9'/%3E%3Ccircle cx='10' cy='12' r='4' fill='%23ef4444'/%3E%3Cpath d='M8 12 L12 12 M10 10 L10 14' stroke='%23ffffff' stroke-width='1'/%3E%3Ctext x='35' y='15' fill='%23374151' font-size='6' font-family='system-ui'%3ELicensed%3C/text%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/80" />
         </div>
 
-        {/* Content - Apple's minimal approach */}
+        {/* Content */}
         <div className="relative z-10 flex items-center min-h-screen">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Apple-style separated headline */}
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold mb-16 leading-[1.05] text-black tracking-tight">
-                Make care
-                <br />
-                <span className="font-light">connected.</span>
-                <br />
-                <span className="font-light">personalized.</span>
-                <br />
-                <span className="font-light">human.</span>
+              {/* Apple-style large headline */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+                Healthcare
+                <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+                  at your door
+                </span>
               </h1>
               
-              {/* Apple-style clean description */}
+              {/* Apple-style subtitle with generous spacing */}
               <div className="max-w-4xl mx-auto mb-16">
-                <p className="text-2xl sm:text-3xl text-gray-600 font-light leading-relaxed">
-                  MedLink helps healthcare providers deliver more efficient care, connect with patients at home, and create personalized health experiences that are ultimately more human.
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+                  Connect with licensed healthcare providers in Calgary for professional in-home medical services.
+                </p>
+                <p className="text-xl sm:text-2xl font-light text-gray-500">
+                  Safe. Convenient. Trusted.
                 </p>
               </div>
               
-              {/* Clean, minimal CTA */}
+              {/* Apple-style CTA buttons */}
               <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
                 <Link href="/providers">
-                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-lg px-10 py-4 rounded-xl font-medium transition-all duration-200">
+                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                     Find Providers
                   </Button>
                 </Link>
                 <Link href="/how-it-works">
-                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-lg px-10 py-4 rounded-xl font-medium transition-all duration-200">
-                    Learn more
+                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                    Learn how it works
                   </Button>
                 </Link>
+              </div>
+
+              {/* Clean search interface */}
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
+                      <Select>
+                        <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
+                          <SelectValue placeholder="All Services" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Services</SelectItem>
+                          <SelectItem value="nursing">Nursing Care</SelectItem>
+                          <SelectItem value="physio">Physiotherapy</SelectItem>
+                          <SelectItem value="dental">Dental Hygiene</SelectItem>
+                          <SelectItem value="lab">Lab Services</SelectItem>
+                          <SelectItem value="alternative">Alternative Therapy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Date</Label>
+                      <Input 
+                        type="date" 
+                        min={new Date().toISOString().split('T')[0]} 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Location</Label>
+                      <Input 
+                        type="text" 
+                        placeholder="Calgary, AB" 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                  </div>
+                  <Link href="/providers">
+                    <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
+                      <Search className="mr-3 h-6 w-6" />
+                      Find Healthcare Providers
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Three Pillars Section - Apple Style */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            
-            {/* Connected Care */}
-            <div className="text-center lg:text-left">
-              <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-8 mx-auto lg:mx-0">
-                <Activity className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-black mb-6 leading-tight">
-                Connected Care
-              </h2>
-              <p className="text-xl text-gray-600 font-light leading-relaxed mb-8">
-                Seamlessly connect patients with healthcare providers through our platform, enabling real-time communication and coordinated care delivery right at home.
-              </p>
-              <Link href="/providers">
-                <Button variant="ghost" className="text-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,44%)] font-medium text-lg p-0">
-                  Explore providers →
-                </Button>
-              </Link>
-            </div>
-
-            {/* Personalized Service */}
-            <div className="text-center lg:text-left">
-              <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mb-8 mx-auto lg:mx-0">
-                <UserCheck className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-black mb-6 leading-tight">
-                Personalized Service
-              </h2>
-              <p className="text-xl text-gray-600 font-light leading-relaxed mb-8">
-                Every care experience is tailored to individual needs, with providers who understand your health history and preferences for truly personalized healthcare.
-              </p>
-              <Link href="/services">
-                <Button variant="ghost" className="text-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,44%)] font-medium text-lg p-0">
-                  View services →
-                </Button>
-              </Link>
-            </div>
-
-            {/* Human Touch */}
-            <div className="text-center lg:text-left">
-              <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mb-8 mx-auto lg:mx-0">
-                <Heart className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-black mb-6 leading-tight">
-                Human Touch
-              </h2>
-              <p className="text-xl text-gray-600 font-light leading-relaxed mb-8">
-                Technology enhances the human connection in healthcare. Our platform brings back the personal, compassionate care that makes all the difference.
-              </p>
-              <Link href="/about">
-                <Button variant="ghost" className="text-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,44%)] font-medium text-lg p-0">
-                  Our story →
-                </Button>
-              </Link>
-            </div>
+        {/* Subtle scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
           </div>
         </div>
       </section>
