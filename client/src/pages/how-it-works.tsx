@@ -495,62 +495,80 @@ export default function HowItWorks() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <MedlinkLogo className="h-8 w-8" />
-                <span className="text-xl font-bold">MedLink</span>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
+            {/* Logo and Description */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <MedlinkLogo className="h-10 w-10" />
+                <span className="text-2xl font-bold">MedLink</span>
               </div>
-              <p className="text-gray-400 text-sm">
-                Professional healthcare, delivered to your door.
+              <p className="text-gray-400 leading-relaxed">
+                Connecting patients with verified healthcare providers for professional home visits across Calgary.
+              </p>
+              <div className="flex space-x-4">
+                <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Instagram className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Linkedin className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+              </div>
+            </div>
+            
+            {/* Patient Resources */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">For Patients</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
+                <li><Link href="/rapid-services" className="hover:text-white transition-colors">Rapid Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">All Services</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Insurance Coverage</Link></li>
+              </ul>
+            </div>
+            
+            {/* Provider Resources */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">For Providers</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/provider-registration" className="hover:text-white transition-colors">Join MedLink</Link></li>
+                <li><Link href="/provider-dashboard" className="hover:text-white transition-colors">Provider Portal</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors">Verification Process</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Provider Support</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">Professional Resources</Link></li>
+              </ul>
+            </div>
+            
+            {/* Company */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Company</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/about" className="hover:text-white transition-colors">About MedLink</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Support Center</Link></li>
+                <li><a href="mailto:hello@medlink.ca" className="hover:text-white transition-colors">hello@medlink.ca</a></li>
+                <li><a href="tel:1-844-633-5465" className="hover:text-white transition-colors">1-844-MEDLINK</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Important Notice */}
+          <div className="border-t border-gray-800 mt-12 pt-8">
+            <div className="bg-red-900/30 border border-red-800 rounded-xl p-4 mb-8">
+              <p className="text-red-200 text-sm font-medium text-center">
+                <strong>Important:</strong> For life-threatening emergencies, always call 911 first. 
+                MedLink provides non-emergency healthcare services only.
               </p>
             </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/services" className="hover:text-white transition-colors">Browse Services</Link></li>
-                <li><Link href="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
-                <li><Link href="/rapid-services" className="hover:text-white transition-colors">Rapid Care</Link></li>
-              </ul>
+            
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="text-gray-400 text-sm">
+                © 2025 MedLink House Calls Inc. All rights reserved.
+              </div>
+              <div className="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">PIPEDA Compliance</a>
+              </div>
             </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/support" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><a href="tel:1-800-MEDLINK" className="hover:text-white transition-colors">1-800-MEDLINK</a></li>
-                <li><a href="mailto:support@medlink.ca" className="hover:text-white transition-colors">support@medlink.ca</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <Separator className="my-8 bg-gray-800" />
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <p>&copy; 2025 MedLink House Calls. All rights reserved.</p>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-white transition-colors"><Facebook className="h-5 w-5" /></a>
-              <a href="#" className="hover:text-white transition-colors"><Twitter className="h-5 w-5" /></a>
-              <a href="#" className="hover:text-white transition-colors"><Instagram className="h-5 w-5" /></a>
-              <a href="#" className="hover:text-white transition-colors"><Linkedin className="h-5 w-5" /></a>
-            </div>
-          </div>
-
-          <div className="mt-8 p-4 bg-red-900/20 border border-red-800 rounded-lg">
-            <p className="text-xs text-red-300 text-center">
-              <strong>Medical Disclaimer:</strong> MedLink is not for medical emergencies. 
-              If you are experiencing a life-threatening emergency, call 911 immediately.
-            </p>
           </div>
         </div>
       </footer>
