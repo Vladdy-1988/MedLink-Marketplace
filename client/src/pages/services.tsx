@@ -66,22 +66,42 @@ export default function Services() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Apple-style Hero Section */}
+      <section className="relative min-h-[80vh] bg-white overflow-hidden flex items-center">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-white"></div>
+          <div className="absolute top-1/3 right-16 w-80 h-80 bg-blue-50 rounded-full mix-blend-multiply opacity-40"></div>
+          <div className="absolute bottom-1/3 left-16 w-96 h-96 bg-green-50 rounded-full mix-blend-multiply opacity-40"></div>
+        </div>
+
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
-              Our Healthcare Services
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold mb-12 leading-[1.05] text-black tracking-tight">
+              Healthcare
+              <br />
+              <span className="font-light">services.</span>
+              <br />
+              <span className="font-light">at home.</span>
             </h1>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Professional, convenient, and personalized healthcare services delivered to your home in Calgary. 
-              Experience quality care without the hassle of travel.
-            </p>
-            <Link href="/providers">
-              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl">
-                Book a Service
-              </Button>
-            </Link>
+            
+            <div className="max-w-4xl mx-auto mb-12">
+              <p className="text-2xl sm:text-3xl text-gray-600 font-light leading-relaxed">
+                Professional, convenient, and personalized healthcare services delivered to your home in Calgary.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link href="/providers">
+                <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-lg px-10 py-4 rounded-xl font-medium">
+                  Book a Service
+                </Button>
+              </Link>
+              <Link href="/rapid-services">
+                <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-lg px-10 py-4 rounded-xl font-medium">
+                  Rapid Services
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
