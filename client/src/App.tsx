@@ -20,7 +20,6 @@ import RapidServices from "@/pages/rapid-services";
 import About from "@/pages/about";
 import Safety from "@/pages/safety";
 import Support from "@/pages/support";
-import ImageStudio from "@/pages/image-studio";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -39,7 +38,6 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/safety" component={Safety} />
           <Route path="/support" component={Support} />
-          <Route path="/image-studio" component={ImageStudio} />
         </>
       ) : (
         <>
@@ -54,7 +52,6 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/safety" component={Safety} />
           <Route path="/support" component={Support} />
-          <Route path="/image-studio" component={ImageStudio} />
           <Route path="/dashboard/patient" component={PatientDashboard} />
           <Route path="/dashboard/provider" component={ProviderDashboard} />
           <Route path="/dashboard/admin" component={AdminDashboard} />

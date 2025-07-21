@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { imageGenerationService } from "./imageGeneration";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProviderSchema, insertServiceSchema, insertBookingSchema, insertMessageSchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
@@ -243,109 +242,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching platform stats:", error);
       res.status(500).json({ message: "Failed to fetch platform stats" });
-    }
-  });
-
-  // Image generation endpoint
-  app.post("/api/generate-image", async (req, res) => {
-    try {
-      const { prompt, category = "marketing" } = req.body;
-      
-      if (!prompt || typeof prompt !== 'string') {
-        return res.status(400).json({ 
-          message: "Prompt is required and must be a string" 
-        });
-      }
-
-      const userId = req.user ? req.user.id : undefined;
-      const image = await imageGenerationService.generateHealthcareImage(
-        prompt, 
-        category, 
-        userId
-      );
-
-      res.json(image);
-    } catch (error: any) {
-      console.error('Error in image generation endpoint:', error);
-      res.status(500).json({ 
-        message: error.message || "Failed to generate image" 
-      });
-    }
-  });
-
-  // Provider image generation endpoint
-  app.post("/api/generate-provider-image", async (req, res) => {
-    try {
-      const { specialty, gender, age } = req.body;
-      
-      if (!specialty) {
-        return res.status(400).json({ 
-          message: "Specialty is required" 
-        });
-      }
-
-      const image = await imageGenerationService.generateProviderImage(
-        specialty,
-        gender,
-        age
-      );
-
-      res.json(image);
-    } catch (error: any) {
-      console.error('Error generating provider image:', error);
-      res.status(500).json({ 
-        message: error.message || "Failed to generate provider image" 
-      });
-    }
-  });
-
-  // Service image generation endpoint
-  app.post("/api/generate-service-image", async (req, res) => {
-    try {
-      const { serviceName, setting = "home" } = req.body;
-      
-      if (!serviceName) {
-        return res.status(400).json({ 
-          message: "Service name is required" 
-        });
-      }
-
-      const image = await imageGenerationService.generateServiceImage(
-        serviceName,
-        setting
-      );
-
-      res.json(image);
-    } catch (error: any) {
-      console.error('Error generating service image:', error);
-      res.status(500).json({ 
-        message: error.message || "Failed to generate service image" 
-      });
-    }
-  });
-
-  // Marketing image generation endpoint
-  app.post("/api/generate-marketing-image", async (req, res) => {
-    try {
-      const { concept, style = "professional" } = req.body;
-      
-      if (!concept) {
-        return res.status(400).json({ 
-          message: "Concept is required" 
-        });
-      }
-
-      const image = await imageGenerationService.generateMarketingImage(
-        concept,
-        style
-      );
-
-      res.json(image);
-    } catch (error: any) {
-      console.error('Error generating marketing image:', error);
-      res.status(500).json({ 
-        message: error.message || "Failed to generate marketing image" 
-      });
     }
   });
 

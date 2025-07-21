@@ -15,8 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertProviderSchema } from "@shared/schema";
 import { z } from "zod";
-import { UserCheck, FileText, MapPin, Star, Clock, CheckCircle, Upload, Image as ImageIcon } from "lucide-react";
-import ProviderImageGenerator from "@/components/ProviderImageGenerator";
+import { UserCheck, FileText, MapPin, Star, Clock, CheckCircle } from "lucide-react";
 
 const providerFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
