@@ -98,13 +98,6 @@ const providerImages = [
 ];
 
 export default function HowItWorks() {
-  const [selectedService, setSelectedService] = useState("General Practice");
-  const [visitDuration, setVisitDuration] = useState(1);
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-
-  const selectedServiceData = servicePricing[selectedService as keyof typeof servicePricing];
-  const serviceFee = 35 * visitDuration;
-  const totalCost = selectedServiceData.base * visitDuration + serviceFee;
 
   return (
     <div className="min-h-screen bg-white">
@@ -251,135 +244,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      {/* Interactive Pricing Section */}
-      <section className="py-16 bg-white" id="pricing">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">How pricing works</h2>
-            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
-              No hidden fees. Just pay per visit.
-            </h3>
-            <p className="text-xl text-gray-600 mt-4">
-              Healthcare that's radically more affordable.
-            </p>
-          </div>
 
-          {/* Pricing Calculator */}
-          <div className="bg-gray-50 rounded-3xl p-8 shadow-lg">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Left side - Calculator */}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    What service do you need?
-                  </label>
-                  <Select value={selectedService} onValueChange={setSelectedService}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.keys(servicePricing).map((service) => (
-                        <SelectItem key={service} value={service}>{service}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    How many visits?
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setVisitDuration(Math.max(1, visitDuration - 1))}
-                      className="rounded-full"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="text-2xl font-bold text-gray-900 w-16 text-center">
-                      {visitDuration}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setVisitDuration(visitDuration + 1)}
-                      className="rounded-full"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right side - Cost breakdown */}
-              <div className="bg-white rounded-2xl p-6 space-y-4">
-                <h4 className="font-semibold text-gray-900 mb-4">Cost breakdown</h4>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-600">Service fee</span>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <Info className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <span className="font-semibold">${selectedServiceData.base * visitDuration}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center pb-3 border-b">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-600">Platform fee</span>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <Info className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <span className="font-semibold">${serviceFee}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center pt-3">
-                    <span className="text-xl font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-blue-600">${totalCost}</span>
-                  </div>
-                  
-                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                    <p className="text-sm text-green-800">
-                      <CheckCircle className="h-4 w-4 inline mr-1" />
-                      May be covered by {selectedServiceData.insurance}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 text-center">
-              <Link href="/providers">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Member Testimonial */}
-          <div className="mt-12 bg-purple-50 rounded-2xl p-6 border border-purple-100">
-            <div className="flex items-start gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarFallback className="bg-purple-600 text-white">{memberTestimonials[1].avatar}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span className="font-semibold text-gray-900">Member Pro Tip: Family Care</span>
-                </div>
-                <p className="text-gray-700 italic">"{memberTestimonials[1].quote}"</p>
-                <p className="text-sm text-gray-500 mt-1">- {memberTestimonials[1].name}, {memberTestimonials[1].visits}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* FAQs Section */}
       <section className="py-16 bg-gray-50">
@@ -498,9 +363,8 @@ export default function HowItWorks() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
             {/* Logo and Description */}
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center">
                 <MedlinkLogo className="h-10 w-10" />
-                <span className="text-2xl font-bold">MedLink</span>
               </div>
               <p className="text-gray-400 leading-relaxed">
                 Connecting patients with verified healthcare providers for professional home visits across Calgary.
