@@ -137,6 +137,7 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Quote Button Implementation**: Added "Message Provider" buttons throughout provider profiles, service cards, and provider cards that trigger messaging functionality to providers
 - **Messaging Integration**: All message requests now trigger direct messaging to providers for personalized consultation and pricing
 - **Button Text Update**: Changed all "Get Quote" buttons to "Message Provider" site-wide for clearer call-to-action messaging
+- **Homepage Services Cleanup**: Removed "Message Provider" pricing display from Most Popular Services section on homepage for cleaner service card appearance
 
 ## Recent Changes (January 2025)
 
