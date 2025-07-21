@@ -188,63 +188,114 @@ export default function HowItWorks() {
       </section>
 
       {/* Steps Section */}
-      <section className="py-16">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-              Simple 5-Step Process
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
+              Simple <span className="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">5-step</span> process
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From booking to care delivery, we've made the entire process seamless and transparent.
+            <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto font-light">
+              From booking to recovery, we've streamlined every step to make your healthcare experience seamless and stress-free.
             </p>
           </div>
-
-          <div className="space-y-8">
+          
+          {/* Enhanced Steps Layout */}
+          <div className="space-y-16">
             {steps.map((step, index) => {
               const IconComponent = step.icon;
               const isEven = index % 2 === 0;
               
               return (
-                <div key={step.step} className={`flex flex-col lg:flex-row items-center gap-8 ${!isEven ? 'lg:flex-row-reverse' : ''}`}>
-                  <div className="flex-1">
-                    <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
-                      <CardHeader>
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-xl flex items-center justify-center">
-                            <IconComponent className="h-6 w-6 text-white" />
-                          </div>
-                          <div className="w-8 h-8 bg-[hsl(207,90%,54%)] rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">{step.step}</span>
-                          </div>
+                <div key={index} className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20`}>
+                  {/* Step Visual */}
+                  <div className="flex-1 flex justify-center">
+                    <div className="relative">
+                      {/* Large Step Number Background */}
+                      <div className="absolute -top-8 -left-8 text-8xl sm:text-9xl font-black text-gray-100 select-none">
+                        {String(index + 1).padStart(2, '0')}
+                      </div>
+                      
+                      {/* Main Step Card */}
+                      <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 backdrop-blur-sm">
+                        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                          <IconComponent className="h-10 w-10 text-white" />
                         </div>
-                        <CardTitle className="text-2xl font-bold text-gray-900">
-                          {step.title}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600 text-lg mb-6 leading-relaxed">
-                          {step.description}
-                        </p>
-                        <ul className="space-y-3">
-                          {step.details.map((detail, detailIndex) => (
-                            <li key={detailIndex} className="flex items-center text-gray-700">
-                              <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                              {detail}
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
+                        
+                        <div className="w-12 h-12 bg-[hsl(207,90%,54%)] rounded-full flex items-center justify-center text-white text-xl font-bold mb-4">
+                          {index + 1}
+                        </div>
+                        
+                        {/* Progress indicator */}
+                        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${((index + 1) / steps.length) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex-1 flex justify-center">
-                    <div className="w-64 h-64 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                      <IconComponent className="h-24 w-24 text-[hsl(207,90%,54%)]" />
+                  {/* Step Content */}
+                  <div className="flex-1 space-y-6 text-center lg:text-left">
+                    <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                      {step.title}
+                    </h3>
+                    
+                    <p className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed">
+                      {step.description}
+                    </p>
+                    
+                    {/* Enhanced Details List */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                      {step.details.map((detail, detailIndex) => (
+                        <div key={detailIndex} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <CheckCircle className="h-4 w-4 text-white" />
+                          </div>
+                          <span className="text-gray-700 font-medium leading-relaxed">{detail}</span>
+                        </div>
+                      ))}
                     </div>
+                    
+                    {/* Step-specific CTA */}
+                    {index === 0 && (
+                      <div className="mt-8">
+                        <Link href="/providers">
+                          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                            Start Browsing Providers
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
             })}
+          </div>
+          
+          {/* Call to Action */}
+          <div className="text-center mt-20">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-12 border border-blue-100">
+              <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+                Ready to experience healthcare at home?
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Join thousands of Calgarians who have chosen convenience and quality care with MedLink.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/providers">
+                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-10 py-4 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    Find Providers
+                  </Button>
+                </Link>
+                <Link href="/services">
+                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-10 py-4 rounded-full font-semibold bg-white transition-all duration-300">
+                    Browse Services
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
