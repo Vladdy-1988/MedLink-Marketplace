@@ -51,6 +51,9 @@ export default function Navigation() {
                 <Link href="/how-it-works" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">
                   How It Works
                 </Link>
+                <Link href="/image-studio" className="text-gray-700 hover:text-[hsl(207,90%,54%)] transition-colors">
+                  AI Images
+                </Link>
                 {!isAuthenticated && (
                   <Link href="/apply">
                     <button 
