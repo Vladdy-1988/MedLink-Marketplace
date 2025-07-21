@@ -23,10 +23,12 @@ export default function Landing() {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='1920' height='1080' viewBox='0 0 1920 1080' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f0f9ff'/%3E%3Cstop offset='50%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23f0fdf4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23bg)'/%3E%3Cg opacity='0.6'%3E%3Ccircle cx='400' cy='300' r='120' fill='%2393c5fd' opacity='0.3'/%3E%3Ccircle cx='1200' cy='200' r='80' fill='%236ee7b7' opacity='0.3'/%3E%3Ccircle cx='1500' cy='600' r='100' fill='%23a5b4fc' opacity='0.3'/%3E%3Ccircle cx='300' cy='700' r='60' fill='%23fde68a' opacity='0.3'/%3E%3C/g%3E%3Cg opacity='0.8'%3E%3Cg transform='translate(1400, 400)'%3E%3Ccircle cx='0' cy='0' r='3' fill='%2360a5fa'/%3E%3Ccircle cx='15' cy='0' r='3' fill='%2334d399'/%3E%3Ccircle cx='30' cy='0' r='3' fill='%23a78bfa'/%3E%3Crect x='-10' y='10' width='50' height='30' rx='15' fill='%23ffffff' opacity='0.9'/%3E%3Ctext x='15' y='28' text-anchor='middle' fill='%23374151' font-size='8' font-family='system-ui'%3E24/7%3C/text%3E%3C/g%3E%3Cg transform='translate(200, 800)'%3E%3Ccircle cx='20' cy='20' r='15' fill='%23ffffff' opacity='0.9'/%3E%3Cpath d='M15 20 L20 25 L30 15' stroke='%2310b981' stroke-width='2' fill='none'/%3E%3C/g%3E%3Cg transform='translate(800, 150)'%3E%3Crect x='0' y='0' width='40' height='25' rx='12' fill='%23ffffff' opacity='0.9'/%3E%3Ccircle cx='10' cy='12' r='4' fill='%23ef4444'/%3E%3Cpath d='M8 12 L12 12 M10 10 L10 14' stroke='%23ffffff' stroke-width='1'/%3E%3Ctext x='35' y='15' fill='%23374151' font-size='6' font-family='system-ui'%3ELicensed%3C/text%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+              backgroundImage: `url("https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=1080&fit=crop&crop=faces,center")`
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/80" />
+          {/* Enhanced overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/40 via-blue-800/30 to-white/90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-transparent to-purple-900/20" />
         </div>
 
         {/* Content */}
@@ -34,19 +36,19 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
               {/* Apple-style large headline */}
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance drop-shadow-lg">
                 Healthcare
-                <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+                <span className="block text-transparent bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text">
                   at your door
                 </span>
               </h1>
               
               {/* Apple-style subtitle with generous spacing */}
               <div className="max-w-4xl mx-auto mb-16">
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white/90 leading-relaxed mb-8 drop-shadow-md">
                   Connect with licensed healthcare providers in Calgary for professional in-home medical services.
                 </p>
-                <p className="text-xl sm:text-2xl font-light text-gray-500">
+                <p className="text-xl sm:text-2xl font-light text-white/80 drop-shadow-md">
                   Safe. Convenient. Trusted.
                 </p>
               </div>
