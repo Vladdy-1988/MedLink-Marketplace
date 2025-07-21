@@ -246,6 +246,38 @@ export default function HowItWorks() {
               </div>
             </div>
 
+            {/* Step 3 & 4 */}
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1">
+                <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+                  <div className="w-full h-48 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl mb-6 flex items-center justify-center">
+                    <Home className="h-16 w-16 text-purple-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-4">Receive care at home</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Your provider visits your home with all necessary equipment for professional healthcare services. Enjoy quality care in the comfort of your own space.
+                  </p>
+                  <div className="mt-4 text-sm text-gray-500">
+                    Professional care delivered safely to your doorstep
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+                  <div className="w-full h-48 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl mb-6 flex items-center justify-center">
+                    <Star className="h-16 w-16 text-orange-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-4">Rate & review experience</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Share your experience to help other patients and maintain our quality standards. Your feedback helps us continuously improve our services.
+                  </p>
+                  <div className="mt-4 text-sm text-gray-500">
+                    Help build trust in our healthcare community
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Member Tip */}
             <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
               <div className="flex items-start gap-4">
