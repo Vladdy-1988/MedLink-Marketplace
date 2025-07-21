@@ -358,17 +358,34 @@ export default function HowItWorks() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
-            {/* Logo and Description */}
-            <div className="space-y-6">
-              <div className="flex items-center">
-                <MedlinkLogo className="h-10 w-10" />
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            {/* Company Info */}
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center mb-6">
+                <MedlinkLogo size="md" />
               </div>
-              <p className="text-gray-400 leading-relaxed">
-                Connecting patients with verified healthcare providers for professional home visits across Calgary.
+              <p className="text-gray-400 mb-6 max-w-md">
+                Professional in-home healthcare services across Calgary. Licensed providers, secure booking, and trusted care at your doorstep.
               </p>
+              
+              {/* Contact Info */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center text-gray-300">
+                  <span className="text-sm font-medium">Phone:</span>
+                  <span className="ml-2 text-sm">1-844-MEDLINK</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-sm font-medium">Service Area:</span>
+                  <span className="ml-2 text-sm">Calgary, Alberta</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-sm font-medium">Hours:</span>
+                  <span className="ml-2 text-sm">7 AM - 11 PM Daily</span>
+                </div>
+              </div>
+              
               <div className="flex space-x-4">
                 <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
                 <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
@@ -381,11 +398,11 @@ export default function HowItWorks() {
             <div>
               <h3 className="text-lg font-semibold mb-6">For Patients</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
-                <li><Link href="/rapid-services" className="hover:text-white transition-colors">Rapid Services</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">All Services</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Insurance Coverage</Link></li>
+                <li><Link href="/providers" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Find Providers</Link></li>
+                <li><Link href="/rapid-services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Rapid Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>All Services</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>How It Works</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Insurance Coverage</Link></li>
               </ul>
             </div>
             
@@ -393,11 +410,11 @@ export default function HowItWorks() {
             <div>
               <h3 className="text-lg font-semibold mb-6">For Providers</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/provider-registration" className="hover:text-white transition-colors">Join MedLink</Link></li>
-                <li><Link href="/provider-dashboard" className="hover:text-white transition-colors">Provider Portal</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors">Verification Process</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Provider Support</Link></li>
-                <li><Link href="/about" className="hover:text-white transition-colors">Professional Resources</Link></li>
+                <li><Link href="/apply" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Join MedLink</Link></li>
+                <li><Link href="/dashboard/provider" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Portal</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Verification Process</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Support</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Professional Resources</Link></li>
               </ul>
             </div>
             
@@ -405,9 +422,9 @@ export default function HowItWorks() {
             <div>
               <h3 className="text-lg font-semibold mb-6">Company</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About MedLink</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Support Center</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>About MedLink</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Safety & Trust</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Support Center</Link></li>
                 <li><a href="mailto:hello@medlink.ca" className="hover:text-white transition-colors">hello@medlink.ca</a></li>
                 <li><a href="tel:1-844-633-5465" className="hover:text-white transition-colors">1-844-MEDLINK</a></li>
               </ul>
@@ -425,7 +442,7 @@ export default function HowItWorks() {
             
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="text-gray-400 text-sm">
-                © 2025 MedLink House Calls Inc. All rights reserved.
+                © 2024 MedLink House Calls Inc. All rights reserved.
               </div>
               <div className="flex space-x-6 mt-4 md:mt-0">
                 <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
