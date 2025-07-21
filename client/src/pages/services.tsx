@@ -157,49 +157,7 @@ export default function Services() {
                   return (
                     <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
                       <CardHeader className="pb-4">
-                        {/* Service illustration */}
-                        <div className="w-full h-20 mb-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl flex items-center justify-center">
-                          {service.name.includes('General') && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="12" r="4" fill="#3b82f6"/>
-                              <path d="M12 28 C12 22, 15 20, 20 20 C25 20, 28 22, 28 28 L28 32 L12 32 Z" fill="#3b82f6"/>
-                              <rect x="17" y="25" width="6" height="4" rx="1" fill="#ffffff"/>
-                              <circle cx="30" cy="10" r="3" fill="#10b981"/>
-                              <path d="M28 10 L29 11 L32 8" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                            </svg>
-                          )}
-                          {service.name.includes('Nursing') && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="12" r="4" fill="#ef4444"/>
-                              <path d="M12 28 C12 22, 15 20, 20 20 C25 20, 28 22, 28 28 L28 32 L12 32 Z" fill="#ef4444"/>
-                              <rect x="16" y="6" width="8" height="4" rx="2" fill="#ffffff"/>
-                              <rect x="18" y="7" width="4" height="2" fill="#ef4444"/>
-                              <path d="M18 8 L22 8 M20 7 L20 9" stroke="#ffffff" strokeWidth="1"/>
-                            </svg>
-                          )}
-                          {service.name.includes('Physical') && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="12" r="4" fill="#8b5cf6"/>
-                              <path d="M12 28 C12 22, 15 20, 20 20 C25 20, 28 22, 28 28 L28 32 L12 32 Z" fill="#8b5cf6"/>
-                              <path d="M24 18 C26 16, 28 18, 26 20 L22 24" stroke="#f59e0b" strokeWidth="2" fill="none"/>
-                              <circle cx="26" cy="16" r="1" fill="#f59e0b"/>
-                            </svg>
-                          )}
-                          {(service.name.includes('Mental') || service.name.includes('Counseling')) && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="20" r="12" fill="#10b981"/>
-                              <path d="M15 18 C15 15, 17 13, 20 13 C23 13, 25 15, 25 18" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                              <circle cx="17" cy="21" r="1.5" fill="#ffffff"/>
-                              <circle cx="23" cy="21" r="1.5" fill="#ffffff"/>
-                              <path d="M16 25 C17 27, 19 28, 20 28 C21 28, 23 27, 24 25" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                            </svg>
-                          )}
-                          {!service.name.includes('General') && !service.name.includes('Nursing') && !service.name.includes('Physical') && !service.name.includes('Mental') && !service.name.includes('Counseling') && (
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                              {IconComponent && <IconComponent className="h-5 w-5 text-white" />}
-                            </div>
-                          )}
-                        </div>
+
 
                         <div className="flex items-center justify-between mb-4">
                           <div className="w-12 h-12 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
