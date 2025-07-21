@@ -10,7 +10,7 @@ import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import familyPhoto from "@assets/pexels-askar-abayev-5638603_1753137131731.jpg";
+import familyPhoto from "@assets/pexels-rdne-5637704_1753137473491.jpg";
 
 export default function Landing() {
   return (
@@ -19,15 +19,16 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
-        {/* Background Image - Multigenerational Family Gathering */}
+        {/* Background Image - Multigenerational Family with Flowers */}
         <div className="absolute inset-0 z-0">
           <img 
             src={familyPhoto}
-            alt="Happy multigenerational family gathering"
+            alt="Happy multigenerational family with colorful flowers"
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white/90" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-white/95" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20" />
+          <div className="absolute inset-0 bg-white/10" />
         </div>
 
         {/* Content */}
