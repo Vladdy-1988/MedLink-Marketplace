@@ -17,53 +17,107 @@ export default function Landing() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white">
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-          <div className="text-center">
-            <h1 className="text-display text-5xl lg:text-7xl font-black mb-6 leading-[0.9] text-balance">
-              Quality Healthcare
-              <span className="block">Delivered to Your Door</span>
-            </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto font-medium text-balance leading-relaxed">
-              Connect with licensed healthcare providers in Calgary for professional in-home medical services through MedLink. Safe, convenient, and trusted.
-            </p>
-            
-            {/* Search Bar */}
-            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="relative">
-                  <Label className="block text-sm font-medium text-gray-700 mb-2">Service Type</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Services" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Services</SelectItem>
-                      <SelectItem value="nursing">Nursing Care</SelectItem>
-                      <SelectItem value="physio">Physiotherapy</SelectItem>
-                      <SelectItem value="dental">Dental Hygiene</SelectItem>
-                      <SelectItem value="lab">Lab Services</SelectItem>
-                      <SelectItem value="alternative">Alternative Therapy</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="relative">
-                  <Label className="block text-sm font-medium text-gray-700 mb-2">Date</Label>
-                  <Input type="date" min={new Date().toISOString().split('T')[0]} />
-                </div>
-                <div className="relative">
-                  <Label className="block text-sm font-medium text-gray-700 mb-2">Location</Label>
-                  <Input type="text" placeholder="Calgary, AB" />
+      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='1920' height='1080' viewBox='0 0 1920 1080' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f0f9ff'/%3E%3Cstop offset='50%25' stop-color='%23ffffff'/%3E%3Cstop offset='100%25' stop-color='%23f0fdf4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23bg)'/%3E%3Cg opacity='0.4'%3E%3Ccircle cx='400' cy='300' r='120' fill='%2393c5fd' opacity='0.3'/%3E%3Ccircle cx='1200' cy='200' r='80' fill='%236ee7b7' opacity='0.3'/%3E%3Ccircle cx='1500' cy='600' r='100' fill='%23a5b4fc' opacity='0.3'/%3E%3Ccircle cx='300' cy='700' r='60' fill='%23fde68a' opacity='0.3'/%3E%3C/g%3E%3C/svg%3E")`
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/80" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex items-center min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+            <div className="text-center">
+              {/* Apple-style large headline */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+                Healthcare
+                <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+                  at your door
+                </span>
+              </h1>
+              
+              {/* Apple-style subtitle with generous spacing */}
+              <div className="max-w-4xl mx-auto mb-16">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+                  Connect with licensed healthcare providers in Calgary for professional in-home medical services.
+                </p>
+                <p className="text-xl sm:text-2xl font-light text-gray-500">
+                  Safe. Convenient. Trusted.
+                </p>
+              </div>
+              
+              {/* Apple-style CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+                <Link href="/providers">
+                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    Find Providers
+                  </Button>
+                </Link>
+                <Link href="/how-it-works">
+                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                    Learn how it works
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Clean search interface */}
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
+                      <Select>
+                        <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
+                          <SelectValue placeholder="All Services" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Services</SelectItem>
+                          <SelectItem value="nursing">Nursing Care</SelectItem>
+                          <SelectItem value="physio">Physiotherapy</SelectItem>
+                          <SelectItem value="dental">Dental Hygiene</SelectItem>
+                          <SelectItem value="lab">Lab Services</SelectItem>
+                          <SelectItem value="alternative">Alternative Therapy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Date</Label>
+                      <Input 
+                        type="date" 
+                        min={new Date().toISOString().split('T')[0]} 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Location</Label>
+                      <Input 
+                        type="text" 
+                        placeholder="Calgary, AB" 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                  </div>
+                  <Link href="/providers">
+                    <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
+                      <Search className="mr-3 h-6 w-6" />
+                      Find Healthcare Providers
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              <Link href="/providers">
-                <Button className="w-full mt-6 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] py-4 text-lg">
-                  <Search className="mr-2 h-5 w-5" />
-                  Find Healthcare Providers
-                </Button>
-              </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Subtle scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
           </div>
         </div>
       </section>

@@ -139,22 +139,50 @@ export default function HowItWorks() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-4 tracking-tight">
-              How MedLink Works
-            </h1>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Getting professional healthcare at home has never been easier. 
-              Follow these simple steps to connect with verified healthcare providers in Calgary.
+      {/* Apple-style Hero Section */}
+      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-blue-50 overflow-hidden flex items-center">
+        {/* Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-1/4 left-10 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+          <div className="absolute top-1/3 right-10 w-40 h-40 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-300"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-36 h-36 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-700"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+            How it
+            <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+              works
+            </span>
+          </h1>
+          
+          <div className="max-w-4xl mx-auto mb-16">
+            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+              Getting professional healthcare at home has never been easier.
             </p>
+            <p className="text-xl sm:text-2xl font-light text-gray-500">
+              Follow these simple steps to connect with verified providers.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
             <Link href="/providers">
-              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl">
+              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                 Get Started
               </Button>
             </Link>
+            <Link href="/about">
+              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                Learn More
+              </Button>
+            </Link>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="mt-20">
+            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
+              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+            </div>
           </div>
         </div>
       </section>

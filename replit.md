@@ -125,7 +125,15 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 
 ## Recent Changes (January 2025)
 
-### Terminology and Branding Update (Latest)
+### Apple-Inspired Visual Design Overhaul (Latest - July 21, 2025)
+- **Homepage Hero Section**: Redesigned with full-width lifestyle background, Apple-style typography (text-6xl to text-9xl headlines), and generous whitespace
+- **Apple Pencil Design Inspiration**: Applied Apple's clean aesthetic across all informational pages (How It Works, About, Rapid Services) with large headlines, smooth scroll transitions, and glassmorphism effects
+- **Enhanced UX Elements**: Added scroll indicators, backdrop blur effects, rounded buttons with shadows, and smooth transition animations
+- **Patient Dashboard Optimization**: Removed "Total Spent" metric as requested for MVP, keeping only essential metrics (Upcoming, Completed, Providers Used)
+- **Button Visibility Fix**: Fixed invisible "Learn More" button on Rapid Services page with proper border styling and shadow effects
+- **Comprehensive Footer System**: Implemented healthcare-focused footers across all pages with contact information, emergency disclaimers, and organized navigation sections
+
+### Terminology and Branding Update 
 - **Emergency to Rapid Services**: Completely eliminated all "emergency" and "urgent" terminology across the entire application
 - **ASAP Positioning**: Repositioned all services as ASAP assistance with priority scheduling for extra cost, completely avoiding emergency/urgent associations
 - **Color Scheme Update**: Replaced red/orange branding with blue/purple rapid service theme  

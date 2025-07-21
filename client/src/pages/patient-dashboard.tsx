@@ -121,9 +121,6 @@ export default function PatientDashboard() {
   ) || [];
 
   const totalProviders = new Set((bookings as any[])?.map((booking: any) => booking.providerId) || []).size;
-  const totalSpent = completedBookings.reduce((sum: number, booking: any) => 
-    sum + parseFloat(booking.totalAmount || 0), 0
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
