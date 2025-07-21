@@ -77,11 +77,22 @@ export default function Landing() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Services</SelectItem>
-                          <SelectItem value="nursing">Nursing Care</SelectItem>
-                          <SelectItem value="physio">Physiotherapy</SelectItem>
-                          <SelectItem value="dental">Dental Hygiene</SelectItem>
-                          <SelectItem value="lab">Lab Services</SelectItem>
-                          <SelectItem value="alternative">Alternative Therapy</SelectItem>
+                          <SelectItem value="general-practice">General Practice</SelectItem>
+                          <SelectItem value="nursing">Nursing Services</SelectItem>
+                          <SelectItem value="physical-therapy">Physical Therapy</SelectItem>
+                          <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
+                          <SelectItem value="palliative-care">Palliative Care</SelectItem>
+                          <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
+                          <SelectItem value="mental-health">Mental Health</SelectItem>
+                          <SelectItem value="vaccinations">Vaccinations</SelectItem>
+                          <SelectItem value="dental-care">Dental Care</SelectItem>
+                          <SelectItem value="hearing-services">Hearing Services</SelectItem>
+                          <SelectItem value="vision-care">Vision Care</SelectItem>
+                          <SelectItem value="podiatry">Podiatry</SelectItem>
+                          <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
+                          <SelectItem value="nutrition">Nutrition</SelectItem>
+                          <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                          <SelectItem value="iv-therapy">IV Therapy</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
