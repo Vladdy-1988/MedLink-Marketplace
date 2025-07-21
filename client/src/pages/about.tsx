@@ -1,238 +1,209 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { 
   Heart, 
   Shield, 
   Users, 
-  Award, 
-  Clock, 
-  MapPin,
   CheckCircle,
   Facebook,
   Twitter,
   Instagram,
-  Linkedin
+  Linkedin,
+  Play
 } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Apple-style Hero Section */}
-      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-green-50 overflow-hidden flex items-center">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 right-20 w-40 h-40 bg-green-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
-          <div className="absolute bottom-1/3 left-20 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-500"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
-            Reimagining
-            <span className="block text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text">
-              healthcare
-            </span>
-          </h1>
-          
-          <div className="max-w-4xl mx-auto mb-16">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
-              We're revolutionizing healthcare delivery in Calgary by bringing professional medical services directly to your home.
+      {/* Hero Section - Fora inspired */}
+      <section className="relative py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-8 leading-tight">
+              The Modern Healthcare Experience
+            </h1>
+            <p className="text-xl sm:text-2xl text-gray-600 mb-12 leading-relaxed">
+              MedLink House Calls was founded by two Calgary professionals who share one belief: high-quality healthcare should come to you—comfortably, safely, and on your schedule.
             </p>
-            <p className="text-xl sm:text-2xl font-light text-gray-500">
-              Convenient, personal, and stress-free healthcare.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Meet Our Providers
-              </Button>
-            </Link>
-            <Link href="/safety">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                Safety & Trust
-              </Button>
-            </Link>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="mt-20">
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+            
+            {/* Video placeholder with play button */}
+            <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-16 mb-16 shadow-lg">
+              <div className="flex items-center justify-center">
+                <button className="bg-blue-600 hover:bg-blue-700 rounded-full p-6 shadow-xl transition-all duration-300 hover:scale-105">
+                  <Play className="h-8 w-8 text-white ml-1" fill="currentColor" />
+                </button>
+              </div>
+              <p className="text-gray-600 mt-6 text-lg">Meet Our Founders</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mission & Vision */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <Card className="p-8 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center mb-6">
-                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                  <Heart className="w-8 h-8 text-white" />
+      {/* Co-Founders Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl font-bold text-gray-900 text-center mb-16">Our Co-Founders</h2>
+          
+          <div className="grid md:grid-cols-2 gap-16">
+            {/* Paula Martinez */}
+            <div className="text-center">
+              <div className="relative mb-8">
+                <div className="w-64 h-64 mx-auto bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-4xl font-bold text-white">PM</span>
+                  </div>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
               </div>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                To make quality healthcare accessible to everyone in Calgary by eliminating barriers like transportation, 
-                mobility issues, and busy schedules. We believe healthcare should come to you, not the other way around.
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Paula Martínez</h3>
+              <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & CEO</p>
+              <p className="text-gray-600 text-left leading-relaxed mb-6">
+                A digital-media strategist with 7+ years leading award-winning campaigns for lifestyle and wellness brands, Paula has spent her career making complex services simple and accessible online. She guides MedLink's product vision, patient experience, and growth strategy—translating her passion for community, technology, and inclusive care into a platform that puts people first.
               </p>
-            </Card>
+              <div className="text-left">
+                <p className="font-semibold text-gray-900 mb-2">Expertise:</p>
+                <ul className="text-gray-600 space-y-1">
+                  <li>• Digital marketing & SEO</li>
+                  <li>• Product & brand strategy</li>
+                  <li>• Data-driven user experience</li>
+                </ul>
+              </div>
+            </div>
 
-            <Card className="p-8 hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-center mb-6">
-                <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mr-4">
-                  <Shield className="w-8 h-8 text-white" />
+            {/* Vlad */}
+            <div className="text-center">
+              <div className="relative mb-8">
+                <div className="w-64 h-64 mx-auto bg-gradient-to-br from-blue-100 to-teal-100 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-4xl font-bold text-white">VD</span>
+                  </div>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">Our Vision</h2>
               </div>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                To become Canada's leading home healthcare platform, setting the gold standard for convenience, 
-                safety, and quality in at-home medical services while supporting healthcare professionals with modern tools and opportunities.
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Vlad — DD, Denturist</h3>
+              <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & Chief Clinical Partnerships Officer</p>
+              <p className="text-gray-600 text-left leading-relaxed mb-6">
+                With over a decade owning and operating denture clinics across Alberta, Vlad knows first-hand how life-changing in-home care can be for patients with mobility or chronic-health challenges. He oversees provider recruitment, compliance, and quality assurance, ensuring every professional on MedLink is fully licensed, background-checked, and committed to compassionate, patient-centric service.
               </p>
-            </Card>
+              <div className="text-left">
+                <p className="font-semibold text-gray-900 mb-2">Expertise:</p>
+                <ul className="text-gray-600 space-y-1">
+                  <li>• Clinical operations & patient care</li>
+                  <li>• Provider vetting & standards</li>
+                  <li>• Mobile dental and allied-health logistics</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Our Story</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Born from a simple idea: healthcare should be accessible, convenient, and patient-centered.
+      {/* Mission Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="grid md:grid-cols-3 gap-12 mb-16">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Patients</h3>
+              <p className="text-gray-600">Trusted, vetted professionals who deliver medical, dental, therapy, and wellness services right to their doorstep.</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Shield className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Providers</h3>
+              <p className="text-gray-600">Trusted distribution that delivers high-quality customers and comprehensive support infrastructure.</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Healthcare</h3>
+              <p className="text-gray-600">Better experience, better outcomes, better access to quality care in the comfort of home.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Mission */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-8">Our Mission</h2>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              To make healthcare as effortless as ordering your favourite meal—connecting Calgarians to trusted, vetted professionals who deliver medical, dental, therapy, and wellness services right to their doorstep.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Our Promise */}
+      <section className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-8">Our Promise</h2>
+          </div>
           
-          <div className="max-w-4xl mx-auto">
-            <Card className="p-8 shadow-lg">
-              <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                MedLink House Calls was founded in Calgary with a clear vision: to bridge the gap between patients who need care 
-                and healthcare providers who want to make a meaningful difference. We recognized that many people struggle to access 
-                healthcare due to mobility challenges, transportation barriers, busy schedules, or simply the stress of clinical environments.
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Shield className="h-10 w-10 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Trust</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Every provider is thoroughly screened, licensed, and insured.
               </p>
-              
-              <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                Our platform connects certified healthcare professionals with patients in their homes, creating a win-win situation. 
-                Patients receive personalized, convenient care in their comfort zone, while providers can focus on what they do best - 
-                healing and caring - without the overhead of traditional clinical settings.
+            </div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-10 w-10 text-purple-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Transparency</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Clear pricing, real-time scheduling, and honest reviews—no surprises.
               </p>
-              
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Today, we're proud to serve the Calgary community with a comprehensive range of healthcare services, 
-                from routine nursing care to specialized therapies, all delivered with the highest standards of safety and professionalism.
+            </div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-10 w-10 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Comfort</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Receive quality care at home, on your terms.
               </p>
-            </Card>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="py-16 bg-gradient-to-r from-blue-50 to-green-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose MedLink?</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We're more than a healthcare platform - we're your partners in wellness.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Certified Professionals</h3>
-              <p className="text-gray-600 text-center">
-                All our healthcare providers are fully licensed, insured, and background-checked professionals 
-                committed to delivering exceptional care.
-              </p>
-            </Card>
-
-            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Flexible Scheduling</h3>
-              <p className="text-gray-600 text-center">
-                Book appointments that fit your schedule, including evenings and weekends. 
-                Healthcare on your terms, when you need it most.
-              </p>
-            </Card>
-
-            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Calgary-Focused</h3>
-              <p className="text-gray-600 text-center">
-                We know Calgary. Our local expertise means we understand Alberta's healthcare system 
-                and what our community needs.
-              </p>
-            </Card>
-
-            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Insurance Compatible</h3>
-              <p className="text-gray-600 text-center">
-                Many of our services are covered by Alberta Health Services and private insurance plans. 
-                We help with documentation and billing.
-              </p>
-            </Card>
-
-            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Personalized Care</h3>
-              <p className="text-gray-600 text-center">
-                One-on-one attention in the comfort of your home. Build lasting relationships 
-                with healthcare providers who truly know you.
-              </p>
-            </Card>
-
-            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">Community Impact</h3>
-              <p className="text-gray-600 text-center">
-                Supporting local healthcare professionals while improving access to care 
-                for Calgary families, seniors, and individuals with mobility challenges.
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-16 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Ready to Experience Better Healthcare?</h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of Calgary residents who have discovered the convenience and quality of home healthcare.
+      {/* Closing Statement */}
+      <section className="py-24 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+            Digital Innovation Meets Clinical Excellence
+          </h2>
+          <p className="text-xl text-gray-600 leading-relaxed mb-12">
+            Together, Paula and Vlad combine digital innovation with clinical excellence to re-imagine house calls for today's world—starting in Calgary, and soon expanding across Canada.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link href="/providers">
-              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl">
-                Find Providers
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                Book Your Visit
               </Button>
             </Link>
-            <Link href="/services">
-              <Button size="lg" className="border border-white bg-transparent text-white hover:bg-white hover:text-[hsl(207,90%,54%)] font-semibold px-8 py-3 rounded-xl transition-all duration-300">
-                Browse Services
+            <Link href="/provider-registration">
+              <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-12 py-4 text-lg font-semibold rounded-full transition-all duration-300">
+                Join as Provider
               </Button>
             </Link>
           </div>
