@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,434 +17,475 @@ import {
   Facebook,
   Twitter,
   Instagram,
-  Linkedin
+  Linkedin,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Stethoscope,
+  Home,
+  Plus,
+  Minus,
+  Activity,
+  Users,
+  FileText,
+  Sparkles,
+  ArrowRight,
+  Info
 } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const steps = [
+// Service pricing data
+const servicePricing = {
+  "General Practice": { base: 80, insurance: "Alberta Health Services" },
+  "Nursing Care": { base: 90, insurance: "Extended Health Plans" },
+  "Physical Therapy": { base: 120, insurance: "Extended Health Plans" },
+  "Mental Health": { base: 150, insurance: "Extended Health Plans" },
+  "Lab Tests": { base: 60, insurance: "Alberta Health Services" },
+  "Vaccinations": { base: 40, insurance: "Alberta Health Services" },
+  "Dental Care": { base: 200, insurance: "Specialty Plans" },
+  "Specialized Care": { base: 180, insurance: "Varies by Plan" }
+};
+
+const memberTestimonials = [
   {
-    step: 1,
-    title: "Browse & Search",
-    description: "Find the perfect healthcare provider for your needs using our advanced search and filtering system.",
-    icon: Search,
-    details: [
-      "Browse by specialty and service type",
-      "Filter by location, availability, and price",
-      "Read provider profiles and reviews",
-      "Compare qualifications and experience"
-    ]
+    name: "Sarah Chen",
+    avatar: "SC",
+    visits: "15+ visits on MedLink",
+    quote: "Having healthcare come to me has been life-changing. I can manage my chronic condition without the stress of travel and waiting rooms.",
+    tip: "Book recurring appointments with the same provider for continuity of care"
   },
   {
-    step: 2,
-    title: "Book Your Appointment",
-    description: "Schedule your appointment at a time that works for you with our easy booking system.",
-    icon: Calendar,
-    details: [
-      "View real-time availability",
-      "Select convenient time slots",
-      "Provide basic health information",
-      "Specify any special requirements"
-    ]
+    name: "Robert Martinez", 
+    avatar: "RM",
+    visits: "8+ visits on MedLink",
+    quote: "As a busy parent, MedLink saves me hours every week. My kids get quality care at home while I can continue working.",
+    tip: "Schedule family appointments back-to-back for efficiency"
   },
   {
-    step: 3,
-    title: "Provider Confirmation",
-    description: "Your chosen healthcare provider reviews and confirms your appointment details.",
-    icon: UserCheck,
-    details: [
-      "Provider reviews your booking request",
-      "Confirmation sent within 2-4 hours",
-      "Direct communication with provider",
-      "Pre-appointment health questionnaire"
-    ]
-  },
-  {
-    step: 4,
-    title: "Service Delivery",
-    description: "Your healthcare provider arrives at your location and delivers professional care.",
-    icon: MapPin,
-    details: [
-      "Provider arrives at scheduled time",
-      "Professional, personalized care",
-      "All necessary equipment provided",
-      "Detailed service documentation"
-    ]
-  },
-  {
-    step: 5,
-    title: "Payment & Review",
-    description: "Complete secure payment and share your experience to help others.",
-    icon: CreditCard,
-    details: [
-      "Secure payment processing",
-      "Transparent pricing with no hidden fees",
-      "Digital receipts and invoices",
-      "Rate and review your experience"
-    ]
+    name: "Emily Thompson",
+    avatar: "ET", 
+    visits: "20+ visits on MedLink",
+    quote: "The convenience is unmatched. I've had everything from physio to mental health support, all in my living room.",
+    tip: "Use the rapid service option when you need same-day care"
   }
 ];
 
-const benefits = [
-  {
-    title: "Convenience",
-    description: "No travel time, no waiting rooms, no parking hassles. Healthcare comes to you.",
-    icon: Clock
-  },
-  {
-    title: "Quality Care",
-    description: "All providers are licensed, verified, and continuously monitored for quality.",
-    icon: Shield
-  },
-  {
-    title: "Personalized Service",
-    description: "One-on-one attention in the comfort and privacy of your own home.",
-    icon: Star
-  },
-  {
-    title: "24/7 Support",
-    description: "Our customer support team is available around the clock to assist you.",
-    icon: Phone
-  }
-];
-
-const faqs = [
-  {
-    question: "How do I know the providers are qualified?",
-    answer: "All providers go through a rigorous verification process including license validation, background checks, and ongoing quality monitoring. We only work with certified, experienced healthcare professionals."
-  },
-  {
-    question: "What areas do you serve?",
-    answer: "We currently serve the greater Calgary area including all quadrants (NE, NW, SE, SW) and surrounding communities. Coverage areas vary by provider and service type."
-  },
-  {
-    question: "How much do services cost?",
-    answer: "Pricing varies by service type and provider. You'll see transparent pricing before booking, with no hidden fees. Most services range from $60-150 per visit, with rapid services having priority pricing."
-  },
-  {
-    question: "What if I need to cancel or reschedule?",
-    answer: "You can cancel or reschedule up to 4 hours before your appointment through your dashboard or by contacting the provider directly. Cancellations within 4 hours may incur a fee."
-  },
-  {
-    question: "Is this covered by Alberta Health?",
-    answer: "Some services may be covered by Alberta Health or private insurance. We provide detailed receipts that you can submit to your insurance provider for potential reimbursement."
-  },
-  {
-    question: "What if I need rapid care?",
-    answer: "For life-threatening situations, always call 911. Our rapid services are for ASAP, non-life-threatening situations that require prompt professional attention."
-  }
+const providerImages = [
+  { alt: "Doctor consultation", bg: "from-blue-100 to-blue-200" },
+  { alt: "Physical therapy session", bg: "from-purple-100 to-purple-200" },
+  { alt: "Mental health counseling", bg: "from-green-100 to-green-200" },
+  { alt: "Home nursing care", bg: "from-pink-100 to-pink-200" },
+  { alt: "Lab test collection", bg: "from-yellow-100 to-yellow-200" },
+  { alt: "Vaccination service", bg: "from-indigo-100 to-indigo-200" },
+  { alt: "Dental care", bg: "from-red-100 to-red-200" },
+  { alt: "Specialized care", bg: "from-teal-100 to-teal-200" }
 ];
 
 export default function HowItWorks() {
+  const [selectedService, setSelectedService] = useState("General Practice");
+  const [visitDuration, setVisitDuration] = useState(1);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
+  const selectedServiceData = servicePricing[selectedService as keyof typeof servicePricing];
+  const serviceFee = 35 * visitDuration;
+  const totalCost = selectedServiceData.base * visitDuration + serviceFee;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Apple-style Hero Section */}
-      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-blue-50 overflow-hidden flex items-center">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-10 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-          <div className="absolute top-1/3 right-10 w-40 h-40 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-300"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-36 h-36 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-700"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
-            How it
-            <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-              works
-            </span>
-          </h1>
+      {/* Hero Section */}
+      <section className="relative bg-gray-50 py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-6">
+              A patient-first healthcare community
+            </h1>
+            <p className="text-xl sm:text-2xl lg:text-3xl text-gray-600 max-w-4xl mx-auto font-light">
+              Stay healthy with home visits from verified providers for a fraction of the cost.
+            </p>
+          </div>
           
-          <div className="max-w-4xl mx-auto mb-16">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
-              Getting professional healthcare at home has never been easier.
-            </p>
-            <p className="text-xl sm:text-2xl font-light text-gray-500">
-              Follow these simple steps to connect with verified providers.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Get Started
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                Learn More
-              </Button>
-            </Link>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="mt-20">
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
-            </div>
+          {/* Image Grid */}
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mt-12 max-w-6xl mx-auto">
+            {providerImages.map((image, index) => (
+              <div key={index} className="relative aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className={`absolute inset-0 bg-gradient-to-br ${image.bg}`} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Activity className="h-8 w-8 text-white/80" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Steps Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
-              Simple <span className="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">5-step</span> process
-            </h2>
-            <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto font-light">
-              From booking to recovery, we've streamlined every step to make your healthcare experience seamless and stress-free.
-            </p>
+      {/* How Healthcare Works Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">How healthcare works</h2>
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+              MedLink is a community of patients connecting with verified providers.
+            </h3>
           </div>
-          
-          {/* Enhanced Steps Layout */}
-          <div className="space-y-16">
-            {steps.map((step, index) => {
-              const IconComponent = step.icon;
-              const isEven = index % 2 === 0;
-              
-              return (
-                <div key={index} className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20`}>
-                  {/* Step Visual */}
-                  <div className="flex-1 flex justify-center">
-                    <div className="relative">
-                      {/* Large Step Number Background */}
-                      <div className="absolute -top-8 -left-8 text-8xl sm:text-9xl font-black text-gray-100 select-none">
-                        {String(index + 1).padStart(2, '0')}
-                      </div>
-                      
-                      {/* Main Step Card */}
-                      <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 backdrop-blur-sm">
-                        {/* Step illustration */}
-                        <div className="w-full h-24 mb-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl flex items-center justify-center">
-                          {index === 0 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="15" y="20" width="30" height="25" rx="3" fill="#3b82f6"/>
-                              <rect x="15" y="20" width="30" height="6" fill="#1d4ed8"/>
-                              <circle cx="22" cy="17" r="1.5" fill="#3b82f6"/>
-                              <circle cx="38" cy="17" r="1.5" fill="#3b82f6"/>
-                              <rect x="20" y="28" width="8" height="2" fill="#ffffff"/>
-                              <rect x="32" y="28" width="8" height="2" fill="#ffffff"/>
-                              <rect x="20" y="33" width="6" height="2" fill="#ffffff"/>
-                              <circle cx="37" cy="34" r="2" fill="#10b981"/>
-                            </svg>
-                          )}
-                          {index === 1 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="30" cy="20" r="6" fill="#3b82f6"/>
-                              <path d="M18 40 C18 32, 23 28, 30 28 C37 28, 42 32, 42 40 L42 45 L18 45 Z" fill="#3b82f6"/>
-                              <rect x="26" y="37" width="8" height="6" rx="2" fill="#ffffff"/>
-                              <path d="M28 39 L30 41 L32 39" stroke="#3b82f6" strokeWidth="1" fill="none"/>
-                              <circle cx="45" cy="15" r="5" fill="#10b981"/>
-                              <path d="M42 15 L44 17 L48 13" stroke="#ffffff" strokeWidth="1.5" fill="none"/>
-                            </svg>
-                          )}
-                          {index === 2 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="20" y="25" width="20" height="15" rx="2" fill="#ffffff" stroke="#3b82f6" strokeWidth="2"/>
-                              <line x1="25" y1="30" x2="35" y2="30" stroke="#3b82f6" strokeWidth="1"/>
-                              <line x1="25" y1="33" x2="32" y2="33" stroke="#3b82f6" strokeWidth="1"/>
-                              <circle cx="37" cy="37" r="2" fill="#10b981"/>
-                              <path d="M35 37 L36 38 L39 35" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                              <rect x="15" y="15" width="6" height="6" rx="1" fill="#8b5cf6"/>
-                              <path d="M16 18 L18 20 L22 16" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                            </svg>
-                          )}
-                          {index === 3 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 35 L30 25 L40 35 L40 45 C40 46 39 47 38 47 L22 47 C21 47 20 46 20 45 Z" fill="#3b82f6"/>
-                              <rect x="27" y="38" width="6" height="9" fill="#ffffff"/>
-                              <circle cx="29" cy="40" r="0.5" fill="#3b82f6"/>
-                              <rect x="32" y="32" width="4" height="3" fill="#ffffff"/>
-                              <line x1="33" y1="32" x2="33" y2="35" stroke="#3b82f6" strokeWidth="0.5"/>
-                              <line x1="32" y1="33.5" x2="36" y2="33.5" stroke="#3b82f6" strokeWidth="0.5"/>
-                              <circle cx="42" cy="25" r="4" fill="#ef4444"/>
-                              <path d="M40 25 L44 25 M42 23 L42 27" stroke="#ffffff" strokeWidth="1.5"/>
-                            </svg>
-                          )}
-                          {index === 4 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="20" y="25" width="20" height="15" rx="2" fill="#ffffff" stroke="#3b82f6" strokeWidth="2"/>
-                              <path d="M22 32 L25 35 L38 22" stroke="#10b981" strokeWidth="2" fill="none"/>
-                              <circle cx="42" cy="18" r="3" fill="#10b981"/>
-                              <path d="M40 18 L41 19 L44 16" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                              <rect x="15" y="42" width="30" height="3" rx="1.5" fill="#fbbf24"/>
-                              <circle cx="18" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="23" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="28" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="33" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="38" cy="43.5" r="3" fill="#f59e0b"/>
-                            </svg>
-                          )}
-                        </div>
 
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                          <IconComponent className="h-10 w-10 text-white" />
-                        </div>
-                        
-                        <div className="w-12 h-12 bg-[hsl(207,90%,54%)] rounded-full flex items-center justify-center text-white text-xl font-bold mb-4">
-                          {index + 1}
-                        </div>
-                        
-                        {/* Progress indicator */}
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                          <div 
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500"
-                            style={{ width: `${((index + 1) / steps.length) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Shield className="h-6 w-6 text-blue-600" />
                   </div>
-                  
-                  {/* Step Content */}
-                  <div className="flex-1 space-y-6 text-center lg:text-left">
-                    <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                      {step.title}
-                    </h3>
-                    
-                    <p className="text-xl sm:text-2xl text-gray-600 font-light leading-relaxed">
-                      {step.description}
-                    </p>
-                    
-                    {/* Enhanced Details List */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                      {step.details.map((detail, detailIndex) => (
-                        <div key={detailIndex} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                            <CheckCircle className="h-4 w-4 text-white" />
-                          </div>
-                          <span className="text-gray-700 font-medium leading-relaxed">{detail}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Step-specific CTA */}
-                    {index === 0 && (
-                      <div className="mt-8">
-                        <Link href="/providers">
-                          <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                            Start Browsing Providers
-                          </Button>
-                        </Link>
-                      </div>
-                    )}
+                  <CardTitle className="text-xl font-bold">Everyone is vetted</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 leading-relaxed">
+                  All healthcare providers must pass rigorous verification including license validation, background checks, and ongoing quality monitoring before joining our platform.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <Star className="h-6 w-6 text-green-600" />
+                  </div>
+                  <CardTitle className="text-xl font-bold">Quality guaranteed</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 leading-relaxed">
+                  Unlike traditional clinics, every provider maintains high ratings through continuous patient feedback. We ensure consistent quality care in the comfort of your home.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-8">
+            <Link href="/providers">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                Browse Providers
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How Booking Works Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">How booking works</h2>
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+              Book appointments. Receive care. Stay healthy.
+            </h3>
+          </div>
+
+          <div className="space-y-12">
+            {/* Step 1 */}
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1">
+                <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+                  <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl mb-6 flex items-center justify-center">
+                    <Search className="h-16 w-16 text-blue-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-4">Browse available providers</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Search from a selection of 100+ verified healthcare providers in Calgary. Filter by specialty, location, and availability.
+                  </p>
+                  <div className="mt-4 text-sm text-gray-500">
+                    All new patients get their first consultation at 20% off
                   </div>
                 </div>
-              );
-            })}
-          </div>
-          
-          {/* Call to Action */}
-          <div className="text-center mt-20">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-12 border border-blue-100">
-              <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-                Ready to experience healthcare at home?
-              </h3>
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                Join thousands of Calgarians who have chosen convenience and quality care with MedLink.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/providers">
-                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-10 py-4 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                    Find Providers
-                  </Button>
-                </Link>
-                <Link href="/services">
-                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-10 py-4 rounded-full font-semibold bg-white transition-all duration-300">
-                    Browse Services
-                  </Button>
-                </Link>
+              </div>
+              <div className="flex-1">
+                <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
+                  <div className="w-full h-48 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl mb-6 flex items-center justify-center">
+                    <Calendar className="h-16 w-16 text-green-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900 mb-4">Schedule your appointment</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Book your preferred time slot and receive instant confirmation. We handle all the coordination while you relax.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Member Tip */}
+            <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+              <div className="flex items-start gap-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className="bg-blue-600 text-white">{memberTestimonials[0].avatar}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span className="font-semibold text-gray-900">Member Pro Tip: Book Early</span>
+                  </div>
+                  <p className="text-gray-700 italic">"{memberTestimonials[0].tip}"</p>
+                  <p className="text-sm text-gray-500 mt-1">- {memberTestimonials[0].name}, {memberTestimonials[0].visits}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Interactive Pricing Section */}
+      <section className="py-16 bg-white" id="pricing">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-              Why Choose MedLink?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Experience the future of healthcare with our innovative home-care platform.
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">How pricing works</h2>
+            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+              No hidden fees. Just pay per visit.
+            </h3>
+            <p className="text-xl text-gray-600 mt-4">
+              Healthcare that's radically more affordable.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {benefits.map((benefit, index) => {
-              const IconComponent = benefit.icon;
-              return (
-                <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  <CardContent className="p-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <IconComponent className="h-8 w-8 text-white" />
+          {/* Pricing Calculator */}
+          <div className="bg-gray-50 rounded-3xl p-8 shadow-lg">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Left side - Calculator */}
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    What service do you need?
+                  </label>
+                  <Select value={selectedService} onValueChange={setSelectedService}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(servicePricing).map((service) => (
+                        <SelectItem key={service} value={service}>{service}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    How many visits?
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setVisitDuration(Math.max(1, visitDuration - 1))}
+                      className="rounded-full"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="text-2xl font-bold text-gray-900 w-16 text-center">
+                      {visitDuration}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setVisitDuration(visitDuration + 1)}
+                      className="rounded-full"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right side - Cost breakdown */}
+              <div className="bg-white rounded-2xl p-6 space-y-4">
+                <h4 className="font-semibold text-gray-900 mb-4">Cost breakdown</h4>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center pb-3 border-b">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600">Service fee</span>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <Info className="h-4 w-4" />
+                      </button>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {benefit.description}
+                    <span className="font-semibold">${selectedServiceData.base * visitDuration}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center pb-3 border-b">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600">Platform fee</span>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <Info className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <span className="font-semibold">${serviceFee}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center pt-3">
+                    <span className="text-xl font-bold text-gray-900">Total</span>
+                    <span className="text-2xl font-bold text-blue-600">${totalCost}</span>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                    <p className="text-sm text-green-800">
+                      <CheckCircle className="h-4 w-4 inline mr-1" />
+                      May be covered by {selectedServiceData.insurance}
                     </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link href="/providers">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Member Testimonial */}
+          <div className="mt-12 bg-purple-50 rounded-2xl p-6 border border-purple-100">
+            <div className="flex items-start gap-4">
+              <Avatar className="h-12 w-12">
+                <AvatarFallback className="bg-purple-600 text-white">{memberTestimonials[1].avatar}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  <span className="font-semibold text-gray-900">Member Pro Tip: Family Care</span>
+                </div>
+                <p className="text-gray-700 italic">"{memberTestimonials[1].quote}"</p>
+                <p className="text-sm text-gray-500 mt-1">- {memberTestimonials[1].name}, {memberTestimonials[1].visits}</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* FAQs Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-              Frequently Asked Questions
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
+              Frequently asked questions
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get answers to common questions about our services and platform.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {faqs.map((faq, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">
-                    {faq.question}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+          <div className="space-y-6">
+            {/* Booking FAQs */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Booking FAQs</h3>
+              <Accordion type="single" collapsible className="space-y-4">
+                <AccordionItem value="same-day" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    Can I book same-day appointments?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    Yes! We offer rapid services for ASAP healthcare needs. These appointments have priority scheduling and are typically available within 2-4 hours, subject to provider availability.
+                  </AccordionContent>
+                </AccordionItem>
 
-      {/* Call to Action */}
-      <section className="py-16 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight">
-            Ready to Experience Healthcare at Home?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of Calgarians who have discovered the convenience of professional home healthcare.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <AccordionItem value="specialist" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    What if I need to see a specialist?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    MedLink connects you with various specialists including physiotherapists, mental health counselors, dietitians, and more. Some specialists may require a referral from your family doctor.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="prescriptions" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    Are prescriptions available through MedLink?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    Yes, our licensed physicians can prescribe medications when medically appropriate. Prescriptions can be sent directly to your preferred pharmacy for pickup or delivery.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+
+            {/* Provider FAQs */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Provider FAQs</h3>
+              <Accordion type="single" collapsible className="space-y-4">
+                <AccordionItem value="safety" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    How do providers ensure safety and hygiene?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    All providers follow strict health and safety protocols including PPE usage, sanitization of equipment between visits, and adherence to Alberta Health guidelines. Providers are fully vaccinated and undergo regular health screenings.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="equipment" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    What equipment do providers bring?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    Providers come fully equipped with all necessary medical supplies, diagnostic tools, and safety equipment. You don't need to prepare anything special for their visit.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="family" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    Can family members be present during appointments?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    Absolutely! Family members are welcome to be present during appointments. For minors, a parent or guardian must be present. This can be especially helpful for elderly patients or those needing support.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+
+            {/* Pricing FAQs */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Pricing FAQs</h3>
+              <Accordion type="single" collapsible className="space-y-4">
+                <AccordionItem value="membership" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    Is there a membership fee?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    No, there's no membership fee with MedLink. You only pay for the services you use. Our transparent pricing means you know exactly what you'll pay before booking.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="coverage" className="bg-white rounded-lg border-0 shadow-sm px-6">
+                  <AccordionTrigger className="hover:no-underline text-left">
+                    What does the platform fee cover?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600">
+                    The platform fee covers provider verification, appointment coordination, quality assurance, 24/7 support, and technology infrastructure that makes home healthcare possible and safe.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
             <Link href="/providers">
-              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl">
-                Browse Providers
-              </Button>
-            </Link>
-            <Link href="/apply">
-              <Button size="lg" className="border border-white bg-transparent text-white hover:bg-white hover:text-[hsl(207,90%,54%)] font-semibold px-8 py-3 rounded-xl transition-all duration-300">
-                Become a Provider
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                Start Your Healthcare Journey
               </Button>
             </Link>
           </div>
@@ -452,98 +493,64 @@ export default function HowItWorks() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-            {/* Company Info */}
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center mb-6">
-                <MedlinkLogo size="md" />
+      <footer className="bg-gray-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <MedlinkLogo className="h-8 w-8" />
+                <span className="text-xl font-bold">MedLink</span>
               </div>
-              <p className="text-gray-400 mb-6 max-w-md">
-                Professional in-home healthcare services across Calgary. Licensed providers, secure booking, and trusted care at your doorstep.
+              <p className="text-gray-400 text-sm">
+                Professional healthcare, delivered to your door.
               </p>
-              
-              {/* Contact Info */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center text-gray-300">
-                  <span className="text-sm font-medium">Phone:</span>
-                  <span className="ml-2 text-sm">1-844-MEDLINK</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <span className="text-sm font-medium">Service Area:</span>
-                  <span className="ml-2 text-sm">Calgary, Alberta</span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <span className="text-sm font-medium">Hours:</span>
-                  <span className="ml-2 text-sm">7 AM - 11 PM Daily</span>
-                </div>
-              </div>
-              
-              <div className="flex space-x-4">
-                <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                <Instagram className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                <Linkedin className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              </div>
             </div>
-            
-            {/* Patient Resources */}
+
             <div>
-              <h3 className="text-lg font-semibold mb-6">For Patients</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/providers" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Find Providers</Link></li>
-                <li><Link href="/rapid-services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Rapid Services</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>All Services</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>How It Works</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Insurance Coverage</Link></li>
+              <h4 className="font-semibold mb-4">Services</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link href="/services" className="hover:text-white transition-colors">Browse Services</Link></li>
+                <li><Link href="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
+                <li><Link href="/rapid-services" className="hover:text-white transition-colors">Rapid Care</Link></li>
               </ul>
             </div>
-            
-            {/* Provider Resources */}
+
             <div>
-              <h3 className="text-lg font-semibold mb-6">For Providers</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/apply" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Join MedLink</Link></li>
-                <li><Link href="/dashboard/provider" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Portal</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Verification Process</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Support</Link></li>
-                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Professional Resources</Link></li>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Trust</Link></li>
               </ul>
             </div>
-            
-            {/* Company */}
+
             <div>
-              <h3 className="text-lg font-semibold mb-6">Company</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>About MedLink</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Safety & Trust</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Support Center</Link></li>
-                <li><a href="mailto:hello@medlink.ca" className="hover:text-white transition-colors">hello@medlink.ca</a></li>
-                <li><a href="tel:1-844-633-5465" className="hover:text-white transition-colors">1-844-MEDLINK</a></li>
+              <h4 className="font-semibold mb-4">Support</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><Link href="/support" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><a href="tel:1-800-MEDLINK" className="hover:text-white transition-colors">1-800-MEDLINK</a></li>
+                <li><a href="mailto:support@medlink.ca" className="hover:text-white transition-colors">support@medlink.ca</a></li>
               </ul>
             </div>
           </div>
-          
-          {/* Important Notice */}
-          <div className="border-t border-gray-800 mt-12 pt-8">
-            <div className="bg-red-900/30 border border-red-800 rounded-xl p-4 mb-8">
-              <p className="text-red-200 text-sm font-medium text-center">
-                <strong>Important:</strong> For life-threatening emergencies, always call 911 first. 
-                MedLink provides non-emergency healthcare services only.
-              </p>
+
+          <Separator className="my-8 bg-gray-800" />
+
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
+            <p>&copy; 2025 MedLink House Calls. All rights reserved.</p>
+            <div className="flex gap-4">
+              <a href="#" className="hover:text-white transition-colors"><Facebook className="h-5 w-5" /></a>
+              <a href="#" className="hover:text-white transition-colors"><Twitter className="h-5 w-5" /></a>
+              <a href="#" className="hover:text-white transition-colors"><Instagram className="h-5 w-5" /></a>
+              <a href="#" className="hover:text-white transition-colors"><Linkedin className="h-5 w-5" /></a>
             </div>
-            
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-gray-400 text-sm">
-                © 2024 MedLink House Calls Inc. All rights reserved.
-              </div>
-              <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">PIPEDA Compliance</a>
-              </div>
-            </div>
+          </div>
+
+          <div className="mt-8 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+            <p className="text-xs text-red-300 text-center">
+              <strong>Medical Disclaimer:</strong> MedLink is not for medical emergencies. 
+              If you are experiencing a life-threatening emergency, call 911 immediately.
+            </p>
           </div>
         </div>
       </footer>
