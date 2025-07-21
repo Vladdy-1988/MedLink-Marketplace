@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, CheckCircle, Heart, Clock } from "lucide-react";
+import { Star, MapPin, CheckCircle, Heart, Clock, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -116,13 +116,13 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
           )}
         </div>
         
-        {/* Price and Action */}
+        {/* Quote and Reviews */}
         <div className="flex items-center justify-between pt-3 pb-2 border-t border-gray-100">
           <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-4 py-2 rounded-xl">
-            <div className="text-xl font-bold text-gray-900">
-              {provider.price}
+            <div className="text-lg font-bold text-gray-900">
+              Get a Quote
             </div>
-            <div className="text-sm text-gray-500 font-medium">per visit</div>
+            <div className="text-sm text-gray-500 font-medium">Personalized pricing</div>
           </div>
           <div className="text-right">
             <div className="text-xs text-gray-500 mb-1">
@@ -149,11 +149,15 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
               View Profile
             </Button>
           </Link>
-          <Link href={`/booking/${provider.id}/consultation`} className="flex-1">
-            <Button className="w-full bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0">
-              Book Now
-            </Button>
-          </Link>
+          <Button 
+            onClick={() => {
+              // TODO: Implement messaging functionality
+              alert(`Sending message to ${provider.name} for a personalized quote...`);
+            }}
+            className="flex-1 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0"
+          >
+            Get Quote
+          </Button>
         </div>
       </CardContent>
     </Card>

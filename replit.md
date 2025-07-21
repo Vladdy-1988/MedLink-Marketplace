@@ -133,6 +133,8 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Updated Call-to-Actions**: Changed messaging throughout the site to emphasize contacting providers for personalized quotes rather than fixed pricing
 - **Database Schema Ready**: Maintained pricing fields in database schema for when providers set individual rates during consultations, but removed from public display
 - **Insurance Information Retained**: Kept insurance coverage information as it remains relevant regardless of individualized pricing
+- **Quote Button Implementation**: Added "Get Quote" buttons throughout provider profiles, service cards, and provider cards that trigger messaging functionality to providers
+- **Messaging Integration**: All quote requests now trigger direct messaging to providers for personalized consultation and pricing
 
 ## Recent Changes (January 2025)
 

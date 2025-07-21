@@ -21,14 +21,12 @@ export default function ProviderProfile() {
       id: 1,
       name: "Wound Care",
       description: "Professional wound assessment and dressing changes",
-      price: 85,
       duration: 60
     },
     {
       id: 2,
       name: "Medication Management",
       description: "Medication reviews and administration support",
-      price: 75,
       duration: 45
     }
   ];
@@ -165,13 +163,24 @@ export default function ProviderProfile() {
             >
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl p-8 max-w-md">
                 <div className="text-center mb-8">
-                  <div className="text-5xl font-black text-white mb-2">{provider.price}</div>
-                  <div className="text-gray-300 font-medium">Starting price</div>
+                  <div className="text-3xl font-black text-white mb-2">Personalized Pricing</div>
+                  <div className="text-gray-300 font-medium">Contact for quote based on your needs</div>
                 </div>
                 
+                <Button 
+                  onClick={() => {
+                    // TODO: Implement messaging functionality
+                    alert(`Sending message to ${provider.name} for a personalized quote...`);
+                  }}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
+                >
+                  Get a Quote
+                  <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                </Button>
+                
                 <Link href={`/booking/${provider.id}/1`}>
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    Book Appointment
+                  <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl">
+                    Schedule Consultation
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -261,12 +270,21 @@ export default function ProviderProfile() {
                   <CardContent className="p-8">
                     <h4 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">{service.name}</h4>
                     <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
-                    <div className="flex justify-between items-center">
-                      <div className="text-3xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        ${service.price}
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Get a Quote
                       </div>
                       <div className="text-sm text-gray-500 font-medium">{service.duration} minutes</div>
                     </div>
+                    <Button 
+                      onClick={() => {
+                        // TODO: Implement messaging functionality
+                        alert(`Requesting quote for ${service.name} with ${provider.name}...`);
+                      }}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      Get Quote for {service.name}
+                    </Button>
                   </CardContent>
                 </Card>
               </motion.div>

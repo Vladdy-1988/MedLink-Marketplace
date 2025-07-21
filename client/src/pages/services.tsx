@@ -175,7 +175,7 @@ export default function Services() {
                         
                         <div className="space-y-2">
                           <div className="text-lg font-semibold text-[hsl(207,90%,54%)]">
-                            {service.price}
+                            Get a Quote
                           </div>
                           {service.insurance && (
                             <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
@@ -185,11 +185,15 @@ export default function Services() {
                           )}
                         </div>
 
-                        <Link href="/providers">
-                          <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
-                            Book Now
-                          </Button>
-                        </Link>
+                        <Button 
+                          onClick={() => {
+                            // TODO: Implement messaging functionality
+                            alert(`Requesting quote for ${service.name} service...`);
+                          }}
+                          className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg"
+                        >
+                          Get Quote
+                        </Button>
                       </CardContent>
                     </Card>
                   );
@@ -253,11 +257,15 @@ export default function Services() {
                     </ul>
                   </div>
 
-                  <Link href="/providers">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg">
-                      Request Rapid Care
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => {
+                      // TODO: Implement messaging functionality
+                      alert(`Requesting quote for ${service.title} service...`);
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg"
+                  >
+                    Get Quote
+                  </Button>
                 </CardContent>
               </Card>
             ))}
