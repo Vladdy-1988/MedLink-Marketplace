@@ -85,17 +85,9 @@ export default function About() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Paula Martínez</h3>
               <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & CEO</p>
-              <p className="text-gray-600 text-left leading-relaxed mb-6">
+              <p className="text-gray-600 text-left leading-relaxed">
                 A digital-media strategist with 7+ years leading award-winning campaigns for lifestyle and wellness brands, Paula has spent her career making complex services simple and accessible online. She guides MedLink's product vision, patient experience, and growth strategy—translating her passion for community, technology, and inclusive care into a platform that puts people first.
               </p>
-              <div className="text-left">
-                <p className="font-semibold text-gray-900 mb-2">Expertise:</p>
-                <ul className="text-gray-600 space-y-1">
-                  <li>• Digital marketing & SEO</li>
-                  <li>• Product & brand strategy</li>
-                  <li>• Data-driven user experience</li>
-                </ul>
-              </div>
             </div>
 
             {/* Vlad */}
@@ -107,19 +99,11 @@ export default function About() {
                   </div>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Vlad — DD, Denturist</h3>
-              <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & Chief Clinical Partnerships Officer</p>
-              <p className="text-gray-600 text-left leading-relaxed mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Vlad Dumbrava</h3>
+              <p className="text-lg text-blue-600 font-semibold mb-6">Co-Founder & COO</p>
+              <p className="text-gray-600 text-left leading-relaxed">
                 With over a decade owning and operating denture clinics across Alberta, Vlad knows first-hand how life-changing in-home care can be for patients with mobility or chronic-health challenges. He oversees provider recruitment, compliance, and quality assurance, ensuring every professional on MedLink is fully licensed, background-checked, and committed to compassionate, patient-centric service.
               </p>
-              <div className="text-left">
-                <p className="font-semibold text-gray-900 mb-2">Expertise:</p>
-                <ul className="text-gray-600 space-y-1">
-                  <li>• Clinical operations & patient care</li>
-                  <li>• Provider vetting & standards</li>
-                  <li>• Mobile dental and allied-health logistics</li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
