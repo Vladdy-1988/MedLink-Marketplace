@@ -137,6 +137,7 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Services Page Cleanup**: Removed top illustrations from individual service cards for cleaner, more focused design
 - **How It Works Optimization**: Removed pricing calculator section and fixed logo display issue in footer for cleaner page flow
 - **About Page Redesign**: Complete redesign using Fora Travel reference with modern hero section, founder profiles with avatar initials, mission/promise sections, and clean Fora-inspired layout structure
+- **Cohesive Hero Sections**: Unified all hero sections across the site with Apple-inspired design pattern featuring large typography (text-6xl to text-9xl), gradient backgrounds, two-line headlines with gradient text, scroll indicators, and consistent CTA buttons
 
 ### Terminology and Branding Update 
 - **Emergency to Rapid Services**: Completely eliminated all "emergency" and "urgent" terminology across the entire application

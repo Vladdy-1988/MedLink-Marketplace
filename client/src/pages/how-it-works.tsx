@@ -103,28 +103,50 @@ export default function HowItWorks() {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative bg-gray-50 py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-6">
-              A patient-first healthcare community
-            </h1>
-            <p className="text-xl sm:text-2xl lg:text-3xl text-gray-600 max-w-4xl mx-auto font-light">
-              Stay healthy with home visits from verified providers for a fraction of the cost.
+      {/* Apple-style Hero Section */}
+      <section className="relative min-h-[90vh] bg-gradient-to-b from-blue-50 via-white to-purple-50 overflow-hidden flex items-center">
+        {/* Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-1/4 right-20 w-40 h-40 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
+          <div className="absolute bottom-1/3 left-20 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-500"></div>
+          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-green-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+            How it
+            <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+              works
+            </span>
+          </h1>
+          
+          <div className="max-w-4xl mx-auto mb-16">
+            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+              Getting professional healthcare at home is simple, safe, and convenient.
+            </p>
+            <p className="text-xl sm:text-2xl font-light text-gray-500">
+              Here's everything you need to know about our process.
             </p>
           </div>
-          
-          {/* Image Grid */}
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-2 mt-12 max-w-6xl mx-auto">
-            {providerImages.map((image, index) => (
-              <div key={index} className="relative aspect-square rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className={`absolute inset-0 bg-gradient-to-br ${image.bg}`} />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Activity className="h-8 w-8 text-white/80" />
-                </div>
-              </div>
-            ))}
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+            <Link href="/providers">
+              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                Find Providers
+              </Button>
+            </Link>
+            <Link href="/services">
+              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                Browse Services
+              </Button>
+            </Link>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="mt-20">
+            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
+              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+            </div>
           </div>
         </div>
       </section>

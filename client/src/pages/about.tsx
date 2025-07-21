@@ -20,25 +20,49 @@ export default function About() {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Hero Section - Fora inspired */}
-      <section className="relative py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-8 leading-tight">
-              The Modern Healthcare Experience
-            </h1>
-            <p className="text-xl sm:text-2xl text-gray-600 mb-12 leading-relaxed">
-              MedLink House Calls was founded by two Calgary professionals who share one belief: high-quality healthcare should come to you—comfortably, safely, and on your schedule.
+      {/* Apple-style Hero Section */}
+      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-green-50 overflow-hidden flex items-center">
+        {/* Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-1/4 right-20 w-40 h-40 bg-green-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
+          <div className="absolute bottom-1/3 left-20 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-500"></div>
+          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+            Meet the
+            <span className="block text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text">
+              founders
+            </span>
+          </h1>
+          
+          <div className="max-w-4xl mx-auto mb-16">
+            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+              MedLink House Calls was founded by two Calgary professionals who share one belief: high-quality healthcare should come to you.
             </p>
-            
-            {/* Video placeholder with play button */}
-            <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-16 mb-16 shadow-lg">
-              <div className="flex items-center justify-center">
-                <button className="bg-blue-600 hover:bg-blue-700 rounded-full p-6 shadow-xl transition-all duration-300 hover:scale-105">
-                  <Play className="h-8 w-8 text-white ml-1" fill="currentColor" />
-                </button>
-              </div>
-              <p className="text-gray-600 mt-6 text-lg">Meet Our Founders</p>
+            <p className="text-xl sm:text-2xl font-light text-gray-500">
+              Comfortably, safely, and on your schedule.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+            <Link href="/providers">
+              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                Book Your Visit
+              </Button>
+            </Link>
+            <Link href="/provider-registration">
+              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                Join as Provider
+              </Button>
+            </Link>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="mt-20">
+            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
+              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
             </div>
           </div>
         </div>
