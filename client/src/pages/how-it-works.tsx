@@ -217,69 +217,6 @@ export default function HowItWorks() {
                       
                       {/* Main Step Card */}
                       <div className="relative bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 backdrop-blur-sm">
-                        {/* Step illustration */}
-                        <div className="w-full h-24 mb-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl flex items-center justify-center">
-                          {index === 0 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="15" y="20" width="30" height="25" rx="3" fill="#3b82f6"/>
-                              <rect x="15" y="20" width="30" height="6" fill="#1d4ed8"/>
-                              <circle cx="22" cy="17" r="1.5" fill="#3b82f6"/>
-                              <circle cx="38" cy="17" r="1.5" fill="#3b82f6"/>
-                              <rect x="20" y="28" width="8" height="2" fill="#ffffff"/>
-                              <rect x="32" y="28" width="8" height="2" fill="#ffffff"/>
-                              <rect x="20" y="33" width="6" height="2" fill="#ffffff"/>
-                              <circle cx="37" cy="34" r="2" fill="#10b981"/>
-                            </svg>
-                          )}
-                          {index === 1 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="30" cy="20" r="6" fill="#3b82f6"/>
-                              <path d="M18 40 C18 32, 23 28, 30 28 C37 28, 42 32, 42 40 L42 45 L18 45 Z" fill="#3b82f6"/>
-                              <rect x="26" y="37" width="8" height="6" rx="2" fill="#ffffff"/>
-                              <path d="M28 39 L30 41 L32 39" stroke="#3b82f6" strokeWidth="1" fill="none"/>
-                              <circle cx="45" cy="15" r="5" fill="#10b981"/>
-                              <path d="M42 15 L44 17 L48 13" stroke="#ffffff" strokeWidth="1.5" fill="none"/>
-                            </svg>
-                          )}
-                          {index === 2 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="20" y="25" width="20" height="15" rx="2" fill="#ffffff" stroke="#3b82f6" strokeWidth="2"/>
-                              <line x1="25" y1="30" x2="35" y2="30" stroke="#3b82f6" strokeWidth="1"/>
-                              <line x1="25" y1="33" x2="32" y2="33" stroke="#3b82f6" strokeWidth="1"/>
-                              <circle cx="37" cy="37" r="2" fill="#10b981"/>
-                              <path d="M35 37 L36 38 L39 35" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                              <rect x="15" y="15" width="6" height="6" rx="1" fill="#8b5cf6"/>
-                              <path d="M16 18 L18 20 L22 16" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                            </svg>
-                          )}
-                          {index === 3 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M20 35 L30 25 L40 35 L40 45 C40 46 39 47 38 47 L22 47 C21 47 20 46 20 45 Z" fill="#3b82f6"/>
-                              <rect x="27" y="38" width="6" height="9" fill="#ffffff"/>
-                              <circle cx="29" cy="40" r="0.5" fill="#3b82f6"/>
-                              <rect x="32" y="32" width="4" height="3" fill="#ffffff"/>
-                              <line x1="33" y1="32" x2="33" y2="35" stroke="#3b82f6" strokeWidth="0.5"/>
-                              <line x1="32" y1="33.5" x2="36" y2="33.5" stroke="#3b82f6" strokeWidth="0.5"/>
-                              <circle cx="42" cy="25" r="4" fill="#ef4444"/>
-                              <path d="M40 25 L44 25 M42 23 L42 27" stroke="#ffffff" strokeWidth="1.5"/>
-                            </svg>
-                          )}
-                          {index === 4 && (
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="20" y="25" width="20" height="15" rx="2" fill="#ffffff" stroke="#3b82f6" strokeWidth="2"/>
-                              <path d="M22 32 L25 35 L38 22" stroke="#10b981" strokeWidth="2" fill="none"/>
-                              <circle cx="42" cy="18" r="3" fill="#10b981"/>
-                              <path d="M40 18 L41 19 L44 16" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                              <rect x="15" y="42" width="30" height="3" rx="1.5" fill="#fbbf24"/>
-                              <circle cx="18" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="23" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="28" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="33" cy="43.5" r="3" fill="#f59e0b"/>
-                              <circle cx="38" cy="43.5" r="3" fill="#f59e0b"/>
-                            </svg>
-                          )}
-                        </div>
-
                         <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                           <IconComponent className="h-10 w-10 text-white" />
                         </div>

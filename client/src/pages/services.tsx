@@ -67,62 +67,40 @@ export default function Services() {
       <Navigation />
       
       {/* Apple-style Hero Section */}
-      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-blue-50 overflow-hidden flex items-center">
-        {/* Background Elements with medical icons */}
+      <section className="relative min-h-[80vh] bg-white overflow-hidden flex items-center">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-20 w-36 h-36 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
-          <div className="absolute bottom-1/3 right-20 w-32 h-32 bg-green-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
-          
-          {/* Floating medical illustrations */}
-          <div className="absolute top-20 right-32 opacity-20">
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="40" cy="40" r="30" fill="#3b82f6"/>
-              <path d="M40 25 L40 55 M25 40 L55 40" stroke="#ffffff" strokeWidth="4"/>
-            </svg>
-          </div>
-          <div className="absolute bottom-32 left-32 opacity-20">
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M30 10 C40 10, 50 20, 50 30 C50 40, 40 50, 30 50 C20 50, 10 40, 10 30 C10 20, 20 10, 30 10" fill="#10b981"/>
-              <path d="M20 30 L26 36 L40 22" stroke="#ffffff" strokeWidth="3" fill="none"/>
-            </svg>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-white"></div>
+          <div className="absolute top-1/3 right-16 w-80 h-80 bg-blue-50 rounded-full mix-blend-multiply opacity-40"></div>
+          <div className="absolute bottom-1/3 left-16 w-96 h-96 bg-green-50 rounded-full mix-blend-multiply opacity-40"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
-            Healthcare
-            <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-              services
-            </span>
-          </h1>
-          
-          <div className="max-w-4xl mx-auto mb-16">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
-              Professional, convenient, and personalized healthcare services delivered to your home in Calgary.
-            </p>
-            <p className="text-xl sm:text-2xl font-light text-gray-500">
-              Experience quality care without the hassle of travel.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Book a Service
-              </Button>
-            </Link>
-            <Link href="/how-it-works">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                How it works
-              </Button>
-            </Link>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="mt-20">
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold mb-12 leading-[1.05] text-black tracking-tight">
+              Healthcare
+              <br />
+              <span className="font-light">services.</span>
+              <br />
+              <span className="font-light">at home.</span>
+            </h1>
+            
+            <div className="max-w-4xl mx-auto mb-12">
+              <p className="text-2xl sm:text-3xl text-gray-600 font-light leading-relaxed">
+                Professional, convenient, and personalized healthcare services delivered to your home in Calgary.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link href="/providers">
+                <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-lg px-10 py-4 rounded-xl font-medium">
+                  Book a Service
+                </Button>
+              </Link>
+              <Link href="/rapid-services">
+                <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-lg px-10 py-4 rounded-xl font-medium">
+                  Rapid Services
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -157,50 +135,6 @@ export default function Services() {
                   return (
                     <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
                       <CardHeader className="pb-4">
-                        {/* Service illustration */}
-                        <div className="w-full h-20 mb-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl flex items-center justify-center">
-                          {service.name.includes('General') && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="12" r="4" fill="#3b82f6"/>
-                              <path d="M12 28 C12 22, 15 20, 20 20 C25 20, 28 22, 28 28 L28 32 L12 32 Z" fill="#3b82f6"/>
-                              <rect x="17" y="25" width="6" height="4" rx="1" fill="#ffffff"/>
-                              <circle cx="30" cy="10" r="3" fill="#10b981"/>
-                              <path d="M28 10 L29 11 L32 8" stroke="#ffffff" strokeWidth="1" fill="none"/>
-                            </svg>
-                          )}
-                          {service.name.includes('Nursing') && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="12" r="4" fill="#ef4444"/>
-                              <path d="M12 28 C12 22, 15 20, 20 20 C25 20, 28 22, 28 28 L28 32 L12 32 Z" fill="#ef4444"/>
-                              <rect x="16" y="6" width="8" height="4" rx="2" fill="#ffffff"/>
-                              <rect x="18" y="7" width="4" height="2" fill="#ef4444"/>
-                              <path d="M18 8 L22 8 M20 7 L20 9" stroke="#ffffff" strokeWidth="1"/>
-                            </svg>
-                          )}
-                          {service.name.includes('Physical') && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="12" r="4" fill="#8b5cf6"/>
-                              <path d="M12 28 C12 22, 15 20, 20 20 C25 20, 28 22, 28 28 L28 32 L12 32 Z" fill="#8b5cf6"/>
-                              <path d="M24 18 C26 16, 28 18, 26 20 L22 24" stroke="#f59e0b" strokeWidth="2" fill="none"/>
-                              <circle cx="26" cy="16" r="1" fill="#f59e0b"/>
-                            </svg>
-                          )}
-                          {(service.name.includes('Mental') || service.name.includes('Counseling')) && (
-                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="20" cy="20" r="12" fill="#10b981"/>
-                              <path d="M15 18 C15 15, 17 13, 20 13 C23 13, 25 15, 25 18" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                              <circle cx="17" cy="21" r="1.5" fill="#ffffff"/>
-                              <circle cx="23" cy="21" r="1.5" fill="#ffffff"/>
-                              <path d="M16 25 C17 27, 19 28, 20 28 C21 28, 23 27, 24 25" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                            </svg>
-                          )}
-                          {!service.name.includes('General') && !service.name.includes('Nursing') && !service.name.includes('Physical') && !service.name.includes('Mental') && !service.name.includes('Counseling') && (
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                              {IconComponent && <IconComponent className="h-5 w-5 text-white" />}
-                            </div>
-                          )}
-                        </div>
-
                         <div className="flex items-center justify-between mb-4">
                           <div className="w-12 h-12 bg-gradient-to-br from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             {IconComponent && <IconComponent className="h-6 w-6 text-white" />}
