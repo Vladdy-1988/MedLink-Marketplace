@@ -174,7 +174,7 @@ export default function ProviderProfile() {
                   }}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
                 >
-                  Get a Quote
+                  Message Provider
                   <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                 </Button>
                 
@@ -272,7 +272,7 @@ export default function ProviderProfile() {
                     <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
                     <div className="flex justify-between items-center mb-4">
                       <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        Get a Quote
+                        Message Provider
                       </div>
                       <div className="text-sm text-gray-500 font-medium">{service.duration} minutes</div>
                     </div>
@@ -283,7 +283,7 @@ export default function ProviderProfile() {
                       }}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     >
-                      Get Quote for {service.name}
+                      Message Provider
                     </Button>
                   </CardContent>
                 </Card>

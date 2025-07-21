@@ -192,7 +192,7 @@ export default function Services() {
                           }}
                           className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg"
                         >
-                          Get Quote
+                          Message Provider
                         </Button>
                       </CardContent>
                     </Card>

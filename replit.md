@@ -134,8 +134,9 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Database Schema Ready**: Maintained pricing fields in database schema for when providers set individual rates during consultations, but removed from public display
 - **Insurance Information Retained**: Kept insurance coverage information as it remains relevant regardless of individualized pricing
 - **Hero Background Update**: Replaced SVG illustration with authentic multigenerational family photo showing grandmother, mother, child, and grandfather holding colorful flowers, creating emotional connection and representing joyful family-centered healthcare values with enhanced transparency overlays for optimal text readability
-- **Quote Button Implementation**: Added "Get Quote" buttons throughout provider profiles, service cards, and provider cards that trigger messaging functionality to providers
-- **Messaging Integration**: All quote requests now trigger direct messaging to providers for personalized consultation and pricing
+- **Quote Button Implementation**: Added "Message Provider" buttons throughout provider profiles, service cards, and provider cards that trigger messaging functionality to providers
+- **Messaging Integration**: All message requests now trigger direct messaging to providers for personalized consultation and pricing
+- **Button Text Update**: Changed all "Get Quote" buttons to "Message Provider" site-wide for clearer call-to-action messaging
 
 ## Recent Changes (January 2025)
 

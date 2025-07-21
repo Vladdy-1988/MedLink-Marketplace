@@ -156,7 +156,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             }}
             className="flex-1 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0"
           >
-            Get Quote
+            Message Provider
           </Button>
         </div>
       </CardContent>
