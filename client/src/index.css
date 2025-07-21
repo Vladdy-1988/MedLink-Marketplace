@@ -4,6 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .text-shadow-xl {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8), 
+                 4px 4px 16px rgba(0, 0, 0, 0.6), 
+                 0px 0px 20px rgba(0, 0, 0, 0.5);
+  }
+  .text-shadow-strong {
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9), 
+                 2px 2px 8px rgba(0, 0, 0, 0.7), 
+                 0px 0px 12px rgba(0, 0, 0, 0.5);
+  }
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);

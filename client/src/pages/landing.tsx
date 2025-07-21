@@ -26,29 +26,29 @@ export default function Landing() {
             alt="Happy multigenerational family with colorful flowers"
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-white/95" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20" />
-          <div className="absolute inset-0 bg-white/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-white/95" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/50" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         {/* Content */}
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Apple-style large headline */}
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
+              {/* Apple-style large headline with enhanced contrast */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance text-shadow-xl">
                 Healthcare
-                <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+                <span className="block text-white text-shadow-xl">
                   at your door
                 </span>
               </h1>
               
-              {/* Apple-style subtitle with generous spacing */}
+              {/* Apple-style subtitle with enhanced contrast */}
               <div className="max-w-4xl mx-auto mb-16">
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8 text-shadow-strong">
                   Connect with licensed healthcare providers in Calgary for professional in-home medical services.
                 </p>
-                <p className="text-xl sm:text-2xl font-light text-gray-500">
+                <p className="text-xl sm:text-2xl font-light text-white text-shadow-strong">
                   Safe. Convenient. Trusted.
                 </p>
               </div>
