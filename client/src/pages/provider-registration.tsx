@@ -27,7 +27,6 @@ const providerFormSchema = z.object({
   yearsExperience: z.number().min(0, "Years of experience must be 0 or more").max(50, "Years of experience must be less than 50"),
   bio: z.string().optional(),
   serviceAreas: z.string().min(1, "Service area is required"),
-  basePricing: z.number().min(0, "Base pricing must be 0 or more"),
   availability: z.string().optional(),
 });
 
@@ -51,7 +50,7 @@ export default function ProviderRegistration() {
       licenseNumber: "",
       yearsExperience: 0,
       bio: "",
-      basePricing: 0,
+
       serviceAreas: "Calgary, AB",
       availability: ""
     },
@@ -323,47 +322,25 @@ export default function ProviderRegistration() {
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="yearsExperience"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Years of Experience</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="0" 
-                              max="50" 
-                              {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="basePricing"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hourly Rate (CAD)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="0" 
-                              step="0.01" 
-                              placeholder="75.00"
-                              {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="yearsExperience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Years of Experience</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0" 
+                            max="50" 
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Service Details */}

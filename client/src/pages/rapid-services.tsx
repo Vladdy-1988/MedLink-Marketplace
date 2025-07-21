@@ -37,7 +37,7 @@ const rapidServices = [
       "Pain assessment and management",
       "Rapid health education"
     ],
-    pricing: "Starting at $150/visit",
+    pricing: "Contact provider for quote",
     responseTime: "Within 2-4 hours",
     availability: "24/7"
   },
@@ -53,7 +53,7 @@ const rapidServices = [
       "Critical value alerts",
       "Coordination with healthcare providers"
     ],
-    pricing: "Starting at $120/test",
+    pricing: "Contact provider for quote",
     responseTime: "Within 1-3 hours",
     availability: "24/7"
   },
@@ -69,7 +69,7 @@ const rapidServices = [
       "Resource coordination",
       "Follow-up care planning"
     ],
-    pricing: "Starting at $180/session",
+    pricing: "Contact provider for quote",
     responseTime: "Within 2-6 hours",
     availability: "24/7"
   },
@@ -85,7 +85,7 @@ const rapidServices = [
       "Safety evaluation",
       "Equipment assessment"
     ],
-    pricing: "Starting at $140/session",
+    pricing: "Contact provider for quote",
     responseTime: "Within 3-6 hours",
     availability: "Daily 7AM-11PM"
   }
@@ -275,15 +275,15 @@ export default function RapidServices() {
         </div>
       </section>
 
-      {/* Why Premium Pricing */}
+      {/* How to Get Your Quote */}
       <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
-              Why Premium Pricing?
+              How to Get Your Personalized Quote
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our rapid services command premium pricing due to the specialized resources and immediate availability we provide.
+              Every healthcare need is unique. Contact providers directly for personalized quotes based on your specific requirements.
             </p>
           </div>
           
@@ -304,11 +304,11 @@ export default function RapidServices() {
           
           <div className="mt-12 text-center">
             <Card className="p-8 max-w-3xl mx-auto bg-white border-l-4 border-blue-500">
-              <Heart className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Fair & Transparent Pricing</h3>
+              <Phone className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Virtual Consultation First</h3>
               <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                You'll know the exact cost before booking, with no hidden fees or surprises. 
-                Many rapid services may be partially covered by extended health insurance plans.
+                Start with a virtual consultation to discuss your needs and receive a personalized quote. 
+                Providers will assess your situation and provide transparent pricing based on your specific care requirements.
               </p>
               <Badge className="bg-blue-100 text-blue-800 px-4 py-2">
                 Insurance receipts provided for all services

@@ -27,7 +27,7 @@ const formSchema = z.object({
   yearsExperience: z.coerce.number().min(0).max(50),
   bio: z.string().min(50, "Bio must be at least 50 characters").optional(),
   serviceAreas: z.string().min(1, "Service area is required"),
-  basePricing: z.coerce.number().min(0, "Base pricing must be 0 or more"),
+
   availability: z.string().optional(),
 });
 
@@ -51,7 +51,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
       licenseNumber: "",
       yearsExperience: 0,
       bio: "",
-      basePricing: 0,
+
       serviceAreas: "Calgary, AB",
       availability: "",
     },
@@ -294,45 +294,24 @@ const ProviderRegistrationOptimized = React.memo(() => {
                       )}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="yearsExperience"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Years of Experience</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="0" 
-                              max="50" 
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="basePricing"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hourly Rate (CAD)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="0" 
-                              step="0.01" 
-                              placeholder="75.00"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="yearsExperience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Years of Experience</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min="0" 
+                            max="50" 
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Service Details */}

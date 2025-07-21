@@ -123,6 +123,17 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Error Handling**: Centralized error handling with proper HTTP status codes
 - **Performance**: Query optimization through Drizzle ORM
 
+## Recent Changes (July 2025)
+
+### Pricing Model Overhaul (Latest - July 21, 2025)
+- **Complete Pricing Removal**: Eliminated all fixed pricing information site-wide including service cards, provider profiles, rapid services, and provider registration forms
+- **Get Quote System**: Replaced all pricing with "Get a Quote" and "Contact provider for quote" messaging to reflect individualized pricing based on specific case requirements
+- **Virtual Consultation First**: Added emphasis on virtual consultations as the first step for patients to discuss needs and receive personalized quotes from providers
+- **Provider Registration Updates**: Removed hourly rate and base pricing fields from provider registration forms since pricing will be handled through individual consultations
+- **Updated Call-to-Actions**: Changed messaging throughout the site to emphasize contacting providers for personalized quotes rather than fixed pricing
+- **Database Schema Ready**: Maintained pricing fields in database schema for when providers set individual rates during consultations, but removed from public display
+- **Insurance Information Retained**: Kept insurance coverage information as it remains relevant regardless of individualized pricing
+
 ## Recent Changes (January 2025)
 
 ### Apple-Inspired Visual Design Overhaul (Latest - July 21, 2025)

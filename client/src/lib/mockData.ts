@@ -5,7 +5,7 @@ export const coreServiceCategories = [
     description: "In-home check-ups, consultations, and family medicine",
     icon: "Stethoscope",
     color: "blue",
-    price: "Starting at $150/visit",
+    price: "Get a Quote",
     insurance: "Covered by AHS & most private plans"
   },
   {
@@ -14,7 +14,7 @@ export const coreServiceCategories = [
     description: "Wound care, medication management, post-op care",
     icon: "UserCheck",
     color: "green",
-    price: "Starting at $85/visit",
+    price: "Get a Quote",
     insurance: "Often covered by AHS home care"
   },
   {
@@ -23,7 +23,7 @@ export const coreServiceCategories = [
     description: "In-home rehabilitation and recovery",
     icon: "Activity",
     color: "purple",
-    price: "Starting at $120/session",
+    price: "Get a Quote",
     insurance: "Covered by most extended health plans"
   },
   {
@@ -32,7 +32,7 @@ export const coreServiceCategories = [
     description: "Daily living support and assessments",
     icon: "Home",
     color: "orange",
-    price: "Starting at $110/session",
+    price: "Get a Quote",
     insurance: "Covered by most extended health plans"
   },
   {
@@ -41,7 +41,7 @@ export const coreServiceCategories = [
     description: "Compassionate end-of-life support",
     icon: "Heart",
     color: "pink",
-    price: "Starting at $125/visit",
+    price: "Get a Quote",
     insurance: "Covered by AHS palliative care program"
   },
   {
@@ -50,7 +50,7 @@ export const coreServiceCategories = [
     description: "Phlebotomy and sample collection at home",
     icon: "TestTube",
     color: "teal",
-    price: "Starting at $65/test",
+    price: "Get a Quote",
     insurance: "Covered by AHS with requisition"
   },
   {
@@ -59,7 +59,7 @@ export const coreServiceCategories = [
     description: "Counseling and therapy sessions at home",
     icon: "Brain",
     color: "indigo",
-    price: "Starting at $140/session",
+    price: "Get a Quote",
     insurance: "Partially covered by most plans"
   },
   {
@@ -68,7 +68,7 @@ export const coreServiceCategories = [
     description: "Immunizations administered at home",
     icon: "Syringe",
     color: "red",
-    price: "Starting at $45/vaccine",
+    price: "Get a Quote",
     insurance: "Covered by AHS & most private plans"
   }
 ];
@@ -80,7 +80,7 @@ export const additionalServiceCategories = [
     description: "Mobile checkups, cleanings, denture care",
     icon: "Smile",
     color: "blue",
-    price: "Starting at $95/visit",
+    price: "Get a Quote",
     insurance: "Covered by most dental plans"
   },
   {
@@ -89,7 +89,7 @@ export const additionalServiceCategories = [
     description: "Hearing tests and hearing aid fitting",
     icon: "Ear",
     color: "green",
-    price: "Starting at $100/assessment",
+    price: "Get a Quote",
     insurance: "Covered by most extended health plans"
   },
   {
@@ -98,7 +98,7 @@ export const additionalServiceCategories = [
     description: "Mobile eye exams and vision screening",
     icon: "Eye",
     color: "purple",
-    price: "Starting at $95/exam",
+    price: "Get a Quote",
     insurance: "Covered by most vision care plans"
   },
   {
@@ -107,7 +107,7 @@ export const additionalServiceCategories = [
     description: "Foot care and diabetic foot assessments",
     icon: "Footprints",
     color: "orange",
-    price: "Starting at $90/visit",
+    price: "Get a Quote",
     insurance: "Often covered for diabetic patients"
   },
   {
@@ -116,7 +116,7 @@ export const additionalServiceCategories = [
     description: "Communication and swallowing therapy",
     icon: "MessageCircle",
     color: "teal",
-    price: "Starting at $115/session",
+    price: "Get a Quote",
     insurance: "Covered by most extended health plans"
   },
   {
@@ -125,7 +125,7 @@ export const additionalServiceCategories = [
     description: "Dietitian consultations and meal planning",
     icon: "Apple",
     color: "pink",
-    price: "Starting at $75/consultation",
+    price: "Get a Quote",
     insurance: "Covered by most extended health plans"
   },
   {
@@ -134,7 +134,7 @@ export const additionalServiceCategories = [
     description: "Medication reviews and coordination",
     icon: "Pill",
     color: "indigo",
-    price: "Starting at $60/consultation",
+    price: "Get a Quote",
     insurance: "Often covered by medication plans"
   },
   {
@@ -143,7 +143,7 @@ export const additionalServiceCategories = [
     description: "Intravenous treatments and hydration",
     icon: "Droplets",
     color: "red",
-    price: "Starting at $180/session",
+    price: "Get a Quote",
     insurance: "Check with your insurance provider"
   }
 ];
@@ -159,7 +159,7 @@ export const featuredProviders = [
     rating: 4.9,
     reviewCount: 127,
     location: "NW Calgary",
-    price: "$85/visit",
+    price: "Get a Quote",
     description: "Specializing in wound care, medication management, and post-operative care. Certified in advanced cardiac life support.",
     image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
     verified: true,
@@ -174,7 +174,7 @@ export const featuredProviders = [
     rating: 4.8,
     reviewCount: 95,
     location: "SW Calgary",
-    price: "$120/session",
+    price: "Get a Quote",
     description: "Specialized in sports rehabilitation, mobility training, and post-injury recovery. Certified in manual therapy techniques.",
     image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
     verified: true,
@@ -189,7 +189,7 @@ export const featuredProviders = [
     rating: 4.9,
     reviewCount: 82,
     location: "SE Calgary",
-    price: "$95/visit",
+    price: "Get a Quote",
     description: "Professional dental cleaning and oral health education. Specialized in geriatric dental care and denture maintenance.",
     image: "https://images.unsplash.com/photo-1594824570509-1b0b83d63c49?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
     verified: true,

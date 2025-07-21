@@ -44,19 +44,19 @@ const rapidServices = [
   {
     title: "Rapid Nursing Care",
     description: "ASAP nursing care for non-life-threatening medical situations",
-    pricing: "Starting at $150/visit",
+    pricing: "Contact provider for quote",
     features: ["24/7 availability", "Priority response", "Rapid assessment", "Care coordination"]
   },
   {
     title: "Rapid Lab Services",
     description: "ASAP blood work and diagnostic testing with expedited results",
-    pricing: "Starting at $120/test",
+    pricing: "Contact provider for quote",
     features: ["Same-day results", "Priority scheduling", "Rapid sample collection", "Expedited processing"]
   },
   {
     title: "Rapid Mental Health Support",
     description: "ASAP mental health support and priority counseling",
-    pricing: "Starting at $180/session",
+    pricing: "Contact provider for quote",
     features: ["Priority scheduling", "Same-day appointments", "Rapid assessment", "Support coordination"]
   }
 ];
@@ -281,7 +281,7 @@ export default function Services() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Book your appointment today and experience the convenience of professional healthcare at home.
+            Contact providers for personalized quotes and experience the convenience of professional healthcare at home.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/providers">
