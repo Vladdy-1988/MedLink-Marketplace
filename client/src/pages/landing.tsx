@@ -10,7 +10,7 @@ import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import familyPhoto from "@assets/pexels-rdne-5637704_1753137473491.jpg";
+import familyPhoto from "@assets/pexels-rdne-6149191_1753139300341.jpg";
 
 export default function Landing() {
   return (
@@ -23,7 +23,7 @@ export default function Landing() {
         <div className="absolute inset-0 z-0">
           <img 
             src={familyPhoto}
-            alt="Happy multigenerational family with colorful flowers"
+            alt="Multigenerational family celebrating at home with balloons"
             className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-white/90" />
