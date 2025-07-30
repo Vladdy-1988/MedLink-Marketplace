@@ -173,9 +173,9 @@ export default function Services() {
                           {service.description}
                         </p>
                         
-                        <div className="space-y-4">
+                        <div>
                           {service.insurance && (
-                            <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                            <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full mb-4">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               {service.insurance}
                             </div>
