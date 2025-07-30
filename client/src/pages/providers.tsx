@@ -8,17 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { featuredProviders, serviceCategories } from "@/lib/mockData";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Zap } from "lucide-react";
 
 export default function Providers() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedServiceType, setSelectedServiceType] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [sortBy, setSortBy] = useState("recommended");
+  const [showRapidOnly, setShowRapidOnly] = useState(false);
+
+  // Add rapid service capability to featured providers
+  const enhancedFeaturedProviders = featuredProviders.map(provider => ({
+    ...provider,
+    rapidService: provider.category === "nursing" ? true : false
+  }));
 
   // Mock expanded provider list covering all service categories
   const allProviders = [
-    ...featuredProviders,
+    ...enhancedFeaturedProviders,
     {
       id: 4,
       name: "Dr. Emily Wong",
@@ -31,8 +38,9 @@ export default function Providers() {
       description: "Certified medical laboratory technician specializing in home blood work and diagnostic testing.",
       image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
       verified: true,
-      tags: ["Blood Work", "Diagnostics"],
-      category: "mobile-lab-tests"
+      tags: ["Blood Work", "Diagnostics", "RAPID"],
+      category: "mobile-lab-tests",
+      rapidService: true
     },
     {
       id: 5,
@@ -76,8 +84,9 @@ export default function Providers() {
       description: "Licensed therapist providing individual and family counseling in the comfort of your home.",
       image: "https://images.unsplash.com/photo-1594824570509-1b0b83d63c49?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
       verified: true,
-      tags: ["Family Therapy", "Anxiety Treatment"],
-      category: "mental-health"
+      tags: ["Family Therapy", "Anxiety Treatment", "RAPID"],
+      category: "mental-health",
+      rapidService: true
     },
     {
       id: 8,
@@ -138,7 +147,10 @@ export default function Providers() {
     
     const matchesLocation = selectedLocation === "all" || provider.location.includes(selectedLocation);
     
-    return matchesSearch && matchesService && matchesLocation;
+    // Rapid services filter
+    const matchesRapid = !showRapidOnly || provider.rapidService === true;
+    
+    return matchesSearch && matchesService && matchesLocation && matchesRapid;
   });
 
   const sortedProviders = [...filteredProviders].sort((a, b) => {
@@ -214,6 +226,19 @@ export default function Providers() {
                 <SelectItem value="price-high">Price: High to Low</SelectItem>
               </SelectContent>
             </Select>
+            
+            {/* Rapid Services Toggle */}
+            <div 
+              onClick={() => setShowRapidOnly(!showRapidOnly)}
+              className={`flex items-center justify-center px-4 py-2 rounded-lg border cursor-pointer transition-all duration-200 ${
+                showRapidOnly 
+                  ? 'bg-blue-600 text-white border-blue-600' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+              }`}
+            >
+              <Zap className={`h-4 w-4 mr-2 ${showRapidOnly ? 'text-white' : 'text-blue-600'}`} />
+              <span className="font-medium text-sm">Rapid Services</span>
+            </div>
           </div>
         </div>
       </section>
@@ -276,6 +301,24 @@ export default function Providers() {
                   </div>
                 </div>
                 
+                {/* Rapid Services Filter */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Service Options</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="rapid-services" 
+                        checked={showRapidOnly}
+                        onCheckedChange={(checked) => setShowRapidOnly(checked === true)}
+                      />
+                      <Label htmlFor="rapid-services" className="text-sm text-gray-700 flex items-center">
+                        <Zap className="h-3 w-3 mr-1 text-blue-600" />
+                        Rapid Services Only
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+                
                 <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
                   Apply Filters
                 </Button>
@@ -287,8 +330,13 @@ export default function Providers() {
           <div className="lg:w-3/4">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Healthcare Providers</h2>
-                <p className="text-gray-600">{sortedProviders.length} providers found in Calgary</p>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {showRapidOnly ? 'Rapid Service Providers' : 'Healthcare Providers'}
+                </h2>
+                <p className="text-gray-600">
+                  {sortedProviders.length} providers found in Calgary
+                  {showRapidOnly && ' offering rapid services'}
+                </p>
               </div>
             </div>
             

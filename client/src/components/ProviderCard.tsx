@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, CheckCircle, Heart, Clock, MessageCircle } from "lucide-react";
+import { Star, MapPin, CheckCircle, Heart, Clock, MessageCircle, Zap } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -18,6 +18,7 @@ interface Provider {
   image: string;
   verified: boolean;
   tags: string[];
+  rapidService?: boolean;
 }
 
 interface ProviderCardProps {
@@ -41,15 +42,21 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
         
-        {/* Verification Badge */}
-        {provider.verified && (
-          <div className="absolute top-4 left-4">
+        {/* Verification and Rapid Service Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          {provider.verified && (
             <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg backdrop-blur-sm">
               <CheckCircle className="w-3 h-3 mr-1" />
               Verified
             </Badge>
-          </div>
-        )}
+          )}
+          {provider.rapidService && (
+            <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 shadow-lg backdrop-blur-sm">
+              <Zap className="w-3 h-3 mr-1" />
+              Rapid
+            </Badge>
+          )}
+        </div>
 
         {/* Favorite Button */}
         <button
