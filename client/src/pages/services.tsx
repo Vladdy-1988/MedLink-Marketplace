@@ -173,20 +173,20 @@ export default function Services() {
                           {service.description}
                         </p>
                         
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                           {service.insurance && (
                             <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               {service.insurance}
                             </div>
                           )}
+                          
+                          <Link href="/providers">
+                            <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
+                              Find Providers
+                            </Button>
+                          </Link>
                         </div>
-
-                        <Link href="/providers">
-                          <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
-                            Find Providers
-                          </Button>
-                        </Link>
                       </CardContent>
                     </Card>
                   );
