@@ -185,15 +185,11 @@ export default function Services() {
                           )}
                         </div>
 
-                        <Button 
-                          onClick={() => {
-                            // TODO: Implement messaging functionality
-                            alert(`Requesting quote for ${service.name} service...`);
-                          }}
-                          className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg"
-                        >
-                          Message Provider
-                        </Button>
+                        <Link href="/providers">
+                          <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] font-semibold rounded-lg">
+                            Find Providers
+                          </Button>
+                        </Link>
                       </CardContent>
                     </Card>
                   );
@@ -257,15 +253,11 @@ export default function Services() {
                     </ul>
                   </div>
 
-                  <Button 
-                    onClick={() => {
-                      // TODO: Implement messaging functionality
-                      alert(`Requesting quote for ${service.title} service...`);
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg"
-                  >
-                    Get Quote
-                  </Button>
+                  <Link href="/providers">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg">
+                      Find Providers  
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
