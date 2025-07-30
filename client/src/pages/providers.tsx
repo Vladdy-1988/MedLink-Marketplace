@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import ProviderCard from "@/components/ProviderCard";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,20 @@ import { featuredProviders, serviceCategories } from "@/lib/mockData";
 import { Search, Filter, Zap } from "lucide-react";
 
 export default function Providers() {
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedServiceType, setSelectedServiceType] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [sortBy, setSortBy] = useState("recommended");
   const [showRapidOnly, setShowRapidOnly] = useState(false);
+
+  // Check URL parameters to auto-enable rapid services filter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('rapid') === 'true') {
+      setShowRapidOnly(true);
+    }
+  }, [location]);
 
   // Add rapid service capability to featured providers
   const enhancedFeaturedProviders = featuredProviders.map(provider => ({

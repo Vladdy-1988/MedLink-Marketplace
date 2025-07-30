@@ -250,7 +250,7 @@ export default function Services() {
                     </ul>
                   </div>
 
-                  <Link href="/providers">
+                  <Link href="/providers?rapid=true">
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 font-semibold rounded-lg">
                       Find Providers  
                     </Button>

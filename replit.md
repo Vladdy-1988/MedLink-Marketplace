@@ -144,6 +144,7 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Service Card Spacing**: Added proper vertical spacing between insurance information and "Find Providers" button in service cards for better visual hierarchy and readability
 - **Complete Service Catalog Integration**: Updated providers page to include all 16 services from service catalog in both dropdown and sidebar filters, added 7 new providers covering missing specialties, and improved filtering logic for better service matching
 - **Rapid Services Grouping**: Added rapid services filter option to providers page with toggle button and sidebar checkbox, marked select providers as offering ASAP care, added blue "Rapid" badges to provider cards, and updated page headings to show "Rapid Service Providers" when filtered
+- **Rapid Services Navigation**: Updated all links in rapid services page and services page rapid section to automatically enable rapid services filter when directing to providers page using URL parameter ?rapid=true
 
 ## Recent Changes (January 2025)
 

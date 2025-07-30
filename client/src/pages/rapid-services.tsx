@@ -169,7 +169,7 @@ export default function RapidServices() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers">
+            <Link href="/providers?rapid=true">
               <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
                 Request Rapid Care
               </Button>
@@ -262,7 +262,7 @@ export default function RapidServices() {
                   </div>
                   
                   <div className="mt-6 pt-6 border-t border-gray-200">
-                    <Link href="/providers">
+                    <Link href="/providers?rapid=true">
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl">
                         Book {service.title}
                       </Button>
