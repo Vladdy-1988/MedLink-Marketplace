@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { featuredProviders } from "@/lib/mockData";
+import { featuredProviders, serviceCategories } from "@/lib/mockData";
 import { Search, Filter } from "lucide-react";
 
 export default function Providers() {
@@ -16,7 +16,7 @@ export default function Providers() {
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [sortBy, setSortBy] = useState("recommended");
 
-  // Mock expanded provider list
+  // Mock expanded provider list covering all service categories
   const allProviders = [
     ...featuredProviders,
     {
@@ -27,34 +27,115 @@ export default function Providers() {
       rating: 4.7,
       reviewCount: 68,
       location: "NE Calgary",
-      price: "$65/test",
+      price: "Message Provider",
       description: "Certified medical laboratory technician specializing in home blood work and diagnostic testing.",
       image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
       verified: true,
       tags: ["Blood Work", "Diagnostics"],
-      category: "lab"
+      category: "mobile-lab-tests"
     },
     {
       id: 5,
-      name: "James Thompson",
-      specialty: "Massage Therapist",
-      experience: "15 years exp.",
-      rating: 4.8,
-      reviewCount: 143,
+      name: "Dr. Michael Davis",
+      specialty: "General Practitioner",
+      experience: "18 years exp.",
+      rating: 4.9,
+      reviewCount: 186,
       location: "SW Calgary",
-      price: "$90/session",
-      description: "Registered massage therapist specializing in therapeutic massage and pain management.",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+      price: "Message Provider",
+      description: "Family physician providing comprehensive primary care, health assessments, and preventive medicine.",
+      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
       verified: true,
-      tags: ["Therapeutic Massage", "Pain Management"],
-      category: "alternative"
+      tags: ["Family Medicine", "Health Checkups"],
+      category: "general-practice"
+    },
+    {
+      id: 6,
+      name: "Jennifer Williams",
+      specialty: "Occupational Therapist",
+      experience: "11 years exp.",
+      rating: 4.8,
+      reviewCount: 92,
+      location: "NW Calgary",
+      price: "Message Provider",
+      description: "OT specializing in home assessments, adaptive equipment, and daily living skills training.",
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+      verified: true,
+      tags: ["Home Safety", "Adaptive Equipment"],
+      category: "occupational-therapy"
+    },
+    {
+      id: 7,
+      name: "Dr. Patricia Lee",
+      specialty: "Mental Health Counselor",
+      experience: "14 years exp.",
+      rating: 4.9,
+      reviewCount: 134,
+      location: "SE Calgary",
+      price: "Message Provider",
+      description: "Licensed therapist providing individual and family counseling in the comfort of your home.",
+      image: "https://images.unsplash.com/photo-1594824570509-1b0b83d63c49?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+      verified: true,
+      tags: ["Family Therapy", "Anxiety Treatment"],
+      category: "mental-health"
+    },
+    {
+      id: 8,
+      name: "Rachel Anderson",
+      specialty: "Registered Dietitian",
+      experience: "9 years exp.",
+      rating: 4.7,
+      reviewCount: 78,
+      location: "NE Calgary",
+      price: "Message Provider",
+      description: "Nutrition specialist providing personalized meal planning and dietary consultations.",
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+      verified: true,
+      tags: ["Meal Planning", "Diabetes Nutrition"],
+      category: "nutrition"
+    },
+    {
+      id: 9,
+      name: "Dr. Mark Thompson",
+      specialty: "Podiatrist",
+      experience: "16 years exp.",
+      rating: 4.8,
+      reviewCount: 105,
+      location: "SW Calgary",
+      price: "Message Provider",
+      description: "Foot care specialist providing diabetic foot care, nail treatments, and mobility assessments.",
+      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+      verified: true,
+      tags: ["Diabetic Foot Care", "Nail Care"],
+      category: "podiatry"
+    },
+    {
+      id: 10,
+      name: "Sarah Mitchell",
+      specialty: "Speech Therapist",
+      experience: "12 years exp.",
+      rating: 4.9,
+      reviewCount: 87,
+      location: "NW Calgary",
+      price: "Message Provider",
+      description: "Speech-language pathologist specializing in communication disorders and swallowing therapy.",
+      image: "https://images.unsplash.com/photo-1594824570509-1b0b83d63c49?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+      verified: true,
+      tags: ["Communication Therapy", "Swallowing Disorders"],
+      category: "speech-therapy"
     }
   ];
 
   const filteredProviders = allProviders.filter(provider => {
     const matchesSearch = provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          provider.specialty.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesService = selectedServiceType === "all" || provider.category === selectedServiceType;
+    
+    // More flexible service matching - check against specialty and category
+    const matchesService = selectedServiceType === "all" || 
+                          provider.category === selectedServiceType ||
+                          provider.specialty.toLowerCase().replace(/\s+/g, '-') === selectedServiceType ||
+                          provider.specialty.toLowerCase().includes(selectedServiceType.replace(/-/g, ' '));
+    
     const matchesLocation = selectedLocation === "all" || provider.location.includes(selectedLocation);
     
     return matchesSearch && matchesService && matchesLocation;
@@ -101,11 +182,11 @@ export default function Providers() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Services</SelectItem>
-                <SelectItem value="nursing">Nursing Care</SelectItem>
-                <SelectItem value="physiotherapy">Physiotherapy</SelectItem>
-                <SelectItem value="dental">Dental Services</SelectItem>
-                <SelectItem value="lab">Lab Services</SelectItem>
-                <SelectItem value="alternative">Alternative Therapy</SelectItem>
+                {serviceCategories.map((service) => (
+                  <SelectItem key={service.id} value={service.name.toLowerCase().replace(/\s+/g, '-')}>
+                    {service.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             
@@ -152,17 +233,11 @@ export default function Providers() {
                 {/* Service Type Filter */}
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-3 block">Service Type</Label>
-                  <div className="space-y-2">
-                    {[
-                      { id: "nursing", label: "Nursing Care" },
-                      { id: "physiotherapy", label: "Physiotherapy" },
-                      { id: "dental", label: "Dental Services" },
-                      { id: "lab", label: "Lab Services" },
-                      { id: "alternative", label: "Alternative Therapy" }
-                    ].map((service) => (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {serviceCategories.map((service) => (
                       <div key={service.id} className="flex items-center space-x-2">
-                        <Checkbox id={service.id} />
-                        <Label htmlFor={service.id} className="text-sm text-gray-700">{service.label}</Label>
+                        <Checkbox id={service.name.toLowerCase().replace(/\s+/g, '-')} />
+                        <Label htmlFor={service.name.toLowerCase().replace(/\s+/g, '-')} className="text-sm text-gray-700">{service.name}</Label>
                       </div>
                     ))}
                   </div>

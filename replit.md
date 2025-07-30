@@ -142,6 +142,7 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Service Card Fix**: Fixed calls to action in "Complete Healthcare Solutions" section - replaced non-functional alert popups with proper navigation to providers page for meaningful user flow
 - **Discount Removal**: Removed "All new patients get their first consultation at 20% off" promotional text from How It Works page to align with personalized quote-based pricing model
 - **Service Card Spacing**: Added proper vertical spacing between insurance information and "Find Providers" button in service cards for better visual hierarchy and readability
+- **Complete Service Catalog Integration**: Updated providers page to include all 16 services from service catalog in both dropdown and sidebar filters, added 7 new providers covering missing specialties, and improved filtering logic for better service matching
 
 ## Recent Changes (January 2025)
 
