@@ -272,10 +272,12 @@ export default function ServiceCategories() {
                   Find Providers
                 </Button>
               </Link>
-              <Button className="border border-white bg-transparent text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300">
-                Request Service
-                <Plus className="ml-2 h-5 w-5" />
-              </Button>
+              <Link href="/providers">
+                <Button className="border border-white bg-transparent text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300">
+                  Request Service
+                  <Plus className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </motion.div>
