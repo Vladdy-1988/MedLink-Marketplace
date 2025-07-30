@@ -174,9 +174,6 @@ export default function Services() {
                         </p>
                         
                         <div className="space-y-2">
-                          <div className="text-lg font-semibold text-[hsl(207,90%,54%)]">
-                            Get a Quote
-                          </div>
                           {service.insurance && (
                             <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
                               <CheckCircle className="w-3 h-3 mr-1" />
