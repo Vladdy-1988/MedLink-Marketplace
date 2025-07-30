@@ -228,9 +228,6 @@ export default function HowItWorks() {
                   <p className="text-gray-600 leading-relaxed">
                     Search from a selection of 100+ verified healthcare providers in Calgary. Filter by specialty, location, and availability.
                   </p>
-                  <div className="mt-4 text-sm text-gray-500">
-                    All new patients get their first consultation at 20% off
-                  </div>
                 </div>
               </div>
               <div className="flex-1">

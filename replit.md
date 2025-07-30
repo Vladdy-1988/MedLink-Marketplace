@@ -140,6 +140,7 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Homepage Services Cleanup**: Removed "Message Provider" pricing display from Most Popular Services section on homepage for cleaner service card appearance
 - **Navigation Enhancement**: Added ScrollToTop component to automatically scroll to top of page when navigating between routes for improved user experience
 - **Service Card Fix**: Fixed calls to action in "Complete Healthcare Solutions" section - replaced non-functional alert popups with proper navigation to providers page for meaningful user flow
+- **Discount Removal**: Removed "All new patients get their first consultation at 20% off" promotional text from How It Works page to align with personalized quote-based pricing model
 
 ## Recent Changes (January 2025)
 
