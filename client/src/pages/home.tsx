@@ -6,7 +6,7 @@ import ProviderCard from "@/components/ProviderCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { featuredProviders } from "@/lib/mockData";
-import { Calendar, MessageCircle, UserCheck, DollarSign, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Calendar, MessageCircle, UserCheck, DollarSign, Facebook, Twitter, Instagram, Linkedin, Activity, Heart } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 
 export default function Home() {
@@ -168,9 +168,103 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProviders.slice(0, 3).map((provider) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            {featuredProviders.slice(0, 8).map((provider) => (
               <ProviderCard key={provider.id} provider={provider} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Insurance Coverage Section */}
+      <section className="py-16 bg-gradient-to-r from-blue-50 to-green-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Insurance Coverage</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Many of our healthcare services are covered by Alberta Health Services and private insurance plans
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Activity className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Alberta Health Services</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li>• General Practice visits</li>
+                <li>• Home nursing care</li>
+                <li>• Palliative care services</li>
+                <li>• Laboratory tests with requisition</li>
+                <li>• Vaccinations & immunizations</li>
+              </ul>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Extended Health Plans</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li>• Physical & occupational therapy</li>
+                <li>• Mental health counseling</li>
+                <li>• Dietitian consultations</li>
+                <li>• Speech therapy</li>
+                <li>• Vision & hearing assessments</li>
+              </ul>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <UserCheck className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Specialty Plans</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li>• Dental care services</li>
+                <li>• Podiatry for diabetics</li>
+                <li>• Pharmacy consultations</li>
+                <li>• Medical equipment coverage</li>
+                <li>• Prescription medications</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <div className="bg-white rounded-2xl p-6 max-w-4xl mx-auto shadow-lg">
+              <p className="text-gray-700 text-lg mb-4">
+                <strong>Need help with insurance claims?</strong> Our providers can assist with documentation and billing to help maximize your coverage.
+              </p>
+              <p className="text-sm text-gray-500">
+                Coverage varies by plan. Contact your insurance provider or our support team to verify your specific benefits.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How MedLink Works</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Simple, secure, and convenient healthcare at your doorstep</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              { number: 1, title: "Search & Browse", description: "Find qualified healthcare providers by service type, location, and availability in Calgary.", color: "bg-[hsl(207,90%,54%)]" },
+              { number: 2, title: "Book Appointment", description: "Choose your preferred provider, select a convenient time, and securely book your appointment online.", color: "bg-[hsl(159,100%,34%)]" },
+              { number: 3, title: "Receive Care", description: "Your provider visits your home with all necessary equipment for professional healthcare services.", color: "bg-[hsl(259,78%,60%)]" },
+              { number: 4, title: "Rate & Review", description: "Share your experience to help other patients and maintain our quality standards.", color: "bg-orange-500" }
+            ].map((step) => (
+              <div key={step.number} className="text-center group">
+                <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                  <span className="text-2xl font-bold text-white">{step.number}</span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h3>
+                <p className="text-gray-600">{step.description}</p>
+              </div>
             ))}
           </div>
         </div>
