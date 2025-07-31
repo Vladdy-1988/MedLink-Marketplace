@@ -147,11 +147,11 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
         </div>
         
         {/* Action Buttons */}
-        <div className="flex space-x-3 pt-4">
-          <Link href={`/provider/${provider.id}`} className="flex-1">
+        <div className="flex gap-3 pt-4">
+          <Link href={`/provider/${provider.id}`} className="flex-1 min-w-0">
             <Button 
               variant="outline" 
-              className="w-full border-2 border-slate-200 hover:border-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,54%)] font-semibold rounded-2xl h-12 transition-all duration-200 bg-gradient-to-r from-white to-slate-50 hover:from-blue-50 hover:to-indigo-50 shadow-sm hover:shadow-md"
+              className="w-full border-2 border-slate-200 hover:border-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,54%)] font-semibold rounded-2xl h-12 transition-all duration-200 bg-gradient-to-r from-white to-slate-50 hover:from-blue-50 hover:to-indigo-50 shadow-sm hover:shadow-md text-sm"
             >
               View Profile
             </Button>
@@ -161,9 +161,10 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
               // TODO: Implement messaging functionality
               alert(`Sending message to ${provider.name} for a personalized quote...`);
             }}
-            className="flex-1 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0"
+            className="flex-1 min-w-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0 text-sm"
           >
-            Message Provider
+            <MessageCircle className="w-4 h-4 mr-1.5" />
+            Message
           </Button>
         </div>
       </CardContent>
