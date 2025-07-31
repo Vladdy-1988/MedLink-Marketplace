@@ -391,7 +391,7 @@ export default function HowItWorks() {
                     What does the platform fee cover?
                   </AccordionTrigger>
                   <AccordionContent className="text-gray-600">
-                    The platform fee covers provider verification, appointment coordination, quality assurance, 24/7 support, and technology infrastructure that makes home healthcare possible and safe.
+                    The platform fee covers provider verification, appointment coordination, quality assurance, customer support, and technology infrastructure that makes home healthcare possible and safe.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

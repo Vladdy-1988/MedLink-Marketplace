@@ -65,3 +65,6 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Vite**: Fast build tool and dev server
 - **TypeScript**: Type safety across frontend and backend
 - **ESLint/Prettier**: Code quality and formatting
+
+## Recent Changes
+- **24/7 Statement Removal**: Removed all "24/7" promises across the entire website to avoid over-committing to round-the-clock service. Replaced with "Daily 7AM-11PM" for rapid services and "Available During Visits" for support hotlines. Updated availability messaging in services.tsx, rapid-services.tsx, how-it-works.tsx, support.tsx, and safety.tsx.

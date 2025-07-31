@@ -45,7 +45,7 @@ const rapidServices = [
     title: "Rapid Nursing Care",
     description: "ASAP nursing care for non-life-threatening medical situations",
     pricing: "Contact provider for quote",
-    features: ["24/7 availability", "Priority response", "Rapid assessment", "Care coordination"]
+    features: ["Priority response", "Rapid assessment", "Care coordination", "Extended hours available"]
   },
   {
     title: "Rapid Lab Services",

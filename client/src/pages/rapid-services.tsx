@@ -39,7 +39,7 @@ const rapidServices = [
     ],
     pricing: "Contact provider for quote",
     responseTime: "Within 2-4 hours",
-    availability: "24/7"
+    availability: "Daily 7AM-11PM"
   },
   {
     title: "Rapid Lab Services",
@@ -55,7 +55,7 @@ const rapidServices = [
     ],
     pricing: "Contact provider for quote",
     responseTime: "Within 1-3 hours",
-    availability: "24/7"
+    availability: "Daily 7AM-11PM"
   },
   {
     title: "Rapid Mental Health Support",
@@ -71,7 +71,7 @@ const rapidServices = [
     ],
     pricing: "Contact provider for quote",
     responseTime: "Within 2-6 hours",
-    availability: "24/7"
+    availability: "Daily 7AM-11PM"
   },
   {
     title: "Rapid Physiotherapy",
@@ -98,8 +98,8 @@ const pricingFactors = [
     icon: Timer
   },
   {
-    factor: "24/7 Availability",
-    description: "Access to providers during evenings, nights, and weekends",
+    factor: "Extended Hours",
+    description: "Access to providers during evenings and weekends (7AM-11PM daily)",
     icon: Clock
   },
   {
@@ -360,7 +360,7 @@ export default function RapidServices() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4 tracking-tight">Need Urgent Healthcare?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Don't wait when you need care. Our rapid services are available 24/7 with priority scheduling.
+            Don't wait when you need care. Our rapid services are available daily 7AM-11PM with priority scheduling.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/providers">

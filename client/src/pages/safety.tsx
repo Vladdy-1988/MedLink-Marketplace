@@ -223,7 +223,7 @@ export default function Safety() {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
-                  <span className="text-gray-600">24/7 emergency support hotline available during all appointments</span>
+                  <span className="text-gray-600">Rapid support hotline available during all appointments</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" />

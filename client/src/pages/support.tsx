@@ -161,7 +161,7 @@ export default function Support() {
                 <Phone className="w-4 h-4 mr-2" />
                 Call 1-844-MEDLINK
               </Button>
-              <Badge className="mt-2 bg-blue-100 text-blue-800">Available 24/7</Badge>
+              <Badge className="mt-2 bg-blue-100 text-blue-800">Available During Visits</Badge>
             </Card>
 
             <Card className="text-center p-8 hover:shadow-xl transition-all duration-300">
@@ -331,7 +331,7 @@ export default function Support() {
             <Clock className="w-16 h-16 text-blue-400 mx-auto mb-4" />
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Support Hours</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Our support team is here to help during these hours. Emergency line available 24/7.
+              Our support team is here to help during these hours. Rapid support line available during visits.
             </p>
           </div>
           
@@ -358,7 +358,7 @@ export default function Support() {
               <AlertTriangle className="w-12 h-12 text-blue-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Rapid Support Line</h3>
               <div className="text-gray-300">
-                <p>Available 24/7</p>
+                <p>Available During Visits</p>
                 <p>For rapid assistance during appointments</p>
               </div>
             </Card>
