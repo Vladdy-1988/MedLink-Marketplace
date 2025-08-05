@@ -3,7 +3,16 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProviderSchema, insertServiceSchema, insertBookingSchema, insertMessageSchema, insertReviewSchema } from "@shared/schema";
+import { emailService } from "./emailService";
 import { z } from "zod";
+import Stripe from "stripe";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-07-30.basil",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -104,6 +113,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const bookingData = insertBookingSchema.parse({ ...req.body, patientId: userId });
       const booking = await storage.createBooking(bookingData);
+      
+      // Send email notifications
+      const patient = await storage.getUser(userId);
+      const provider = await storage.getProvider(booking.providerId);
+      const providerUser = provider ? await storage.getUser(provider.userId) : null;
+      const service = await storage.getService(booking.serviceId);
+      
+      if (patient && providerUser && service) {
+        // Send confirmation to patient
+        await emailService.sendBookingConfirmation(
+          patient.email!,
+          `${patient.firstName} ${patient.lastName}`,
+          `${providerUser.firstName} ${providerUser.lastName}`,
+          service.name,
+          new Date(booking.scheduledDate),
+          booking.id
+        );
+        
+        // Send notification to provider
+        await emailService.sendProviderNotification(
+          providerUser.email!,
+          `${providerUser.firstName} ${providerUser.lastName}`,
+          `${patient.firstName} ${patient.lastName}`,
+          service.name,
+          new Date(booking.scheduledDate),
+          booking.id
+        );
+      }
+      
       res.json(booking);
     } catch (error) {
       console.error("Error creating booking:", error);
@@ -134,7 +172,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/bookings/:id/status', isAuthenticated, async (req, res) => {
     try {
       const { status } = req.body;
+      const booking = await storage.getBooking(Number(req.params.id));
       await storage.updateBookingStatus(Number(req.params.id), status);
+      
+      // Send status update email
+      if (booking) {
+        const patient = await storage.getUser(booking.patientId);
+        const provider = await storage.getProvider(booking.providerId);
+        const providerUser = provider ? await storage.getUser(provider.userId) : null;
+        const service = await storage.getService(booking.serviceId);
+        
+        if (patient && providerUser && service) {
+          await emailService.sendBookingStatusUpdate(
+            patient.email!,
+            `${patient.firstName} ${patient.lastName}`,
+            `${providerUser.firstName} ${providerUser.lastName}`,
+            service.name,
+            status,
+            booking.id
+          );
+        }
+      }
+      
       res.json({ success: true });
     } catch (error) {
       console.error("Error updating booking status:", error);
@@ -195,6 +254,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching reviews:", error);
       res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  // Stripe payment routes
+  app.post("/api/create-payment-intent", isAuthenticated, async (req: any, res) => {
+    try {
+      const { amount, bookingId } = req.body;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "cad", // Canadian dollars for Calgary market
+        metadata: {
+          bookingId: bookingId?.toString() || '',
+          userId: req.user.claims.sub,
+        },
+      });
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  app.post('/api/payment/confirm', isAuthenticated, async (req: any, res) => {
+    try {
+      const { paymentIntentId, bookingId } = req.body;
+      
+      // Update booking with payment intent ID and status
+      await storage.updateBookingPayment(bookingId, paymentIntentId, 'paid');
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      res.status(500).json({ message: "Failed to confirm payment" });
     }
   });
 

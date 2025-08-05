@@ -51,6 +51,7 @@ export interface IStorage {
   getBookingsByPatient(patientId: string): Promise<Booking[]>;
   getBookingsByProvider(providerId: number): Promise<Booking[]>;
   updateBookingStatus(id: number, status: string): Promise<void>;
+  updateBookingPayment(id: number, paymentIntentId: string, paymentStatus: string): Promise<void>;
 
   // Message operations
   createMessage(message: InsertMessage): Promise<Message>;
@@ -210,6 +211,17 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(bookings)
       .set({ status, updatedAt: new Date() })
+      .where(eq(bookings.id, id));
+  }
+
+  async updateBookingPayment(id: number, paymentIntentId: string, paymentStatus: string): Promise<void> {
+    await db
+      .update(bookings)
+      .set({ 
+        paymentIntentId, 
+        paymentStatus,
+        updatedAt: new Date() 
+      })
       .where(eq(bookings.id, id));
   }
 

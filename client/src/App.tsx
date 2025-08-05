@@ -21,6 +21,10 @@ import RapidServices from "@/pages/rapid-services";
 import About from "@/pages/about";
 import Safety from "@/pages/safety";
 import Support from "@/pages/support";
+import Checkout from "@/pages/checkout";
+import BookingSuccess from "@/pages/booking-success";
+import Messages from "@/pages/messages";
+import ProviderVerification from "@/pages/provider-verification";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -56,6 +60,10 @@ function Router() {
           <Route path="/dashboard/patient" component={PatientDashboard} />
           <Route path="/dashboard/provider" component={ProviderDashboard} />
           <Route path="/dashboard/admin" component={AdminDashboard} />
+          <Route path="/checkout" component={Checkout} />
+          <Route path="/booking-success" component={BookingSuccess} />
+          <Route path="/messages" component={Messages} />
+          <Route path="/provider/verification" component={ProviderVerification} />
         </>
       )}
       <Route component={NotFound} />
