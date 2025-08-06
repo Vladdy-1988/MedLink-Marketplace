@@ -280,12 +280,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { paymentIntentId, bookingId } = req.body;
       
       // Update booking with payment intent ID and status
-      await storage.updateBookingPayment(bookingId, paymentIntentId, 'paid');
+      await storage.updateBookingPayment(Number(bookingId), paymentIntentId, 'paid');
       
       res.json({ success: true });
     } catch (error) {
       console.error("Error confirming payment:", error);
       res.status(500).json({ message: "Failed to confirm payment" });
+    }
+  });
+
+  // Provider credentials routes
+  app.get('/api/providers/credentials/:userId', isAuthenticated, async (req, res) => {
+    try {
+      // For now, return empty array - in production this would fetch from storage
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching credentials:", error);
+      res.status(500).json({ message: "Failed to fetch credentials" });
+    }
+  });
+
+  app.post('/api/providers/credentials/upload', isAuthenticated, async (req: any, res) => {
+    try {
+      // Mock credential upload - in production this would handle file upload to object storage
+      const credential = {
+        id: Date.now(),
+        credentialType: req.body.credentialType || 'license',
+        verificationStatus: 'pending',
+        createdAt: new Date(),
+        expiryDate: null
+      };
+      
+      res.json(credential);
+    } catch (error) {
+      console.error("Error uploading credential:", error);
+      res.status(500).json({ message: "Failed to upload credential" });
+    }
+  });
+
+  // Individual booking route
+  app.get('/api/bookings/:id', isAuthenticated, async (req, res) => {
+    try {
+      const booking = await storage.getBooking(Number(req.params.id));
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      res.json(booking);
+    } catch (error) {
+      console.error("Error fetching booking:", error);
+      res.status(500).json({ message: "Failed to fetch booking" });
     }
   });
 

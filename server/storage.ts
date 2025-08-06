@@ -248,10 +248,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConversationsForUser(userId: string): Promise<any[]> {
-    // Get unique conversation partners
+    // Get unique conversation partners with user details
     const conversations = await db
       .select({
-        partnerId: sql`CASE WHEN ${messages.senderId} = ${userId} THEN ${messages.receiverId} ELSE ${messages.senderId} END`,
+        partnerId: sql`CASE WHEN ${messages.senderId} = ${userId} THEN ${messages.receiverId} ELSE ${messages.senderId} END`.as('partnerId'),
         lastMessage: messages.content,
         lastMessageTime: messages.createdAt,
       })
@@ -259,7 +259,34 @@ export class DatabaseStorage implements IStorage {
       .where(or(eq(messages.senderId, userId), eq(messages.receiverId, userId)))
       .orderBy(desc(messages.createdAt));
 
-    return conversations;
+    // Get unique conversations and enrich with user data
+    const uniqueConversations = conversations.reduce((acc, conv) => {
+      const partnerId = conv.partnerId as string;
+      if (!acc[partnerId]) {
+        acc[partnerId] = {
+          partnerId,
+          lastMessage: conv.lastMessage,
+          lastMessageTime: conv.lastMessageTime,
+          unreadCount: 0
+        };
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+    // Get partner details for each conversation
+    const enrichedConversations = [];
+    for (const [partnerId, convData] of Object.entries(uniqueConversations)) {
+      const partnerUser = await this.getUser(partnerId);
+      if (partnerUser) {
+        enrichedConversations.push({
+          ...convData,
+          partnerName: `${partnerUser.firstName} ${partnerUser.lastName}`,
+          partnerRole: partnerUser.userType === 'provider' ? 'Healthcare Provider' : 'Patient',
+        });
+      }
+    }
+
+    return enrichedConversations;
   }
 
   // Review operations
