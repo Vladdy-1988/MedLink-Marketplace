@@ -25,6 +25,7 @@ import Checkout from "@/pages/checkout";
 import BookingSuccess from "@/pages/booking-success";
 import Messages from "@/pages/messages";
 import ProviderVerification from "@/pages/provider-verification";
+import AdminData from "@/pages/admin-data";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -64,6 +65,7 @@ function Router() {
           <Route path="/booking-success" component={BookingSuccess} />
           <Route path="/messages" component={Messages} />
           <Route path="/provider/verification" component={ProviderVerification} />
+          <Route path="/admin-data" component={AdminData} />
         </>
       )}
       <Route component={NotFound} />
