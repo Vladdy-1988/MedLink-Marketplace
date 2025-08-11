@@ -1,6 +1,6 @@
 // Sample data seeding script for development and testing
 import { storage } from "./storage";
-import type { UpsertUser, InsertProvider, InsertService } from "@shared/schema";
+import type { InsertProvider, InsertService } from "@shared/schema";
 
 export async function seedSampleData() {
   console.log("🌱 Seeding sample data...");
