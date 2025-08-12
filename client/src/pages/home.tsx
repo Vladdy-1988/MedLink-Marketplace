@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { featuredProviders } from "@/lib/mockData";
 import { Calendar, MessageCircle, UserCheck, DollarSign, Facebook, Twitter, Instagram, Linkedin, Activity, Heart } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
+import heroImage from "@assets/pexels-rdne-5637704_1753137473491.jpg";
 
 export default function Home() {
   const { user } = useAuth();
@@ -17,22 +18,56 @@ export default function Home() {
       <Navigation />
       
       {/* Welcome Section */}
-      <section className="bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl lg:text-5xl font-bold mb-4">
-              Welcome back, {user?.firstName || "Patient"}!
-            </h1>
-            <p className="text-xl text-blue-100 mb-8">
-              Ready to book your next healthcare appointment through MedLink?
-            </p>
-            <Link href="/providers">
-              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100">
-                Find Healthcare Providers
-              </Button>
-            </Link>
+      <section className="relative min-h-[70vh] overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroImage}
+            alt="Healthcare professional providing personalized care"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Sophisticated overlay gradients for Apple-like aesthetic */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/60 to-purple-900/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/40 via-transparent to-purple-800/40" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex items-center min-h-[70vh]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center">
+              {/* Apple-inspired large typography */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 leading-tight text-white text-shadow-lg">
+                Welcome back,
+                <span className="block bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                  {user?.firstName || "Patient"}!
+                </span>
+              </h1>
+              
+              {/* Enhanced subtitle with better contrast */}
+              <p className="text-xl sm:text-2xl lg:text-3xl font-light text-blue-50 mb-12 leading-relaxed text-shadow-sm max-w-4xl mx-auto">
+                Your trusted healthcare partners are ready to provide 
+                <span className="font-semibold text-white"> personalized care</span> at your home
+              </p>
+              
+              {/* Modern glassmorphism button */}
+              <Link href="/providers">
+                <Button size="lg" className="bg-white/10 backdrop-blur-lg border border-white/20 text-white hover:bg-white/20 hover:border-white/30 text-xl px-12 py-6 rounded-full font-semibold shadow-2xl hover:shadow-white/10 transition-all duration-300 hover:scale-105">
+                  <Activity className="mr-3 h-6 w-6" />
+                  Find Healthcare Providers
+                </Button>
+              </Link>
+              
+              {/* Subtle accent text */}
+              <p className="mt-8 text-sm text-blue-100/80 font-medium tracking-wide">
+                Professional • Licensed • Trusted in Calgary
+              </p>
+            </div>
           </div>
         </div>
+        
+        {/* Bottom fade effect */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent z-10" />
       </section>
 
       {/* Quick Stats */}
