@@ -10,7 +10,7 @@ import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import heroImage from "@assets/pexels-rdne-5637704_1753137473491.jpg";
+import heroImage from "@assets/pexels-thirdman-7659565_1755038074358.jpg";
 
 export default function Landing() {
   return (
@@ -23,7 +23,7 @@ export default function Landing() {
         <div className="absolute inset-0 z-0">
           <img 
             src={heroImage}
-            alt="Healthcare professional providing personalized medical care"
+            alt="Healthcare professional providing medical consultation and blood pressure check"
             className="w-full h-full object-cover object-center"
           />
           {/* Medical-themed gradient overlays */}
