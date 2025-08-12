@@ -10,7 +10,7 @@ import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import familyPhoto from "@assets/pexels-rdne-6149191_1753139300341.jpg";
+import heroImage from "@assets/pexels-rdne-5637704_1753137473491.jpg";
 
 export default function Landing() {
   return (
@@ -19,16 +19,17 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
-        {/* Background Image - Multigenerational Family with Flowers */}
+        {/* Background Image - Healthcare Professional */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={familyPhoto}
-            alt="Multigenerational family celebrating at home with balloons"
+            src={heroImage}
+            alt="Healthcare professional providing personalized medical care"
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-white/90" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-black/30" />
-          <div className="absolute inset-0 bg-black/20" />
+          {/* Medical-themed gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/70 to-green-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-transparent to-green-800/40" />
         </div>
 
         {/* Content */}
