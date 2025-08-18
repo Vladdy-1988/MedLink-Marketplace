@@ -33,6 +33,9 @@ function Router() {
 
   return (
     <Switch>
+      {/* Admin portal always accessible - handles auth internally */}
+      <Route path="/admin-portal" component={AdminPortal} />
+      
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
@@ -67,7 +70,6 @@ function Router() {
           <Route path="/messages" component={Messages} />
           <Route path="/provider/verification" component={ProviderVerification} />
           <Route path="/admin-data" component={AdminData} />
-          <Route path="/admin-portal" component={AdminPortal} />
         </>
       )}
       <Route component={NotFound} />
