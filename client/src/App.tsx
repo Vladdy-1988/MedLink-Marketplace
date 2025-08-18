@@ -26,6 +26,7 @@ import BookingSuccess from "@/pages/booking-success";
 import Messages from "@/pages/messages";
 import ProviderVerification from "@/pages/provider-verification";
 import AdminData from "@/pages/admin-data";
+import AdminPortal from "@/pages/admin-portal";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -66,6 +67,7 @@ function Router() {
           <Route path="/messages" component={Messages} />
           <Route path="/provider/verification" component={ProviderVerification} />
           <Route path="/admin-data" component={AdminData} />
+          <Route path="/admin-portal" component={AdminPortal} />
         </>
       )}
       <Route component={NotFound} />

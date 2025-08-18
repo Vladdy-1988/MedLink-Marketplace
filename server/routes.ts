@@ -379,6 +379,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive admin routes for the admin portal
+  app.get("/api/admin/providers", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const providers = await storage.getAllProviders();
+      res.json(providers);
+    } catch (error) {
+      console.error("Admin providers error:", error);
+      res.status(500).json({ message: "Failed to fetch providers" });
+    }
+  });
+
+  app.put("/api/admin/providers/:id/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const providerId = parseInt(req.params.id);
+      const { isApproved, isVerified = false } = req.body;
+      
+      await storage.updateProviderStatus(providerId, isApproved, isVerified);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Admin provider update error:", error);
+      res.status(500).json({ message: "Failed to update provider status" });
+    }
+  });
+
+  app.get("/api/admin/bookings", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const bookings = await storage.getAllBookings();
+      res.json(bookings);
+    } catch (error) {
+      console.error("Admin bookings error:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  app.get("/api/admin/reviews", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const reviews = await storage.getAllReviews();
+      res.json(reviews);
+    } catch (error) {
+      console.error("Admin reviews error:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  app.get("/api/admin/users", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Admin users error:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

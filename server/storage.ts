@@ -64,7 +64,25 @@ export interface IStorage {
 
   // Admin operations
   getPendingProviders(): Promise<Provider[]>;
-  getPlatformStats(): Promise<any>;
+  getAllProviders(): Promise<any[]>;
+  getAllBookings(): Promise<any[]>;
+  getAllReviews(): Promise<any[]>;
+  getAllUsers(): Promise<User[]>;
+  updateProviderStatus(id: number, isApproved: boolean, isVerified?: boolean): Promise<void>;
+  getPlatformStats(): Promise<{
+    totalBookings: number;
+    dailyBookings: number;
+    weeklyBookings: number;
+    monthlyBookings: number;
+    activeProviders: number;
+    pendingProviders: number;
+    totalUsers: number;
+    totalRevenue: number;
+    avgRating: number;
+    bookingsByStatus: any[];
+    bookingsOverTime: any[];
+    topRatedServices: any[];
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -339,32 +357,169 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(providers.createdAt));
   }
 
+  async getAllProviders(): Promise<any[]> {
+    return await db
+      .select({
+        id: providers.id,
+        userId: providers.userId,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        specialization: providers.specialization,
+        licenseNumber: providers.licenseNumber,
+        yearsExperience: providers.yearsExperience,
+        isVerified: providers.isVerified,
+        isApproved: providers.isApproved,
+        rating: providers.rating,
+        reviewCount: providers.reviewCount,
+        serviceAreas: providers.serviceAreas,
+        createdAt: providers.createdAt,
+      })
+      .from(providers)
+      .innerJoin(users, eq(providers.userId, users.id))
+      .orderBy(desc(providers.createdAt));
+  }
+
+  async getAllBookings(): Promise<any[]> {
+    return await db
+      .select({
+        id: bookings.id,
+        patientName: sql`${users.firstName} || ' ' || ${users.lastName}`,
+        patientEmail: users.email,
+        providerName: sql`p_users.first_name || ' ' || p_users.last_name`,
+        serviceName: services.name,
+        serviceCategory: services.category,
+        scheduledDate: bookings.scheduledDate,
+        duration: bookings.duration,
+        status: bookings.status,
+        totalAmount: bookings.totalAmount,
+        paymentStatus: bookings.paymentStatus,
+        patientAddress: bookings.patientAddress,
+        createdAt: bookings.createdAt,
+      })
+      .from(bookings)
+      .innerJoin(users, eq(bookings.patientId, users.id))
+      .innerJoin(providers, eq(bookings.providerId, providers.id))
+      .innerJoin(sql`users as p_users`, sql`providers.user_id = p_users.id`)
+      .innerJoin(services, eq(bookings.serviceId, services.id))
+      .orderBy(desc(bookings.createdAt));
+  }
+
+  async getAllReviews(): Promise<any[]> {
+    return await db
+      .select({
+        id: reviews.id,
+        patientName: sql`${users.firstName} || ' ' || ${users.lastName}`,
+        providerName: sql`p_users.first_name || ' ' || p_users.last_name`,
+        rating: reviews.rating,
+        comment: reviews.comment,
+        createdAt: reviews.createdAt,
+        bookingId: reviews.bookingId,
+      })
+      .from(reviews)
+      .innerJoin(users, eq(reviews.patientId, users.id))
+      .innerJoin(providers, eq(reviews.providerId, providers.id))
+      .innerJoin(sql`users as p_users`, sql`providers.user_id = p_users.id`)
+      .orderBy(desc(reviews.createdAt));
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .orderBy(desc(users.createdAt));
+  }
+
+  async updateProviderStatus(id: number, isApproved: boolean, isVerified: boolean = false): Promise<void> {
+    await db
+      .update(providers)
+      .set({ isApproved, isVerified, updatedAt: new Date() })
+      .where(eq(providers.id, id));
+  }
+
   async getPlatformStats(): Promise<any> {
+    // Get basic counts
     const [providerStats] = await db
       .select({
         total: sql`COUNT(*)`,
         approved: sql`COUNT(*) FILTER (WHERE ${providers.isApproved} = true)`,
+        pending: sql`COUNT(*) FILTER (WHERE ${providers.isApproved} = false)`,
       })
       .from(providers);
 
-    const [patientStats] = await db
+    const [userStats] = await db
       .select({
-        total: sql`COUNT(*) FILTER (WHERE ${users.userType} = 'patient')`,
+        total: sql`COUNT(*)`,
+        patients: sql`COUNT(*) FILTER (WHERE ${users.userType} = 'patient')`,
       })
       .from(users);
 
     const [bookingStats] = await db
       .select({
         total: sql`COUNT(*)`,
-        completed: sql`COUNT(*) FILTER (WHERE ${bookings.status} = 'completed')`,
-        revenue: sql`SUM(${bookings.totalAmount}) FILTER (WHERE ${bookings.status} = 'completed')`,
+        daily: sql`COUNT(*) FILTER (WHERE DATE(${bookings.createdAt}) = CURRENT_DATE)`,
+        weekly: sql`COUNT(*) FILTER (WHERE ${bookings.createdAt} >= CURRENT_DATE - INTERVAL '7 days')`,
+        monthly: sql`COUNT(*) FILTER (WHERE ${bookings.createdAt} >= CURRENT_DATE - INTERVAL '30 days')`,
+        revenue: sql`SUM(${bookings.totalAmount}) FILTER (WHERE ${bookings.paymentStatus} = 'paid')`,
       })
       .from(bookings);
 
+    // Get booking status breakdown
+    const bookingsByStatus = await db
+      .select({
+        status: bookings.status,
+        count: sql`COUNT(*)`,
+      })
+      .from(bookings)
+      .groupBy(bookings.status);
+
+    // Get bookings over time (last 30 days)
+    const bookingsOverTime = await db
+      .select({
+        date: sql`DATE(${bookings.createdAt})`,
+        count: sql`COUNT(*)`,
+      })
+      .from(bookings)
+      .where(gte(bookings.createdAt, sql`CURRENT_DATE - INTERVAL '30 days'`))
+      .groupBy(sql`DATE(${bookings.createdAt})`)
+      .orderBy(sql`DATE(${bookings.createdAt})`);
+
+    // Get top rated services
+    const topRatedServices = await db
+      .select({
+        serviceName: services.name,
+        category: services.category,
+        avgRating: sql`AVG(${reviews.rating})`,
+        reviewCount: sql`COUNT(${reviews.id})`,
+      })
+      .from(services)
+      .leftJoin(bookings, eq(services.id, bookings.serviceId))
+      .leftJoin(reviews, eq(bookings.id, reviews.bookingId))
+      .groupBy(services.id, services.name, services.category)
+      .having(sql`COUNT(${reviews.id}) > 0`)
+      .orderBy(sql`AVG(${reviews.rating}) DESC`)
+      .limit(10);
+
+    // Calculate average rating across platform
+    const [ratingStats] = await db
+      .select({
+        avgRating: sql`AVG(${reviews.rating})`,
+      })
+      .from(reviews);
+
     return {
-      providers: providerStats,
-      patients: patientStats,
-      bookings: bookingStats,
+      totalBookings: Number(bookingStats?.total || 0),
+      dailyBookings: Number(bookingStats?.daily || 0),
+      weeklyBookings: Number(bookingStats?.weekly || 0),
+      monthlyBookings: Number(bookingStats?.monthly || 0),
+      activeProviders: Number(providerStats?.approved || 0),
+      pendingProviders: Number(providerStats?.pending || 0),
+      totalUsers: Number(userStats?.total || 0),
+      totalRevenue: Number(bookingStats?.revenue || 0),
+      avgRating: Number(ratingStats?.avgRating || 0),
+      bookingsByStatus: bookingsByStatus || [],
+      bookingsOverTime: bookingsOverTime || [],
+      topRatedServices: topRatedServices || [],
     };
   }
 }

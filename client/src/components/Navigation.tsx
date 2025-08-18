@@ -74,9 +74,9 @@ export default function Navigation() {
                   </Link>
                 )}
                 {user?.userType === 'admin' && (
-                  <Link href="/admin-dashboard">
+                  <Link href="/admin-portal">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
-                      Admin Panel
+                      Admin Portal
                     </Button>
                   </Link>
                 )}
