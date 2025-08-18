@@ -9,76 +9,129 @@ import { Link } from "wouter";
 import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { UserCheck, DollarSign } from "lucide-react";
-import { HeroSection } from "@/components/HeroSection";
+import { MedlinkLogo } from "@/components/MedlinkLogo";
+import heroImage from "@assets/pexels-thirdman-7659565_1755038074358.jpg";
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      <HeroSection 
-        title="Healthcare<br/><span class='block text-white'>at your door</span>"
-        subtitle="Connect with licensed healthcare providers in Calgary for professional in-home medical services."
-        accentText="Safe. Convenient. Trusted."
-        showSearchButton={false}
-        isSignedIn={false}
-      />
+      {/* Hero Section */}
+      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
+        {/* Background Image - Healthcare Professional */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroImage}
+            alt="Healthcare professional providing medical consultation and blood pressure check"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Medical-themed gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/70 to-green-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-transparent to-green-800/40" />
+        </div>
 
-      {/* Search Section */}
-      <section className="py-16 bg-gray-50 -mt-32 relative z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
-                <Select>
-                  <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
-                    <SelectValue placeholder="All Services" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Services</SelectItem>
-                    <SelectItem value="general-practice">General Practice</SelectItem>
-                    <SelectItem value="nursing">Nursing Services</SelectItem>
-                    <SelectItem value="physical-therapy">Physical Therapy</SelectItem>
-                    <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
-                    <SelectItem value="palliative-care">Palliative Care</SelectItem>
-                    <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
-                    <SelectItem value="mental-health">Mental Health</SelectItem>
-                    <SelectItem value="vaccinations">Vaccinations</SelectItem>
-                    <SelectItem value="dental-care">Dental Care</SelectItem>
-                    <SelectItem value="hearing-services">Hearing Services</SelectItem>
-                    <SelectItem value="vision-care">Vision Care</SelectItem>
-                    <SelectItem value="podiatry">Podiatry</SelectItem>
-                    <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
-                    <SelectItem value="nutrition">Nutrition</SelectItem>
-                    <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                    <SelectItem value="iv-therapy">IV Therapy</SelectItem>
-                  </SelectContent>
-                </Select>
+        {/* Content */}
+        <div className="relative z-10 flex items-center min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+            <div className="text-center">
+              {/* Apple-style large headline */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
+                Healthcare
+                <span className="block text-white">
+                  at your door
+                </span>
+              </h1>
+              
+              {/* Apple-style subtitle */}
+              <div className="max-w-4xl mx-auto mb-16">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
+                  Connect with licensed healthcare providers in Calgary for professional in-home medical services.
+                </p>
+                <p className="text-xl sm:text-2xl font-light text-white">
+                  Safe. Convenient. Trusted.
+                </p>
               </div>
-              <div className="space-y-2">
-                <Label className="text-lg font-semibold text-gray-800">Date</Label>
-                <Input 
-                  type="date" 
-                  min={new Date().toISOString().split('T')[0]} 
-                  className="h-14 text-lg rounded-xl border-gray-200"
-                />
+              
+              {/* Apple-style CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+                <Link href="/providers">
+                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    Find Providers
+                  </Button>
+                </Link>
+                <Link href="/how-it-works">
+                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                    Learn how it works
+                  </Button>
+                </Link>
               </div>
-              <div className="space-y-2">
-                <Label className="text-lg font-semibold text-gray-800">Location</Label>
-                <Input 
-                  type="text" 
-                  placeholder="Calgary, AB" 
-                  className="h-14 text-lg rounded-xl border-gray-200"
-                />
+
+              {/* Clean search interface */}
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
+                      <Select>
+                        <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
+                          <SelectValue placeholder="All Services" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Services</SelectItem>
+                          <SelectItem value="general-practice">General Practice</SelectItem>
+                          <SelectItem value="nursing">Nursing Services</SelectItem>
+                          <SelectItem value="physical-therapy">Physical Therapy</SelectItem>
+                          <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
+                          <SelectItem value="palliative-care">Palliative Care</SelectItem>
+                          <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
+                          <SelectItem value="mental-health">Mental Health</SelectItem>
+                          <SelectItem value="vaccinations">Vaccinations</SelectItem>
+                          <SelectItem value="dental-care">Dental Care</SelectItem>
+                          <SelectItem value="hearing-services">Hearing Services</SelectItem>
+                          <SelectItem value="vision-care">Vision Care</SelectItem>
+                          <SelectItem value="podiatry">Podiatry</SelectItem>
+                          <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
+                          <SelectItem value="nutrition">Nutrition</SelectItem>
+                          <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                          <SelectItem value="iv-therapy">IV Therapy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Date</Label>
+                      <Input 
+                        type="date" 
+                        min={new Date().toISOString().split('T')[0]} 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Location</Label>
+                      <Input 
+                        type="text" 
+                        placeholder="Calgary, AB" 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                  </div>
+                  <Link href="/providers">
+                    <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
+                      <Search className="mr-3 h-6 w-6" />
+                      Find Healthcare Providers
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
-            <Link href="/providers">
-              <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
-                <Search className="mr-3 h-6 w-6" />
-                Find Healthcare Providers
-              </Button>
-            </Link>
+          </div>
+        </div>
+
+        {/* Subtle scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
           </div>
         </div>
       </section>
@@ -144,148 +197,203 @@ export default function Landing() {
             
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <UserCheck className="h-8 w-8 text-white" />
+                <Heart className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Private Insurance</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Extended Health Plans</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>• Physical therapy sessions</li>
+                <li>• Physical & occupational therapy</li>
                 <li>• Mental health counseling</li>
-                <li>• Occupational therapy</li>
-                <li>• Speech therapy services</li>
-                <li>• Specialized nursing care</li>
+                <li>• Dietitian consultations</li>
+                <li>• Speech therapy</li>
+                <li>• Vision & hearing assessments</li>
               </ul>
             </div>
             
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <DollarSign className="h-8 w-8 text-white" />
+                <UserCheck className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Direct Pay Options</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Specialty Plans</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>• Flexible payment plans</li>
-                <li>• Transparent pricing</li>
-                <li>• No hidden fees</li>
-                <li>• Same-day availability</li>
-                <li>• Premium comfort services</li>
+                <li>• Dental care services</li>
+                <li>• Podiatry for diabetics</li>
+                <li>• Pharmacy consultations</li>
+                <li>• Medical equipment coverage</li>
+                <li>• Prescription medications</li>
               </ul>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <div className="bg-white rounded-2xl p-6 max-w-4xl mx-auto shadow-lg">
+              <p className="text-gray-700 text-lg mb-4">
+                <strong>Need help with insurance claims?</strong> Our providers can assist with documentation and billing to help maximize your coverage.
+              </p>
+              <p className="text-sm text-gray-500">
+                Coverage varies by plan. Contact your insurance provider or our support team to verify your specific benefits.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-16 bg-white">
+      {/* How It Works */}
+      <section className="py-16 bg-white" id="how-it-works">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">What Our Patients Say</h2>
-            <p className="text-xl text-gray-600">Hear from Calgarians who trust MedLink for their healthcare needs</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How MedLink Works</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Simple, secure, and convenient healthcare at your doorstep</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 rounded-2xl p-8">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Heart key={i} className="h-5 w-5 text-red-500 fill-current" />
-                ))}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              { number: 1, title: "Search & Browse", description: "Find qualified healthcare providers by service type, location, and availability in Calgary.", color: "bg-[hsl(207,90%,54%)]" },
+              { number: 2, title: "Book Appointment", description: "Choose your preferred provider, select a convenient time, and securely book your appointment online.", color: "bg-[hsl(159,100%,34%)]" },
+              { number: 3, title: "Receive Care", description: "Your provider visits your home with all necessary equipment for professional healthcare services.", color: "bg-[hsl(259,78%,60%)]" },
+              { number: 4, title: "Rate & Review", description: "Share your experience to help other patients and maintain our quality standards.", color: "bg-orange-500" }
+            ].map((step) => (
+              <div key={step.number} className="text-center group">
+                <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                  <span className="text-2xl font-bold text-white">{step.number}</span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h3>
+                <p className="text-gray-600">{step.description}</p>
               </div>
-              <p className="text-gray-600 mb-4">
-                "Dr. Sarah provided excellent care for my elderly mother. Professional, compassionate, and made the whole experience stress-free."
-              </p>
-              <div className="font-semibold text-gray-900">Margaret T.</div>
-              <div className="text-gray-500 text-sm">Calgary, AB</div>
-            </div>
-            
-            <div className="bg-gray-50 rounded-2xl p-8">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Heart key={i} className="h-5 w-5 text-red-500 fill-current" />
-                ))}
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Become a Provider */}
+      <section className="py-16 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white" id="become-provider">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Join Our Network of Healthcare Providers</h2>
+            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+              Expand your practice by offering convenient in-home services to patients across Calgary. Join hundreds of verified healthcare professionals already using MedLink.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <UserCheck className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Flexible Schedule</h3>
+                <p className="text-blue-100">Set your own hours and availability</p>
               </div>
-              <p className="text-gray-600 mb-4">
-                "Amazing service! The physical therapist helped me recover from my injury without having to leave my home. Highly recommend!"
-              </p>
-              <div className="font-semibold text-gray-900">David L.</div>
-              <div className="text-gray-500 text-sm">Calgary, AB</div>
-            </div>
-            
-            <div className="bg-gray-50 rounded-2xl p-8">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Heart key={i} className="h-5 w-5 text-red-500 fill-current" />
-                ))}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <DollarSign className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Competitive Rates</h3>
+                <p className="text-blue-100">Earn premium rates for home visits</p>
               </div>
-              <p className="text-gray-600 mb-4">
-                "Perfect for busy parents! The nurse came to our home for my daughter's vaccinations. Convenient and professional."
-              </p>
-              <div className="font-semibold text-gray-900">Jennifer K.</div>
-              <div className="text-gray-500 text-sm">Calgary, AB</div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Activity className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Growing Demand</h3>
+                <p className="text-blue-100">Connect with patients seeking home care</p>
+              </div>
             </div>
+            <Link href="/apply">
+              <Button size="lg" className="bg-white text-[hsl(207,90%,54%)] hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+                Apply to Become a Provider
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+            {/* Company Info */}
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-2xl font-bold">MedLink</span>
+              <div className="flex items-center mb-6">
+                <MedlinkLogo size="md" />
               </div>
-              <p className="text-gray-300 mb-4">
-                Connecting Calgarians with trusted healthcare professionals for safe, convenient in-home medical services.
+              <p className="text-gray-400 mb-6 max-w-md">
+                Professional in-home healthcare services across Calgary. Licensed providers, secure booking, and trusted care at your doorstep.
               </p>
+              
+              {/* Contact Info */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center text-gray-300">
+                  <span className="text-sm font-medium">Phone:</span>
+                  <span className="ml-2 text-sm">1-844-MEDLINK</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-sm font-medium">Service Area:</span>
+                  <span className="ml-2 text-sm">Calgary, Alberta</span>
+                </div>
+                <div className="flex items-center text-gray-300">
+                  <span className="text-sm font-medium">Hours:</span>
+                  <span className="ml-2 text-sm">7 AM - 11 PM Daily</span>
+                </div>
+              </div>
+              
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Facebook className="h-6 w-6" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Twitter className="h-6 w-6" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Instagram className="h-6 w-6" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Linkedin className="h-6 w-6" />
-                </a>
+                <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Instagram className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Linkedin className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
               </div>
             </div>
             
-            <div className="col-span-1">
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
-                <li><Link href="/apply" className="hover:text-white transition-colors">Become a Provider</Link></li>
-                <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Support Center</Link></li>
+            {/* Patient Resources */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">For Patients</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/providers" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Find Providers</Link></li>
+                <li><Link href="/rapid-services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Rapid Services</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>All Services</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>How It Works</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Insurance Coverage</Link></li>
               </ul>
             </div>
             
-            <div className="col-span-1">
-              <h3 className="text-lg font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">HIPAA Compliance</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Insurance Coverage</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Accessibility</a></li>
+            {/* Provider Resources */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">For Providers</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/apply" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Join MedLink</Link></li>
+                <li><Link href="/dashboard/provider" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Portal</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Verification Process</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Support</Link></li>
+              </ul>
+            </div>
+            
+            {/* Company */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Company</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>About MedLink</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Safety & Trust</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Support Center</Link></li>
+                <li><a href="mailto:hello@medlink.ca" className="hover:text-white transition-colors">hello@medlink.ca</a></li>
+                <li><a href="tel:1-844-633-5465" className="hover:text-white transition-colors">1-844-MEDLINK</a></li>
               </ul>
             </div>
           </div>
           
+          {/* Important Notice */}
           <div className="border-t border-gray-800 mt-12 pt-8">
+            <div className="bg-red-900/30 border border-red-800 rounded-xl p-4 mb-8">
+              <p className="text-red-200 text-sm font-medium text-center">
+                <strong>Important:</strong> For life-threatening emergencies, always call 911 first. 
+                MedLink provides non-emergency healthcare services only.
+              </p>
+            </div>
+            
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-gray-400 text-sm mb-4 md:mb-0">
-                © 2025 MedLink House Calls. All rights reserved. Licensed healthcare professionals serving Calgary, Alberta.
+              <div className="text-gray-400 text-sm">
+                © 2024 MedLink House Calls Inc. All rights reserved.
               </div>
-              <div className="flex items-center space-x-4 text-sm text-gray-400">
-                <span>🍁 Proudly Canadian</span>
-                <span>•</span>
-                <span>Licensed & Insured</span>
+              <div className="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">PIPEDA Compliance</a>
               </div>
             </div>
           </div>
