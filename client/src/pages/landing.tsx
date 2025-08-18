@@ -36,20 +36,20 @@ export default function Landing() {
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Apple-style large headline with enhanced contrast */}
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance text-shadow-xl">
+              {/* Apple-style large headline */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
                 Healthcare
-                <span className="block text-white text-shadow-xl">
+                <span className="block text-white">
                   at your door
                 </span>
               </h1>
               
-              {/* Apple-style subtitle with enhanced contrast */}
+              {/* Apple-style subtitle */}
               <div className="max-w-4xl mx-auto mb-16">
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8 text-shadow-strong">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
                   Connect with licensed healthcare providers in Calgary for professional in-home medical services.
                 </p>
-                <p className="text-xl sm:text-2xl font-light text-white text-shadow-strong">
+                <p className="text-xl sm:text-2xl font-light text-white">
                   Safe. Convenient. Trusted.
                 </p>
               </div>
