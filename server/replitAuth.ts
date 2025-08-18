@@ -84,8 +84,12 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  // Get domains from environment and add custom domain if not present
+  const envDomains = process.env.REPLIT_DOMAINS!.split(",");
+  const customDomain = "mymedlink.ca";
+  const allDomains = envDomains.includes(customDomain) ? envDomains : [...envDomains, customDomain];
+
+  for (const domain of allDomains) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
