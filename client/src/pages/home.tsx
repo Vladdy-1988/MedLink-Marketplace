@@ -8,14 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
 import heroImage from "@assets/pexels-matthiaszomer-339620_1755038074358.jpg";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Home() {
   const { user } = useAuth();
+  
+  // Fetch real providers from API instead of using mock data
+  const { data: providers = [], isLoading: providersLoading } = useQuery({
+    queryKey: ["/api/providers"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/providers");
+      return response.json();
+    },
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -274,9 +284,35 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {featuredProviders.slice(0, 8).map((provider) => (
-              <ProviderCard key={provider.id} provider={provider} />
-            ))}
+            {providersLoading ? (
+              // Show loading skeleton
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-3xl p-6 shadow-lg animate-pulse">
+                  <div className="h-56 bg-gray-200 rounded-t-3xl mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))
+            ) : (
+              providers.slice(0, 8).map((provider: any) => (
+                <ProviderCard key={provider.id} provider={{
+                  id: provider.id,
+                  userId: provider.userId,
+                  name: `${provider.firstName} ${provider.lastName}`,
+                  specialty: provider.specialization,
+                  experience: `${provider.yearsExperience} years exp.`,
+                  rating: parseFloat(provider.rating) || 4.5,
+                  reviewCount: provider.reviewCount || 0,
+                  location: "Calgary, AB",
+                  price: "Message Provider",
+                  description: provider.bio || "Experienced healthcare provider offering quality in-home services.",
+                  image: provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+                  verified: provider.isVerified || false,
+                  tags: [provider.specialization],
+                  rapidService: false
+                }} />
+              ))
+            )}
           </div>
           
           <div className="text-center mt-8 md:hidden">
