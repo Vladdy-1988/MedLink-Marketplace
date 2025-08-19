@@ -2,11 +2,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, CheckCircle, Heart, Clock, MessageCircle, Zap } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Provider {
   id: number;
+  userId?: string;
   name: string;
   specialty: string;
   experience: string;
@@ -27,6 +31,57 @@ interface ProviderCardProps {
 
 export default function ProviderCard({ provider }: ProviderCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isMessaging, setIsMessaging] = useState(false);
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const handleMessageProvider = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to message providers",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsMessaging(true);
+    try {
+      // First, find the provider's user ID
+      const providerResponse = await apiRequest("GET", `/api/providers/${provider.id}`);
+      const providerData = await providerResponse.json();
+      
+      if (!providerData.userId) {
+        throw new Error("Provider user ID not found");
+      }
+
+      // Send an initial message
+      const messageData = {
+        receiverId: providerData.userId,
+        content: `Hi ${provider.name}, I'm interested in your healthcare services and would like to get a personalized quote. Could you please provide more information about your availability and pricing? Thank you!`,
+      };
+
+      await apiRequest("POST", "/api/messages", messageData);
+      
+      toast({
+        title: "Message Sent",
+        description: `Your message has been sent to ${provider.name}`,
+      });
+
+      // Navigate to messages page
+      setLocation("/patient-dashboard?tab=messages");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsMessaging(false);
+    }
+  };
 
   return (
     <Card className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 rounded-3xl hover:-translate-y-2 relative">
@@ -157,14 +212,12 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             </Button>
           </Link>
           <Button 
-            onClick={() => {
-              // TODO: Implement messaging functionality
-              alert(`Sending message to ${provider.name} for a personalized quote...`);
-            }}
-            className="flex-1 min-w-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0 text-sm"
+            onClick={handleMessageProvider}
+            disabled={isMessaging}
+            className="flex-1 min-w-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0 text-sm disabled:opacity-50"
           >
             <MessageCircle className="w-4 h-4 mr-1.5" />
-            Message
+            {isMessaging ? "Sending..." : "Message"}
           </Button>
         </div>
       </CardContent>
