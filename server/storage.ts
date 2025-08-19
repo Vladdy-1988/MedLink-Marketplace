@@ -11,6 +11,18 @@ import {
   systemSettings,
   userActivityLogs,
   platformAnalytics,
+  userAddresses,
+  emergencyContacts,
+  patientHealthProfiles,
+  familyMembers,
+  insuranceInfo,
+  paymentMethods,
+  providerAvailability,
+  providerBlackouts,
+  providerPatientNotes,
+  bookingDocuments,
+  bookingStatusHistory,
+  messageAttachments,
   type User,
   type UpsertUser,
   type Provider,
@@ -34,6 +46,30 @@ import {
   type UserActivityLog,
   type InsertUserActivityLog,
   type PlatformAnalytics,
+  type UserAddress,
+  type InsertUserAddress,
+  type EmergencyContact,
+  type InsertEmergencyContact,
+  type PatientHealthProfile,
+  type InsertPatientHealthProfile,
+  type FamilyMember,
+  type InsertFamilyMember,
+  type InsuranceInfo,
+  type InsertInsuranceInfo,
+  type PaymentMethod,
+  type InsertPaymentMethod,
+  type ProviderAvailability,
+  type InsertProviderAvailability,
+  type ProviderBlackout,
+  type InsertProviderBlackout,
+  type ProviderPatientNotes,
+  type InsertProviderPatientNotes,
+  type BookingDocument,
+  type InsertBookingDocument,
+  type BookingStatusHistory,
+  type InsertBookingStatusHistory,
+  type MessageAttachment,
+  type InsertMessageAttachment,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, sql, like, gte, lte } from "drizzle-orm";
@@ -42,6 +78,44 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<User>): Promise<User>;
+
+  // User address operations
+  createUserAddress(address: InsertUserAddress): Promise<UserAddress>;
+  getUserAddresses(userId: string): Promise<UserAddress[]>;
+  updateUserAddress(id: number, updates: Partial<UserAddress>): Promise<UserAddress>;
+  deleteUserAddress(id: number): Promise<void>;
+  setDefaultAddress(userId: string, addressId: number): Promise<void>;
+
+  // Emergency contact operations
+  createEmergencyContact(contact: InsertEmergencyContact): Promise<EmergencyContact>;
+  getEmergencyContacts(userId: string): Promise<EmergencyContact[]>;
+  updateEmergencyContact(id: number, updates: Partial<EmergencyContact>): Promise<EmergencyContact>;
+  deleteEmergencyContact(id: number): Promise<void>;
+
+  // Patient health profile operations
+  createHealthProfile(profile: InsertPatientHealthProfile): Promise<PatientHealthProfile>;
+  getHealthProfile(userId: string): Promise<PatientHealthProfile | undefined>;
+  updateHealthProfile(id: number, updates: Partial<PatientHealthProfile>): Promise<PatientHealthProfile>;
+
+  // Family member operations
+  createFamilyMember(member: InsertFamilyMember): Promise<FamilyMember>;
+  getFamilyMembers(userId: string): Promise<FamilyMember[]>;
+  updateFamilyMember(id: number, updates: Partial<FamilyMember>): Promise<FamilyMember>;
+  deleteFamilyMember(id: number): Promise<void>;
+
+  // Insurance operations
+  createInsuranceInfo(insurance: InsertInsuranceInfo): Promise<InsuranceInfo>;
+  getInsuranceInfo(userId: string): Promise<InsuranceInfo[]>;
+  updateInsuranceInfo(id: number, updates: Partial<InsuranceInfo>): Promise<InsuranceInfo>;
+  deleteInsuranceInfo(id: number): Promise<void>;
+
+  // Payment method operations
+  createPaymentMethod(method: InsertPaymentMethod): Promise<PaymentMethod>;
+  getPaymentMethods(userId: string): Promise<PaymentMethod[]>;
+  updatePaymentMethod(id: number, updates: Partial<PaymentMethod>): Promise<PaymentMethod>;
+  deletePaymentMethod(id: number): Promise<void>;
+  setDefaultPaymentMethod(userId: string, methodId: number): Promise<void>;
 
   // Provider operations
   createProvider(provider: InsertProvider): Promise<Provider>;
@@ -59,6 +133,25 @@ export interface IStorage {
   createService(service: InsertService): Promise<Service>;
   getServicesByProvider(providerId: number): Promise<Service[]>;
   getService(id: number): Promise<Service | undefined>;
+  updateService(id: number, updates: Partial<Service>): Promise<Service>;
+  deleteService(id: number): Promise<void>;
+
+  // Provider availability operations
+  createProviderAvailability(availability: InsertProviderAvailability): Promise<ProviderAvailability>;
+  getProviderAvailability(providerId: number): Promise<ProviderAvailability[]>;
+  updateProviderAvailability(id: number, updates: Partial<ProviderAvailability>): Promise<ProviderAvailability>;
+  deleteProviderAvailability(id: number): Promise<void>;
+
+  // Provider blackout operations
+  createProviderBlackout(blackout: InsertProviderBlackout): Promise<ProviderBlackout>;
+  getProviderBlackouts(providerId: number): Promise<ProviderBlackout[]>;
+  deleteProviderBlackout(id: number): Promise<void>;
+
+  // Provider patient notes operations
+  createProviderPatientNotes(notes: InsertProviderPatientNotes): Promise<ProviderPatientNotes>;
+  getProviderPatientNotes(providerId: number, patientId: string): Promise<ProviderPatientNotes[]>;
+  updateProviderPatientNotes(id: number, updates: Partial<ProviderPatientNotes>): Promise<ProviderPatientNotes>;
+  deleteProviderPatientNotes(id: number): Promise<void>;
 
   // Booking operations
   createBooking(booking: InsertBooking): Promise<Booking>;
@@ -67,11 +160,30 @@ export interface IStorage {
   getBookingsByProvider(providerId: number): Promise<Booking[]>;
   updateBookingStatus(id: number, status: string): Promise<void>;
   updateBookingPayment(id: number, paymentIntentId: string, paymentStatus: string): Promise<void>;
+  getBookingWithDetails(id: number): Promise<any>;
+  cancelBooking(id: number, cancelledBy: string, reason?: string): Promise<void>;
+  rescheduleBooking(id: number, newDate: Date, rescheduleBy: string, reason?: string): Promise<void>;
+
+  // Booking document operations
+  createBookingDocument(document: InsertBookingDocument): Promise<BookingDocument>;
+  getBookingDocuments(bookingId: number): Promise<BookingDocument[]>;
+  deleteBookingDocument(id: number): Promise<void>;
+
+  // Booking status history operations
+  createBookingStatusHistory(history: InsertBookingStatusHistory): Promise<BookingStatusHistory>;
+  getBookingStatusHistory(bookingId: number): Promise<BookingStatusHistory[]>;
 
   // Message operations
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBetweenUsers(userId1: string, userId2: string): Promise<Message[]>;
   getConversationsForUser(userId: string): Promise<any[]>;
+  markMessageAsRead(messageId: number): Promise<void>;
+  getMessagesWithAttachments(userId1: string, userId2: string): Promise<any[]>;
+
+  // Message attachment operations
+  createMessageAttachment(attachment: InsertMessageAttachment): Promise<MessageAttachment>;
+  getMessageAttachments(messageId: number): Promise<MessageAttachment[]>;
+  deleteMessageAttachment(id: number): Promise<void>;
 
   // Review operations
   createReview(review: InsertReview): Promise<Review>;
@@ -163,6 +275,223 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async updateUser(id: string, updates: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  // User address operations
+  async createUserAddress(address: InsertUserAddress): Promise<UserAddress> {
+    const [newAddress] = await db
+      .insert(userAddresses)
+      .values(address)
+      .returning();
+    return newAddress;
+  }
+
+  async getUserAddresses(userId: string): Promise<UserAddress[]> {
+    return db
+      .select()
+      .from(userAddresses)
+      .where(eq(userAddresses.userId, userId))
+      .orderBy(desc(userAddresses.isDefault));
+  }
+
+  async updateUserAddress(id: number, updates: Partial<UserAddress>): Promise<UserAddress> {
+    const [address] = await db
+      .update(userAddresses)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userAddresses.id, id))
+      .returning();
+    return address;
+  }
+
+  async deleteUserAddress(id: number): Promise<void> {
+    await db.delete(userAddresses).where(eq(userAddresses.id, id));
+  }
+
+  async setDefaultAddress(userId: string, addressId: number): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Unset all default addresses for user
+      await tx
+        .update(userAddresses)
+        .set({ isDefault: false })
+        .where(eq(userAddresses.userId, userId));
+      
+      // Set new default
+      await tx
+        .update(userAddresses)
+        .set({ isDefault: true })
+        .where(eq(userAddresses.id, addressId));
+    });
+  }
+
+  // Emergency contact operations
+  async createEmergencyContact(contact: InsertEmergencyContact): Promise<EmergencyContact> {
+    const [newContact] = await db
+      .insert(emergencyContacts)
+      .values(contact)
+      .returning();
+    return newContact;
+  }
+
+  async getEmergencyContacts(userId: string): Promise<EmergencyContact[]> {
+    return db
+      .select()
+      .from(emergencyContacts)
+      .where(eq(emergencyContacts.userId, userId))
+      .orderBy(desc(emergencyContacts.isPrimary));
+  }
+
+  async updateEmergencyContact(id: number, updates: Partial<EmergencyContact>): Promise<EmergencyContact> {
+    const [contact] = await db
+      .update(emergencyContacts)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(emergencyContacts.id, id))
+      .returning();
+    return contact;
+  }
+
+  async deleteEmergencyContact(id: number): Promise<void> {
+    await db.delete(emergencyContacts).where(eq(emergencyContacts.id, id));
+  }
+
+  // Patient health profile operations
+  async createHealthProfile(profile: InsertPatientHealthProfile): Promise<PatientHealthProfile> {
+    const [newProfile] = await db
+      .insert(patientHealthProfiles)
+      .values(profile)
+      .returning();
+    return newProfile;
+  }
+
+  async getHealthProfile(userId: string): Promise<PatientHealthProfile | undefined> {
+    const [profile] = await db
+      .select()
+      .from(patientHealthProfiles)
+      .where(eq(patientHealthProfiles.userId, userId));
+    return profile;
+  }
+
+  async updateHealthProfile(id: number, updates: Partial<PatientHealthProfile>): Promise<PatientHealthProfile> {
+    const [profile] = await db
+      .update(patientHealthProfiles)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(patientHealthProfiles.id, id))
+      .returning();
+    return profile;
+  }
+
+  // Family member operations
+  async createFamilyMember(member: InsertFamilyMember): Promise<FamilyMember> {
+    const [newMember] = await db
+      .insert(familyMembers)
+      .values(member)
+      .returning();
+    return newMember;
+  }
+
+  async getFamilyMembers(userId: string): Promise<FamilyMember[]> {
+    return db
+      .select()
+      .from(familyMembers)
+      .where(eq(familyMembers.userId, userId))
+      .orderBy(familyMembers.firstName);
+  }
+
+  async updateFamilyMember(id: number, updates: Partial<FamilyMember>): Promise<FamilyMember> {
+    const [member] = await db
+      .update(familyMembers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(familyMembers.id, id))
+      .returning();
+    return member;
+  }
+
+  async deleteFamilyMember(id: number): Promise<void> {
+    await db.delete(familyMembers).where(eq(familyMembers.id, id));
+  }
+
+  // Insurance operations
+  async createInsuranceInfo(insurance: InsertInsuranceInfo): Promise<InsuranceInfo> {
+    const [newInsurance] = await db
+      .insert(insuranceInfo)
+      .values(insurance)
+      .returning();
+    return newInsurance;
+  }
+
+  async getInsuranceInfo(userId: string): Promise<InsuranceInfo[]> {
+    return db
+      .select()
+      .from(insuranceInfo)
+      .where(eq(insuranceInfo.userId, userId))
+      .orderBy(desc(insuranceInfo.isPrimary));
+  }
+
+  async updateInsuranceInfo(id: number, updates: Partial<InsuranceInfo>): Promise<InsuranceInfo> {
+    const [insurance] = await db
+      .update(insuranceInfo)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(insuranceInfo.id, id))
+      .returning();
+    return insurance;
+  }
+
+  async deleteInsuranceInfo(id: number): Promise<void> {
+    await db.delete(insuranceInfo).where(eq(insuranceInfo.id, id));
+  }
+
+  // Payment method operations
+  async createPaymentMethod(method: InsertPaymentMethod): Promise<PaymentMethod> {
+    const [newMethod] = await db
+      .insert(paymentMethods)
+      .values(method)
+      .returning();
+    return newMethod;
+  }
+
+  async getPaymentMethods(userId: string): Promise<PaymentMethod[]> {
+    return db
+      .select()
+      .from(paymentMethods)
+      .where(eq(paymentMethods.userId, userId))
+      .orderBy(desc(paymentMethods.isDefault));
+  }
+
+  async updatePaymentMethod(id: number, updates: Partial<PaymentMethod>): Promise<PaymentMethod> {
+    const [method] = await db
+      .update(paymentMethods)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(paymentMethods.id, id))
+      .returning();
+    return method;
+  }
+
+  async deletePaymentMethod(id: number): Promise<void> {
+    await db.delete(paymentMethods).where(eq(paymentMethods.id, id));
+  }
+
+  async setDefaultPaymentMethod(userId: string, methodId: number): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Unset all default payment methods for user
+      await tx
+        .update(paymentMethods)
+        .set({ isDefault: false })
+        .where(eq(paymentMethods.userId, userId));
+      
+      // Set new default
+      await tx
+        .update(paymentMethods)
+        .set({ isDefault: true })
+        .where(eq(paymentMethods.id, methodId));
+    });
+  }
+
   // Provider operations
   async createProvider(provider: InsertProvider): Promise<Provider> {
     const [newProvider] = await db
@@ -248,6 +577,103 @@ export class DatabaseStorage implements IStorage {
     return service;
   }
 
+  async updateService(id: number, updates: Partial<Service>): Promise<Service> {
+    const [service] = await db
+      .update(services)
+      .set(updates)
+      .where(eq(services.id, id))
+      .returning();
+    return service;
+  }
+
+  async deleteService(id: number): Promise<void> {
+    await db.delete(services).where(eq(services.id, id));
+  }
+
+  // Provider availability operations
+  async createProviderAvailability(availability: InsertProviderAvailability): Promise<ProviderAvailability> {
+    const [newAvailability] = await db
+      .insert(providerAvailability)
+      .values(availability)
+      .returning();
+    return newAvailability;
+  }
+
+  async getProviderAvailability(providerId: number): Promise<ProviderAvailability[]> {
+    return db
+      .select()
+      .from(providerAvailability)
+      .where(eq(providerAvailability.providerId, providerId))
+      .orderBy(providerAvailability.dayOfWeek, providerAvailability.startTime);
+  }
+
+  async updateProviderAvailability(id: number, updates: Partial<ProviderAvailability>): Promise<ProviderAvailability> {
+    const [availability] = await db
+      .update(providerAvailability)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(providerAvailability.id, id))
+      .returning();
+    return availability;
+  }
+
+  async deleteProviderAvailability(id: number): Promise<void> {
+    await db.delete(providerAvailability).where(eq(providerAvailability.id, id));
+  }
+
+  // Provider blackout operations
+  async createProviderBlackout(blackout: InsertProviderBlackout): Promise<ProviderBlackout> {
+    const [newBlackout] = await db
+      .insert(providerBlackouts)
+      .values(blackout)
+      .returning();
+    return newBlackout;
+  }
+
+  async getProviderBlackouts(providerId: number): Promise<ProviderBlackout[]> {
+    return db
+      .select()
+      .from(providerBlackouts)
+      .where(eq(providerBlackouts.providerId, providerId))
+      .orderBy(desc(providerBlackouts.startDate));
+  }
+
+  async deleteProviderBlackout(id: number): Promise<void> {
+    await db.delete(providerBlackouts).where(eq(providerBlackouts.id, id));
+  }
+
+  // Provider patient notes operations
+  async createProviderPatientNotes(notes: InsertProviderPatientNotes): Promise<ProviderPatientNotes> {
+    const [newNotes] = await db
+      .insert(providerPatientNotes)
+      .values(notes)
+      .returning();
+    return newNotes;
+  }
+
+  async getProviderPatientNotes(providerId: number, patientId: string): Promise<ProviderPatientNotes[]> {
+    return db
+      .select()
+      .from(providerPatientNotes)
+      .where(and(
+        eq(providerPatientNotes.providerId, providerId),
+        eq(providerPatientNotes.patientId, patientId)
+      ))
+      .orderBy(desc(providerPatientNotes.createdAt));
+  }
+
+  async updateProviderPatientNotes(id: number, updates: Partial<ProviderPatientNotes>): Promise<ProviderPatientNotes> {
+    const [notes] = await db
+      .update(providerPatientNotes)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(providerPatientNotes.id, id))
+      .returning();
+    return notes;
+  }
+
+  async deleteProviderPatientNotes(id: number): Promise<void> {
+    await db.delete(providerPatientNotes).where(eq(providerPatientNotes.id, id));
+  }
+
   // Booking operations
   async createBooking(booking: InsertBooking): Promise<Booking> {
     const [newBooking] = await db
@@ -297,6 +723,117 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(bookings.id, id));
+  }
+
+  async getBookingWithDetails(id: number): Promise<any> {
+    const [booking] = await db
+      .select({
+        id: bookings.id,
+        patientId: bookings.patientId,
+        providerId: bookings.providerId,
+        serviceId: bookings.serviceId,
+        scheduledDate: bookings.scheduledDate,
+        status: bookings.status,
+        totalAmount: bookings.totalAmount,
+        paymentStatus: bookings.paymentStatus,
+        paymentIntentId: bookings.paymentIntentId,
+        notes: bookings.notes,
+        createdAt: bookings.createdAt,
+        updatedAt: bookings.updatedAt,
+        patientName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`.as('patientName'),
+        patientEmail: users.email,
+        providerName: providers.fullName,
+        serviceName: services.name,
+        serviceType: services.type,
+      })
+      .from(bookings)
+      .leftJoin(users, eq(bookings.patientId, users.id))
+      .leftJoin(providers, eq(bookings.providerId, providers.id))
+      .leftJoin(services, eq(bookings.serviceId, services.id))
+      .where(eq(bookings.id, id));
+    return booking;
+  }
+
+  async cancelBooking(id: number, cancelledBy: string, reason?: string): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Update booking status
+      await tx
+        .update(bookings)
+        .set({ status: 'cancelled', updatedAt: new Date() })
+        .where(eq(bookings.id, id));
+
+      // Add status history
+      await tx
+        .insert(bookingStatusHistory)
+        .values({
+          bookingId: id,
+          previousStatus: 'confirmed',
+          newStatus: 'cancelled',
+          changedBy: cancelledBy,
+          reason: reason,
+          notes: 'Booking cancelled'
+        });
+    });
+  }
+
+  async rescheduleBooking(id: number, newDate: Date, rescheduleBy: string, reason?: string): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Update booking date
+      await tx
+        .update(bookings)
+        .set({ scheduledDate: newDate, updatedAt: new Date() })
+        .where(eq(bookings.id, id));
+
+      // Add status history
+      await tx
+        .insert(bookingStatusHistory)
+        .values({
+          bookingId: id,
+          previousStatus: 'confirmed',
+          newStatus: 'rescheduled',
+          changedBy: rescheduleBy,
+          reason: reason,
+          notes: `Rescheduled to ${newDate.toISOString()}`
+        });
+    });
+  }
+
+  // Booking document operations
+  async createBookingDocument(document: InsertBookingDocument): Promise<BookingDocument> {
+    const [newDocument] = await db
+      .insert(bookingDocuments)
+      .values(document)
+      .returning();
+    return newDocument;
+  }
+
+  async getBookingDocuments(bookingId: number): Promise<BookingDocument[]> {
+    return db
+      .select()
+      .from(bookingDocuments)
+      .where(eq(bookingDocuments.bookingId, bookingId))
+      .orderBy(desc(bookingDocuments.createdAt));
+  }
+
+  async deleteBookingDocument(id: number): Promise<void> {
+    await db.delete(bookingDocuments).where(eq(bookingDocuments.id, id));
+  }
+
+  // Booking status history operations
+  async createBookingStatusHistory(history: InsertBookingStatusHistory): Promise<BookingStatusHistory> {
+    const [newHistory] = await db
+      .insert(bookingStatusHistory)
+      .values(history)
+      .returning();
+    return newHistory;
+  }
+
+  async getBookingStatusHistory(bookingId: number): Promise<BookingStatusHistory[]> {
+    return db
+      .select()
+      .from(bookingStatusHistory)
+      .where(eq(bookingStatusHistory.bookingId, bookingId))
+      .orderBy(desc(bookingStatusHistory.createdAt));
   }
 
   // Message operations
@@ -361,6 +898,70 @@ export class DatabaseStorage implements IStorage {
     }
 
     return enrichedConversations;
+  }
+
+  async markMessageAsRead(messageId: number): Promise<void> {
+    await db
+      .update(messages)
+      .set({ isRead: true })
+      .where(eq(messages.id, messageId));
+  }
+
+  async getMessagesWithAttachments(userId1: string, userId2: string): Promise<any[]> {
+    return await db
+      .select({
+        id: messages.id,
+        senderId: messages.senderId,
+        receiverId: messages.receiverId,
+        content: messages.content,
+        isRead: messages.isRead,
+        createdAt: messages.createdAt,
+        bookingId: messages.bookingId,
+        attachments: sql`JSON_AGG(
+          CASE 
+            WHEN ${messageAttachments.id} IS NOT NULL 
+            THEN JSON_BUILD_OBJECT(
+              'id', ${messageAttachments.id},
+              'fileName', ${messageAttachments.fileName},
+              'fileUrl', ${messageAttachments.fileUrl},
+              'fileSize', ${messageAttachments.fileSize},
+              'mimeType', ${messageAttachments.mimeType}
+            )
+            ELSE NULL
+          END
+        ) FILTER (WHERE ${messageAttachments.id} IS NOT NULL)`.as('attachments')
+      })
+      .from(messages)
+      .leftJoin(messageAttachments, eq(messages.id, messageAttachments.messageId))
+      .where(
+        or(
+          and(eq(messages.senderId, userId1), eq(messages.receiverId, userId2)),
+          and(eq(messages.senderId, userId2), eq(messages.receiverId, userId1))
+        )
+      )
+      .groupBy(messages.id)
+      .orderBy(messages.createdAt);
+  }
+
+  // Message attachment operations
+  async createMessageAttachment(attachment: InsertMessageAttachment): Promise<MessageAttachment> {
+    const [newAttachment] = await db
+      .insert(messageAttachments)
+      .values(attachment)
+      .returning();
+    return newAttachment;
+  }
+
+  async getMessageAttachments(messageId: number): Promise<MessageAttachment[]> {
+    return db
+      .select()
+      .from(messageAttachments)
+      .where(eq(messageAttachments.messageId, messageId))
+      .orderBy(messageAttachments.createdAt);
+  }
+
+  async deleteMessageAttachment(id: number): Promise<void> {
+    await db.delete(messageAttachments).where(eq(messageAttachments.id, id));
   }
 
   // Review operations
