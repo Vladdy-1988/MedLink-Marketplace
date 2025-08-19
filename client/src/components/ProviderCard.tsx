@@ -73,7 +73,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
       });
 
       // Navigate to messages page
-      setLocation("/patient-dashboard?tab=messages");
+      setLocation("/dashboard/patient?tab=messages");
     } catch (error) {
       console.error("Error sending message:", error);
       toast({

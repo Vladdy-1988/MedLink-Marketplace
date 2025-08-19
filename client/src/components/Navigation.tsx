@@ -67,7 +67,7 @@ export default function Navigation() {
             {isAuthenticated ? (
               <>
                 {user?.userType === 'provider' && (
-                  <Link href="/provider-dashboard">
+                  <Link href="/dashboard/provider">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
                       Provider Dashboard
                     </Button>
@@ -95,7 +95,7 @@ export default function Navigation() {
                   </Link>
                 )}
                 {user?.userType === 'patient' && (
-                  <Link href="/patient-dashboard">
+                  <Link href="/dashboard/patient">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
                       My Dashboard
                     </Button>

@@ -75,7 +75,7 @@ export default function Home() {
                     Find Providers
                   </Button>
                 </Link>
-                <Link href="/patient-dashboard">
+                <Link href="/dashboard/patient">
                   <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
                     My Dashboard
                   </Button>
