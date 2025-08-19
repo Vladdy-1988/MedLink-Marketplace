@@ -111,20 +111,28 @@ export async function setupAuth(app: Express) {
     const envDomains = process.env.REPLIT_DOMAINS ? process.env.REPLIT_DOMAINS.split(",") : [];
     const customDomain = "mymedlink.ca";
     const allDomains = envDomains.includes(customDomain) ? envDomains : [...envDomains, customDomain];
+    
+    // Add localhost for development
+    if (process.env.NODE_ENV === 'development' && !allDomains.includes('localhost')) {
+      allDomains.push('localhost');
+    }
 
     console.log("Setting up auth strategies for domains:", allDomains);
 
     for (const domain of allDomains) {
+      // Use http for localhost in development, https for others
+      const protocol = (domain === 'localhost' && process.env.NODE_ENV === 'development') ? 'http' : 'https';
       const strategy = new Strategy(
         {
           name: `replitauth:${domain}`,
           config,
           scope: "openid email profile offline_access",
-          callbackURL: `https://${domain}/api/callback`,
+          callbackURL: `${protocol}://${domain}/api/callback`,
         },
         verify,
       );
       passport.use(strategy);
+      console.log(`Registered strategy for domain: ${domain} with callback: ${protocol}://${domain}/api/callback`);
     }
   } catch (error) {
     console.error("Auth setup error:", error);
@@ -136,14 +144,18 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/login", (req, res, next) => {
     try {
-      console.log(`Login attempt for hostname: ${req.hostname}`);
-      passport.authenticate(`replitauth:${req.hostname}`, {
+      const hostname = req.hostname;
+      const strategyName = `replitauth:${hostname}`;
+      console.log(`Login attempt for hostname: ${hostname}, using strategy: ${strategyName}`);
+      
+      passport.authenticate(strategyName, {
         prompt: "login consent",
         scope: ["openid", "email", "profile", "offline_access"],
       })(req, res, next);
     } catch (error) {
       console.error("Login error:", error);
-      res.status(500).json({ message: "Authentication setup error" });
+      const message = error instanceof Error ? error.message : "Unknown error";
+      res.status(500).json({ message: `Authentication setup error: ${message}` });
     }
   });
 

@@ -17,7 +17,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  try {
+    await setupAuth(app);
+    console.log("Authentication setup completed successfully");
+  } catch (error) {
+    console.error("Failed to setup authentication:", error);
+    throw error;
+  }
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
