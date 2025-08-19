@@ -24,7 +24,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center text-gray-300">
                 <span className="text-sm font-medium">Email:</span>
-                <span className="ml-2 text-sm">support@medlink.ca</span>
+                <span className="ml-2 text-sm">support@mymedlink.ca</span>
               </div>
               <div className="flex items-center text-gray-300">
                 <span className="text-sm font-medium">Service Area:</span>
@@ -74,7 +74,7 @@ export default function Footer() {
               <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>About MedLink</Link></li>
               <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Safety & Trust</Link></li>
               <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Support Center</Link></li>
-              <li><a href="mailto:support@medlink.ca" className="hover:text-white transition-colors">Contact Us</a></li>
+              <li><a href="mailto:support@mymedlink.ca" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
         </div>

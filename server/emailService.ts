@@ -15,7 +15,7 @@ export interface EmailParams {
 }
 
 export class EmailService {
-  private readonly fromEmail = 'noreply@medlink.ca'; // Update with your verified sender
+  private readonly fromEmail = 'noreply@mymedlink.ca'; // Update with your verified sender
 
   async sendEmail(params: EmailParams): Promise<boolean> {
     try {
@@ -77,14 +77,14 @@ export class EmailService {
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://medlink.ca/bookings/${bookingId}" 
+            <a href="https://mymedlink.ca/bookings/${bookingId}" 
                style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
               View Booking Details
             </a>
           </div>
           
           <p style="color: #888; font-size: 14px; line-height: 1.5;">
-            If you need to make changes to your appointment, please contact us at support@medlink.ca or call our support line.
+            If you need to make changes to your appointment, please contact us at support@mymedlink.ca or call our support line.
           </p>
         </div>
         
@@ -142,11 +142,11 @@ export class EmailService {
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://medlink.ca/provider/bookings/${bookingId}" 
+            <a href="https://mymedlink.ca/provider/bookings/${bookingId}" 
                style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin-right: 10px;">
               Accept Booking
             </a>
-            <a href="https://medlink.ca/provider/bookings/${bookingId}" 
+            <a href="https://mymedlink.ca/provider/bookings/${bookingId}" 
                style="background: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
               View Details
             </a>

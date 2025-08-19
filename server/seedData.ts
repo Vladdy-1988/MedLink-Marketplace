@@ -36,7 +36,7 @@ export async function seedSampleData() {
     const providerUsers = [
       {
         id: "provider-1",
-        email: "dr.smith@medlink.ca",
+        email: "dr.smith@mymedlink.ca",
         firstName: "Dr. Emma",
         lastName: "Smith",
         userType: "provider" as const,
@@ -47,7 +47,7 @@ export async function seedSampleData() {
       },
       {
         id: "provider-2",
-        email: "dr.patel@medlink.ca", 
+        email: "dr.patel@mymedlink.ca", 
         firstName: "Dr. Raj",
         lastName: "Patel",
         userType: "provider" as const,

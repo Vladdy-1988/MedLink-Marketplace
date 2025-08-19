@@ -208,8 +208,8 @@ export default function BookingSuccess() {
         <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
           <p>
             Need help? Contact us at{" "}
-            <a href="mailto:support@medlink.ca" className="text-blue-600 dark:text-blue-400 hover:underline">
-              support@medlink.ca
+            <a href="mailto:support@mymedlink.ca" className="text-blue-600 dark:text-blue-400 hover:underline">
+              support@mymedlink.ca
             </a>
             {" "}or call our support line.
           </p>
