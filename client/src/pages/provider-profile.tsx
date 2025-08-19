@@ -5,16 +5,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Star, MapPin, Clock, Users, Award, Heart, MessageCircle, Link as LinkIcon, Calendar, Shield, Phone, CheckCircle, ArrowRight } from "lucide-react";
-import { featuredProviders } from "@/lib/mockData";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function ProviderProfile() {
   const [, params] = useRoute("/provider/:id");
   const providerId = params?.id ? parseInt(params.id) : 1;
   
-  // Find provider or use first one as fallback
-  const provider = featuredProviders.find(p => p.id === providerId) || featuredProviders[0];
+  // Fetch provider data from API
+  const { data: provider, isLoading } = useQuery({
+    queryKey: ["/api/providers", providerId],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/providers/${providerId}`);
+      return response.json();
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+        <Navigation />
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!provider) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+        <Navigation />
+        <div className="flex justify-center items-center py-20">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Provider Not Found</h1>
+            <Link href="/providers">
+              <Button>Browse All Providers</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const services = [
     {
@@ -62,8 +96,8 @@ export default function ProviderProfile() {
         {/* Background Image with Parallax Effect */}
         <div className="absolute inset-0">
           <motion.img 
-            src={provider.image} 
-            alt={provider.name}
+            src={provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300"} 
+            alt={`${provider.firstName} ${provider.lastName}`}
             className="w-full h-full object-cover opacity-40"
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
@@ -87,7 +121,7 @@ export default function ProviderProfile() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              {provider.verified && (
+              {provider.isVerified && (
                 <motion.div 
                   className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"
                   initial={{ opacity: 0, y: 20 }}
@@ -106,7 +140,7 @@ export default function ProviderProfile() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
                 >
-                  {provider.name}
+                  {provider.firstName} {provider.lastName}
                 </motion.h1>
                 <motion.p 
                   className="text-xl lg:text-2xl text-gray-300 font-light mb-8"
@@ -114,7 +148,7 @@ export default function ProviderProfile() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.8 }}
                 >
-                  {provider.specialty} • {provider.experience}
+                  {provider.specialization} • {provider.yearsExperience} years exp.
                 </motion.p>
               </div>
               
@@ -126,7 +160,7 @@ export default function ProviderProfile() {
                 transition={{ duration: 0.8, delay: 1.0 }}
               >
                 <div className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                  <div className="text-3xl font-bold text-white mb-1">{provider.rating}</div>
+                  <div className="text-3xl font-bold text-white mb-1">{parseFloat(provider.rating) || 4.5}</div>
                   <div className="text-xs text-gray-400 uppercase tracking-wide">Rating</div>
                 </div>
                 <div className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
@@ -150,7 +184,7 @@ export default function ProviderProfile() {
                 transition={{ duration: 0.8, delay: 1.2 }}
               >
                 <MapPin className="h-5 w-5 text-gray-400" />
-                <span className="text-gray-300 font-medium">{provider.location}</span>
+                <span className="text-gray-300 font-medium">Calgary, AB</span>
               </motion.div>
             </motion.div>
             
@@ -167,16 +201,14 @@ export default function ProviderProfile() {
                   <div className="text-gray-300 font-medium">Contact for quote based on your needs</div>
                 </div>
                 
-                <Button 
-                  onClick={() => {
-                    // TODO: Implement messaging functionality
-                    alert(`Sending message to ${provider.name} for a personalized quote...`);
-                  }}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
-                >
-                  Message Provider
-                  <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                </Button>
+                <Link href={`/providers/${provider.id}/message`}>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
+                  >
+                    Message Provider
+                    <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                  </Button>
+                </Link>
                 
                 <Link href={`/booking/${provider.id}/1`}>
                   <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl">

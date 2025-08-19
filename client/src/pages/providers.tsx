@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { featuredProviders, serviceCategories } from "@/lib/mockData";
+import { serviceCategories } from "@/lib/mockData";
 import { Search, Filter, Zap } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Providers() {
   const [location] = useLocation();
@@ -19,6 +21,15 @@ export default function Providers() {
   const [sortBy, setSortBy] = useState("recommended");
   const [showRapidOnly, setShowRapidOnly] = useState(false);
 
+  // Fetch real providers from API
+  const { data: providersData = [], isLoading: providersLoading } = useQuery({
+    queryKey: ["/api/providers"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/providers");
+      return response.json();
+    },
+  });
+
   // Check URL parameters to auto-enable rapid services filter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -27,125 +38,42 @@ export default function Providers() {
     }
   }, [location]);
 
-  // Add rapid service capability to featured providers
-  const enhancedFeaturedProviders = featuredProviders.map(provider => ({
-    ...provider,
-    rapidService: provider.category === "nursing" ? true : false
+  // Convert API data to provider format
+  const allProviders = providersData.map((provider: any) => ({
+    id: provider.id,
+    userId: provider.userId,
+    name: `${provider.firstName} ${provider.lastName}`,
+    specialty: provider.specialization,
+    experience: `${provider.yearsExperience} years exp.`,
+    rating: parseFloat(provider.rating) || 4.5,
+    reviewCount: provider.reviewCount || 0,
+    location: "Calgary, AB",
+    price: "Message Provider",
+    description: provider.bio || "Experienced healthcare provider offering quality in-home services.",
+    image: provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
+    verified: provider.isVerified || false,
+    tags: [provider.specialization],
+    category: provider.specialization.toLowerCase().replace(/\s+/g, '-'),
+    rapidService: false
   }));
 
-  // Mock expanded provider list covering all service categories
-  const allProviders = [
-    ...enhancedFeaturedProviders,
-    {
-      id: 4,
-      name: "Dr. Emily Wong",
-      specialty: "Lab Technician",
-      experience: "6 years exp.",
-      rating: 4.7,
-      reviewCount: 68,
-      location: "NE Calgary",
-      price: "Message Provider",
-      description: "Certified medical laboratory technician specializing in home blood work and diagnostic testing.",
-      image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Blood Work", "Diagnostics", "RAPID"],
-      category: "mobile-lab-tests",
-      rapidService: true
-    },
-    {
-      id: 5,
-      name: "Dr. Michael Davis",
-      specialty: "General Practitioner",
-      experience: "18 years exp.",
-      rating: 4.9,
-      reviewCount: 186,
-      location: "SW Calgary",
-      price: "Message Provider",
-      description: "Family physician providing comprehensive primary care, health assessments, and preventive medicine.",
-      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Family Medicine", "Health Checkups"],
-      category: "general-practice"
-    },
-    {
-      id: 6,
-      name: "Jennifer Williams",
-      specialty: "Occupational Therapist",
-      experience: "11 years exp.",
-      rating: 4.8,
-      reviewCount: 92,
-      location: "NW Calgary",
-      price: "Message Provider",
-      description: "OT specializing in home assessments, adaptive equipment, and daily living skills training.",
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Home Safety", "Adaptive Equipment"],
-      category: "occupational-therapy"
-    },
-    {
-      id: 7,
-      name: "Dr. Patricia Lee",
-      specialty: "Mental Health Counselor",
-      experience: "14 years exp.",
-      rating: 4.9,
-      reviewCount: 134,
-      location: "SE Calgary",
-      price: "Message Provider",
-      description: "Licensed therapist providing individual and family counseling in the comfort of your home.",
-      image: "https://images.unsplash.com/photo-1594824570509-1b0b83d63c49?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Family Therapy", "Anxiety Treatment", "RAPID"],
-      category: "mental-health",
-      rapidService: true
-    },
-    {
-      id: 8,
-      name: "Rachel Anderson",
-      specialty: "Registered Dietitian",
-      experience: "9 years exp.",
-      rating: 4.7,
-      reviewCount: 78,
-      location: "NE Calgary",
-      price: "Message Provider",
-      description: "Nutrition specialist providing personalized meal planning and dietary consultations.",
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Meal Planning", "Diabetes Nutrition"],
-      category: "nutrition"
-    },
-    {
-      id: 9,
-      name: "Dr. Mark Thompson",
-      specialty: "Podiatrist",
-      experience: "16 years exp.",
-      rating: 4.8,
-      reviewCount: 105,
-      location: "SW Calgary",
-      price: "Message Provider",
-      description: "Foot care specialist providing diabetic foot care, nail treatments, and mobility assessments.",
-      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Diabetic Foot Care", "Nail Care"],
-      category: "podiatry"
-    },
-    {
-      id: 10,
-      name: "Sarah Mitchell",
-      specialty: "Speech Therapist",
-      experience: "12 years exp.",
-      rating: 4.9,
-      reviewCount: 87,
-      location: "NW Calgary",
-      price: "Message Provider",
-      description: "Speech-language pathologist specializing in communication disorders and swallowing therapy.",
-      image: "https://images.unsplash.com/photo-1594824570509-1b0b83d63c49?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-      verified: true,
-      tags: ["Communication Therapy", "Swallowing Disorders"],
-      category: "speech-therapy"
-    }
-  ];
+  if (providersLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading providers...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const filteredProviders = allProviders.filter(provider => {
+  // Use only real providers from API
+
+  const filteredProviders = allProviders.filter((provider: any) => {
     const matchesSearch = provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          provider.specialty.toLowerCase().includes(searchQuery.toLowerCase());
     
