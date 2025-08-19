@@ -205,17 +205,29 @@ export default function ProviderProfile() {
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl p-8 max-w-md">
                 <div className="text-center mb-8">
                   <div className="text-3xl font-black text-white mb-2">Personalized Pricing</div>
-                  <div className="text-gray-300 font-medium">Contact for quote based on your needs</div>
+                  <div className="text-gray-300 font-medium">
+                    {user ? "Contact for quote based on your needs" : "Sign in to get personalized quotes"}
+                  </div>
+                  {!user && (
+                    <div className="mt-3 p-3 bg-blue-500/20 rounded-xl border border-blue-400/30">
+                      <div className="text-sm text-blue-200 font-medium">
+                        💡 Create an account to message providers and get custom pricing
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <Button 
                   onClick={async () => {
                     if (!user) {
                       toast({
-                        title: "Authentication Required",
-                        description: "Please log in to message providers",
+                        title: "Sign In Required",
+                        description: "Please sign in to message this healthcare provider and get a personalized quote",
                         variant: "destructive",
                       });
+                      setTimeout(() => {
+                        window.location.href = "/api/login";
+                      }, 1500);
                       return;
                     }
 
@@ -250,16 +262,36 @@ export default function ProviderProfile() {
                   disabled={isMessaging}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
                 >
-                  {isMessaging ? "Sending..." : "Message Provider"}
+                  {isMessaging ? "Sending..." : user ? "Message Provider" : "Sign In to Message"}
                   <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                 </Button>
                 
-                <Link href={`/booking/${provider.id}/1`}>
-                  <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl">
-                    Schedule Consultation
+                {user ? (
+                  <Link href={`/booking/${provider.id}/1`}>
+                    <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl">
+                      Schedule Consultation
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      toast({
+                        title: "Sign In Required",
+                        description: "Please sign in to schedule consultations with healthcare providers",
+                        variant: "destructive",
+                      });
+                      setTimeout(() => {
+                        window.location.href = "/api/login";
+                      }, 1500);
+                    }}
+                    variant="outline" 
+                    className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl"
+                  >
+                    Sign In to Schedule
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </Link>
+                )}
                 
                 <div className="mt-6 space-y-4">
                   <div className="flex items-center justify-between text-sm">

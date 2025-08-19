@@ -39,10 +39,13 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
   const handleMessageProvider = async () => {
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to message providers",
+        title: "Sign In Required",
+        description: "Please sign in to message healthcare providers and get personalized quotes",
         variant: "destructive",
       });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1500);
       return;
     }
 
@@ -217,7 +220,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             className="flex-1 min-w-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0 text-sm disabled:opacity-50"
           >
             <MessageCircle className="w-4 h-4 mr-1.5" />
-            {isMessaging ? "Sending..." : "Message"}
+            {isMessaging ? "Sending..." : user ? "Message" : "Sign In to Message"}
           </Button>
         </div>
       </CardContent>

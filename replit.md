@@ -69,6 +69,13 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **ESLint/Prettier**: Code quality and formatting
 
 ## Recent Changes
+- **Improved Logged-Out User Experience (August 2025)**: Enhanced messaging clarity for non-authenticated users across all provider interaction features.
+  - ✅ **Clear Button Text**: Updated "Message Provider" and "Schedule Consultation" buttons to show "Sign In to Message" and "Sign In to Schedule" for logged-out users
+  - ✅ **Better Toast Messages**: Improved notification text to be more helpful and specific ("Please sign in to message this healthcare provider and get a personalized quote")
+  - ✅ **Visual Guidance**: Added helpful info boxes on provider profiles explaining the need to sign in for personalized quotes
+  - ✅ **Automatic Redirects**: Added smooth redirects to login page after informative messages
+  - ✅ **Consistent Experience**: Applied improvements across homepage provider cards, providers page, and individual provider profiles
+  - ✅ **User-Friendly Language**: Replaced technical "Authentication Required" with friendlier "Sign In Required" messaging
 - **Authentication Production Fix (August 2025)**: Resolved critical "Service Unavailable" error on deployed site by fixing session cookie security settings, adding multi-domain support, and implementing comprehensive error handling. Authentication system now production-ready for both development and deployed environments.
 - **Patient Dashboard Complete (August 2025)**: Built comprehensive patient dashboard with full healthcare marketplace management capabilities across 6 main functional areas.
   - ✅ **My Appointments**: Enhanced appointment view with quick stats, upcoming appointments display, and recent messages integration
