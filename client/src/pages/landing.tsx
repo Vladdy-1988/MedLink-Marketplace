@@ -10,7 +10,7 @@ import { featuredProviders } from "@/lib/mockData";
 import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import heroImage from "@assets/pexels-thirdman-7659565_1755038074358.jpg";
+import heroImage from "@assets/pexels-matthiaszomer-339620_1755038074358.jpg";
 
 export default function Landing() {
   return (

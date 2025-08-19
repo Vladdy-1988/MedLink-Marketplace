@@ -4,11 +4,14 @@ import Navigation from "@/components/Navigation";
 import ServiceCategories from "@/components/ServiceCategories";
 import ProviderCard from "@/components/ProviderCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { featuredProviders } from "@/lib/mockData";
-import { Calendar, MessageCircle, UserCheck, DollarSign, Facebook, Twitter, Instagram, Linkedin, Activity, Heart } from "lucide-react";
+import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import heroImage from "@assets/pexels-rdne-5637704_1753137473491.jpg";
+import heroImage from "@assets/pexels-matthiaszomer-339620_1755038074358.jpg";
 
 export default function Home() {
   const { user } = useAuth();
@@ -17,57 +20,123 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Welcome Section */}
-      <section className="relative min-h-[70vh] overflow-hidden">
-        {/* Background Image */}
+      {/* Hero Section */}
+      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
+        {/* Background Image - Healthcare Professional */}
         <div className="absolute inset-0 z-0">
           <img 
             src={heroImage}
-            alt="Healthcare professional providing personalized care"
+            alt="Healthcare professional providing medical consultation and blood pressure check"
             className="w-full h-full object-cover object-center"
           />
-          {/* Sophisticated overlay gradients for Apple-like aesthetic */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/60 to-purple-900/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/40 via-transparent to-purple-800/40" />
+          {/* Medical-themed gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/70 to-green-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-transparent to-green-800/40" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 flex items-center min-h-[70vh]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="relative z-10 flex items-center min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Apple-inspired large typography */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 leading-tight text-white text-shadow-lg">
+              {/* Apple-style large headline - Personalized for logged-in users */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
                 Welcome back,
-                <span className="block bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  {user?.firstName || "Patient"}!
+                <span className="block text-white">
+                  {user?.firstName || "Patient"}
                 </span>
               </h1>
               
-              {/* Enhanced subtitle with better contrast */}
-              <p className="text-xl sm:text-2xl lg:text-3xl font-light text-blue-50 mb-12 leading-relaxed text-shadow-sm max-w-4xl mx-auto">
-                Your trusted healthcare partners are ready to provide 
-                <span className="font-semibold text-white"> personalized care</span> at your home
-              </p>
+              {/* Apple-style subtitle */}
+              <div className="max-w-4xl mx-auto mb-16">
+                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
+                  Your trusted healthcare providers are ready to deliver professional in-home medical services.
+                </p>
+                <p className="text-xl sm:text-2xl font-light text-white">
+                  Safe. Convenient. Trusted.
+                </p>
+              </div>
               
-              {/* Modern glassmorphism button */}
-              <Link href="/providers">
-                <Button size="lg" className="bg-white/10 backdrop-blur-lg border border-white/20 text-white hover:bg-white/20 hover:border-white/30 text-xl px-12 py-6 rounded-full font-semibold shadow-2xl hover:shadow-white/10 transition-all duration-300 hover:scale-105">
-                  <Activity className="mr-3 h-6 w-6" />
-                  Find Healthcare Providers
-                </Button>
-              </Link>
-              
-              {/* Subtle accent text */}
-              <p className="mt-8 text-sm text-blue-100/80 font-medium tracking-wide">
-                Professional • Licensed • Trusted in Calgary
-              </p>
+              {/* Apple-style CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+                <Link href="/providers">
+                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                    Find Providers
+                  </Button>
+                </Link>
+                <Link href="/patient-dashboard">
+                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+                    My Dashboard
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Clean search interface */}
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
+                      <Select>
+                        <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
+                          <SelectValue placeholder="All Services" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Services</SelectItem>
+                          <SelectItem value="general-practice">General Practice</SelectItem>
+                          <SelectItem value="nursing">Nursing Services</SelectItem>
+                          <SelectItem value="physical-therapy">Physical Therapy</SelectItem>
+                          <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
+                          <SelectItem value="palliative-care">Palliative Care</SelectItem>
+                          <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
+                          <SelectItem value="mental-health">Mental Health</SelectItem>
+                          <SelectItem value="vaccinations">Vaccinations</SelectItem>
+                          <SelectItem value="dental-care">Dental Care</SelectItem>
+                          <SelectItem value="hearing-services">Hearing Services</SelectItem>
+                          <SelectItem value="vision-care">Vision Care</SelectItem>
+                          <SelectItem value="podiatry">Podiatry</SelectItem>
+                          <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
+                          <SelectItem value="nutrition">Nutrition</SelectItem>
+                          <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                          <SelectItem value="iv-therapy">IV Therapy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Date</Label>
+                      <Input 
+                        type="date" 
+                        min={new Date().toISOString().split('T')[0]} 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-lg font-semibold text-gray-800">Location</Label>
+                      <Input 
+                        type="text" 
+                        placeholder="Calgary, AB" 
+                        className="h-14 text-lg rounded-xl border-gray-200"
+                      />
+                    </div>
+                  </div>
+                  <Link href="/providers">
+                    <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
+                      <Search className="mr-3 h-6 w-6" />
+                      Find Healthcare Providers
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        
-        {/* Bottom fade effect */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent z-10" />
+
+        {/* Subtle scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+          </div>
+        </div>
       </section>
 
       {/* Quick Stats */}
@@ -189,15 +258,15 @@ export default function Home() {
       <ServiceCategories />
 
       {/* Featured Providers */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Recommended for You</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Recommended for You</h2>
               <p className="text-xl text-gray-600">Based on your location and preferences</p>
             </div>
             <Link href="/providers">
-              <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
+              <Button className="hidden md:block bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
                 View All Providers
               </Button>
             </Link>
@@ -207,6 +276,14 @@ export default function Home() {
             {featuredProviders.slice(0, 8).map((provider) => (
               <ProviderCard key={provider.id} provider={provider} />
             ))}
+          </div>
+          
+          <div className="text-center mt-8 md:hidden">
+            <Link href="/providers">
+              <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
+                View All Providers
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -279,7 +356,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white" id="how-it-works">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How MedLink Works</h2>
@@ -320,81 +397,80 @@ export default function Home() {
               
               {/* Contact Info */}
               <div className="space-y-3 mb-6">
-                <div className="flex items-center text-gray-300">
-                  <span className="text-sm font-medium">Phone:</span>
-                  <span className="ml-2 text-sm">1-844-MEDLINK</span>
+                <div className="flex items-center text-gray-400">
+                  <span className="text-sm">📧 support@medlink.ca</span>
                 </div>
-                <div className="flex items-center text-gray-300">
-                  <span className="text-sm font-medium">Service Area:</span>
-                  <span className="ml-2 text-sm">Calgary, Alberta</span>
+                <div className="flex items-center text-gray-400">
+                  <span className="text-sm">📞 1-800-MED-LINK</span>
                 </div>
-                <div className="flex items-center text-gray-300">
-                  <span className="text-sm font-medium">Hours:</span>
-                  <span className="ml-2 text-sm">7 AM - 11 PM Daily</span>
+                <div className="flex items-center text-gray-400">
+                  <span className="text-sm">📍 Calgary, Alberta</span>
                 </div>
               </div>
               
+              {/* Social Links */}
               <div className="flex space-x-4">
-                <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                <Instagram className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                <Linkedin className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <Facebook className="h-5 w-5" />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <Twitter className="h-5 w-5" />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <Linkedin className="h-5 w-5" />
+                </a>
               </div>
             </div>
-            
-            {/* Patient Resources */}
+
+            {/* Services */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">For Patients</h3>
+              <h4 className="text-lg font-semibold mb-6">Services</h4>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/providers" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Find Providers</Link></li>
-                <li><Link href="/rapid-services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Rapid Services</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>All Services</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>How It Works</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Insurance Coverage</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">General Practice</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Nursing Care</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Physical Therapy</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Mental Health</Link></li>
+                <li><Link href="/services" className="hover:text-white transition-colors">Lab Tests</Link></li>
               </ul>
             </div>
-            
-            {/* Provider Resources */}
+
+            {/* For Patients */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">For Providers</h3>
+              <h4 className="text-lg font-semibold mb-6">For Patients</h4>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/apply" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Join MedLink</Link></li>
-                <li><Link href="/dashboard/provider" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Portal</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Verification Process</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Support</Link></li>
+                <li><Link href="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How it Works</Link></li>
+                <li><Link href="/rapid-services" className="hover:text-white transition-colors">Rapid Services</Link></li>
+                <li><Link href="/patient-dashboard" className="hover:text-white transition-colors">My Dashboard</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
               </ul>
             </div>
-            
+
             {/* Company */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">Company</h3>
+              <h4 className="text-lg font-semibold mb-6">Company</h4>
               <ul className="space-y-3 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>About MedLink</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Safety & Trust</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Support Center</Link></li>
-                <li><a href="mailto:hello@medlink.ca" className="hover:text-white transition-colors">hello@medlink.ca</a></li>
-                <li><a href="tel:1-844-633-5465" className="hover:text-white transition-colors">1-844-MEDLINK</a></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Quality</Link></li>
+                <li><Link href="/provider-registration" className="hover:text-white transition-colors">Become a Provider</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Contact Us</Link></li>
               </ul>
             </div>
           </div>
           
-          {/* Important Notice */}
+          {/* Bottom Section */}
           <div className="border-t border-gray-800 mt-12 pt-8">
-            <div className="bg-red-900/30 border border-red-800 rounded-xl p-4 mb-8">
-              <p className="text-red-200 text-sm font-medium text-center">
-                <strong>Important:</strong> For life-threatening emergencies, always call 911 first. 
-                MedLink provides non-emergency healthcare services only.
-              </p>
-            </div>
-            
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-gray-400 text-sm">
-                © 2024 MedLink House Calls Inc. All rights reserved.
-              </div>
-              <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">PIPEDA Compliance</a>
+              <p className="text-gray-400 text-sm mb-4 md:mb-0">
+                © 2025 MedLink House Calls. All rights reserved.
+              </p>
+              <div className="flex space-x-6 text-sm text-gray-400">
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                <Link href="/accessibility" className="hover:text-white transition-colors">Accessibility</Link>
               </div>
             </div>
           </div>
