@@ -6,6 +6,11 @@ import {
   messages,
   reviews,
   providerCredentials,
+  auditLogs,
+  transactions,
+  systemSettings,
+  userActivityLogs,
+  platformAnalytics,
   type User,
   type UpsertUser,
   type Provider,
@@ -19,6 +24,16 @@ import {
   type Review,
   type InsertReview,
   type ProviderCredential,
+  type InsertProviderCredential,
+  type AuditLog,
+  type InsertAuditLog,
+  type Transaction,
+  type InsertTransaction,
+  type SystemSetting,
+  type InsertSystemSetting,
+  type UserActivityLog,
+  type InsertUserActivityLog,
+  type PlatformAnalytics,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, sql, like, gte, lte } from "drizzle-orm";
@@ -62,6 +77,12 @@ export interface IStorage {
   createReview(review: InsertReview): Promise<Review>;
   getReviewsForProvider(providerId: number): Promise<Review[]>;
 
+  // Provider credential operations
+  createProviderCredential(credential: InsertProviderCredential): Promise<ProviderCredential>;
+  getProviderCredentials(providerId: number): Promise<ProviderCredential[]>;
+  updateCredentialVerification(id: number, status: string, reviewedBy: string, reviewNotes?: string): Promise<void>;
+  getAllPendingCredentials(): Promise<any[]>;
+
   // Admin operations
   getPendingProviders(): Promise<Provider[]>;
   getAllProviders(): Promise<any[]>;
@@ -69,6 +90,29 @@ export interface IStorage {
   getAllReviews(): Promise<any[]>;
   getAllUsers(): Promise<User[]>;
   updateProviderStatus(id: number, isApproved: boolean, isVerified?: boolean): Promise<void>;
+  
+  // Audit log operations
+  createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogs(limit?: number): Promise<any[]>;
+  
+  // Transaction operations
+  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  getTransactions(filters?: { status?: string; type?: string; providerId?: number }): Promise<any[]>;
+  updateTransactionStatus(id: number, status: string): Promise<void>;
+  
+  // System settings operations
+  getSystemSettings(): Promise<SystemSetting[]>;
+  updateSystemSetting(key: string, value: string, updatedBy: string): Promise<void>;
+  
+  // User activity operations
+  logUserActivity(activity: InsertUserActivityLog): Promise<UserActivityLog>;
+  getUserActivity(userId: string, limit?: number): Promise<UserActivityLog[]>;
+  
+  // Analytics operations
+  recordAnalytics(analytics: Omit<PlatformAnalytics, 'id' | 'createdAt'>): Promise<void>;
+  getAnalytics(metric: string, dateRange?: { start: Date; end: Date }): Promise<PlatformAnalytics[]>;
+  
+  // Enhanced admin stats
   getPlatformStats(): Promise<{
     totalBookings: number;
     dailyBookings: number;
@@ -82,7 +126,19 @@ export interface IStorage {
     bookingsByStatus: any[];
     bookingsOverTime: any[];
     topRatedServices: any[];
+    pendingCredentials: number;
+    totalTransactions: number;
+    platformCommission: number;
   }>;
+  
+  // Communication oversight
+  getAllConversations(): Promise<any[]>;
+  flagConversation(conversationId: string, reason: string, flaggedBy: string): Promise<void>;
+  
+  // Advanced user management
+  suspendUser(userId: string, reason: string, suspendedBy: string): Promise<void>;
+  reactivateUser(userId: string, reactivatedBy: string): Promise<void>;
+  deleteUser(userId: string, deletedBy: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -520,7 +576,296 @@ export class DatabaseStorage implements IStorage {
       bookingsByStatus: bookingsByStatus || [],
       bookingsOverTime: bookingsOverTime || [],
       topRatedServices: topRatedServices || [],
+      pendingCredentials: 0,
+      totalTransactions: 0,
+      platformCommission: 0,
     };
+  }
+
+  // Provider credential operations
+  async createProviderCredential(credential: InsertProviderCredential): Promise<ProviderCredential> {
+    const [newCredential] = await db
+      .insert(providerCredentials)
+      .values(credential)
+      .returning();
+    return newCredential;
+  }
+
+  async getProviderCredentials(providerId: number): Promise<ProviderCredential[]> {
+    return await db
+      .select()
+      .from(providerCredentials)
+      .where(eq(providerCredentials.providerId, providerId))
+      .orderBy(desc(providerCredentials.createdAt));
+  }
+
+  async updateCredentialVerification(id: number, status: string, reviewedBy: string, reviewNotes?: string): Promise<void> {
+    await db
+      .update(providerCredentials)
+      .set({
+        verificationStatus: status,
+        reviewedBy,
+        reviewNotes,
+        reviewedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(providerCredentials.id, id));
+  }
+
+  async getAllPendingCredentials(): Promise<any[]> {
+    return await db
+      .select({
+        id: providerCredentials.id,
+        providerId: providerCredentials.providerId,
+        providerName: sql`${users.firstName} || ' ' || ${users.lastName}`,
+        credentialType: providerCredentials.credentialType,
+        documentUrl: providerCredentials.documentUrl,
+        documentName: providerCredentials.documentName,
+        verificationStatus: providerCredentials.verificationStatus,
+        expiryDate: providerCredentials.expiryDate,
+        submittedAt: providerCredentials.submittedAt,
+      })
+      .from(providerCredentials)
+      .innerJoin(providers, eq(providerCredentials.providerId, providers.id))
+      .innerJoin(users, eq(providers.userId, users.id))
+      .where(eq(providerCredentials.verificationStatus, 'pending'))
+      .orderBy(desc(providerCredentials.submittedAt));
+  }
+
+  // Audit log operations
+  async createAuditLog(log: InsertAuditLog): Promise<AuditLog> {
+    const [newLog] = await db
+      .insert(auditLogs)
+      .values(log)
+      .returning();
+    return newLog;
+  }
+
+  async getAuditLogs(limit: number = 100): Promise<any[]> {
+    return await db
+      .select({
+        id: auditLogs.id,
+        adminName: sql`${users.firstName} || ' ' || ${users.lastName}`,
+        action: auditLogs.action,
+        targetType: auditLogs.targetType,
+        targetId: auditLogs.targetId,
+        reason: auditLogs.reason,
+        ipAddress: auditLogs.ipAddress,
+        createdAt: auditLogs.createdAt,
+      })
+      .from(auditLogs)
+      .innerJoin(users, eq(auditLogs.adminId, users.id))
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(limit);
+  }
+
+  // Transaction operations
+  async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
+    const [newTransaction] = await db
+      .insert(transactions)
+      .values(transaction)
+      .returning();
+    return newTransaction;
+  }
+
+  async getTransactions(filters?: { status?: string; type?: string; providerId?: number }): Promise<any[]> {
+    const baseQuery = db
+      .select({
+        id: transactions.id,
+        bookingId: transactions.bookingId,
+        providerId: transactions.providerId,
+        providerName: sql`${users.firstName} || ' ' || ${users.lastName}`,
+        type: transactions.type,
+        amount: transactions.amount,
+        platformFee: transactions.platformFee,
+        providerPayout: transactions.providerPayout,
+        status: transactions.status,
+        stripeTransactionId: transactions.stripeTransactionId,
+        createdAt: transactions.createdAt,
+      })
+      .from(transactions)
+      .leftJoin(providers, eq(transactions.providerId, providers.id))
+      .leftJoin(users, eq(providers.userId, users.id));
+
+    let whereConditions = [];
+    if (filters?.status) {
+      whereConditions.push(eq(transactions.status, filters.status));
+    }
+    if (filters?.type) {
+      whereConditions.push(eq(transactions.type, filters.type));
+    }
+    if (filters?.providerId) {
+      whereConditions.push(eq(transactions.providerId, filters.providerId));
+    }
+
+    let query = baseQuery;
+    if (whereConditions.length > 0) {
+      query = baseQuery.where(and(...whereConditions));
+    }
+
+    return await query.orderBy(desc(transactions.createdAt));
+  }
+
+  async updateTransactionStatus(id: number, status: string): Promise<void> {
+    await db
+      .update(transactions)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(transactions.id, id));
+  }
+
+  // System settings operations
+  async getSystemSettings(): Promise<SystemSetting[]> {
+    return await db
+      .select()
+      .from(systemSettings)
+      .orderBy(systemSettings.category, systemSettings.key);
+  }
+
+  async updateSystemSetting(key: string, value: string, updatedBy: string): Promise<void> {
+    await db
+      .insert(systemSettings)
+      .values({ key, value, updatedBy, category: 'platform' })
+      .onConflictDoUpdate({
+        target: systemSettings.key,
+        set: { value, updatedBy, updatedAt: new Date() },
+      });
+  }
+
+  // User activity operations
+  async logUserActivity(activity: InsertUserActivityLog): Promise<UserActivityLog> {
+    const [newActivity] = await db
+      .insert(userActivityLogs)
+      .values(activity)
+      .returning();
+    return newActivity;
+  }
+
+  async getUserActivity(userId: string, limit: number = 50): Promise<UserActivityLog[]> {
+    return await db
+      .select()
+      .from(userActivityLogs)
+      .where(eq(userActivityLogs.userId, userId))
+      .orderBy(desc(userActivityLogs.createdAt))
+      .limit(limit);
+  }
+
+  // Analytics operations
+  async recordAnalytics(analytics: Omit<PlatformAnalytics, 'id' | 'createdAt'>): Promise<void> {
+    await db
+      .insert(platformAnalytics)
+      .values(analytics);
+  }
+
+  async getAnalytics(metric: string, dateRange?: { start: Date; end: Date }): Promise<PlatformAnalytics[]> {
+    const baseQuery = db
+      .select()
+      .from(platformAnalytics);
+
+    let whereConditions = [eq(platformAnalytics.metric, metric)];
+    
+    if (dateRange) {
+      whereConditions.push(
+        gte(platformAnalytics.date, dateRange.start),
+        lte(platformAnalytics.date, dateRange.end)
+      );
+    }
+
+    const query = baseQuery.where(and(...whereConditions));
+    return await query.orderBy(platformAnalytics.date);
+  }
+
+  // Communication oversight
+  async getAllConversations(): Promise<any[]> {
+    return await db
+      .select({
+        senderId: messages.senderId,
+        receiverId: messages.receiverId,
+        senderName: sql`s_users.first_name || ' ' || s_users.last_name`,
+        receiverName: sql`r_users.first_name || ' ' || r_users.last_name`,
+        lastMessage: messages.content,
+        lastMessageAt: messages.createdAt,
+        messageCount: sql`COUNT(${messages.id})`,
+      })
+      .from(messages)
+      .innerJoin(sql`users as s_users`, sql`messages.sender_id = s_users.id`)
+      .innerJoin(sql`users as r_users`, sql`messages.receiver_id = r_users.id`)
+      .groupBy(
+        messages.senderId,
+        messages.receiverId,
+        sql`s_users.first_name`,
+        sql`s_users.last_name`,
+        sql`r_users.first_name`,
+        sql`r_users.last_name`,
+        messages.content,
+        messages.createdAt
+      )
+      .orderBy(desc(messages.createdAt));
+  }
+
+  async flagConversation(conversationId: string, reason: string, flaggedBy: string): Promise<void> {
+    // This would typically create a flag record in a separate table
+    // For now, we'll log it as an audit entry
+    await this.createAuditLog({
+      adminId: flaggedBy,
+      action: 'flag_conversation',
+      targetType: 'conversation',
+      targetId: conversationId,
+      reason,
+      ipAddress: '',
+      userAgent: '',
+    });
+  }
+
+  // Advanced user management
+  async suspendUser(userId: string, reason: string, suspendedBy: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ userType: 'suspended' })
+      .where(eq(users.id, userId));
+
+    await this.createAuditLog({
+      adminId: suspendedBy,
+      action: 'suspend_user',
+      targetType: 'user',
+      targetId: userId,
+      reason,
+      ipAddress: '',
+      userAgent: '',
+    });
+  }
+
+  async reactivateUser(userId: string, reactivatedBy: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ userType: 'patient' })
+      .where(eq(users.id, userId));
+
+    await this.createAuditLog({
+      adminId: reactivatedBy,
+      action: 'reactivate_user',
+      targetType: 'user',
+      targetId: userId,
+      ipAddress: '',
+      userAgent: '',
+    });
+  }
+
+  async deleteUser(userId: string, deletedBy: string): Promise<void> {
+    // In a production system, this might be a soft delete
+    await this.createAuditLog({
+      adminId: deletedBy,
+      action: 'delete_user',
+      targetType: 'user',
+      targetId: userId,
+      ipAddress: '',
+      userAgent: '',
+    });
+
+    // For now, just mark as deleted rather than actual deletion
+    await db
+      .update(users)
+      .set({ userType: 'deleted' })
+      .where(eq(users.id, userId));
   }
 }
 

@@ -2,10 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProviderSchema, insertServiceSchema, insertBookingSchema, insertMessageSchema, insertReviewSchema } from "@shared/schema";
+import { insertProviderSchema, insertServiceSchema, insertBookingSchema, insertMessageSchema, insertReviewSchema, insertProviderCredentialSchema } from "@shared/schema";
 import { emailService } from "./emailService";
 import { z } from "zod";
 import Stripe from "stripe";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -300,21 +301,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/providers/credentials/upload', isAuthenticated, async (req: any, res) => {
+  // Provider document upload route
+  app.post('/api/providers/documents/upload', isAuthenticated, async (req: any, res) => {
     try {
-      // Mock credential upload - in production this would handle file upload to object storage
-      const credential = {
-        id: Date.now(),
-        credentialType: req.body.credentialType || 'license',
-        verificationStatus: 'pending',
-        createdAt: new Date(),
-        expiryDate: null
-      };
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getProviderDocumentUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ message: "Failed to generate upload URL" });
+    }
+  });
+
+  app.post('/api/providers/credentials', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      const provider = await storage.getProviderByUserId(req.user.claims.sub);
       
+      if (!provider) {
+        return res.status(404).json({ message: "Provider not found" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const documentPath = objectStorageService.normalizeProviderDocumentPath(req.body.documentUrl);
+
+      const credentialData = insertProviderCredentialSchema.parse({
+        providerId: provider.id,
+        credentialType: req.body.credentialType,
+        documentUrl: documentPath,
+        documentName: req.body.documentName,
+        expiryDate: req.body.expiryDate ? new Date(req.body.expiryDate) : null,
+      });
+
+      const credential = await storage.createProviderCredential(credentialData);
       res.json(credential);
     } catch (error) {
-      console.error("Error uploading credential:", error);
-      res.status(500).json({ message: "Failed to upload credential" });
+      console.error("Error creating credential:", error);
+      res.status(500).json({ message: "Failed to create credential" });
+    }
+  });
+
+  // Serve provider documents
+  app.get('/objects/provider-documents/:documentId(*)', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const documentFile = await objectStorageService.getProviderDocumentFile(req.path);
+      objectStorageService.downloadObject(documentFile, res);
+    } catch (error) {
+      console.error("Error accessing document:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      return res.status(500).json({ message: "Failed to access document" });
     }
   });
 
@@ -376,6 +419,200 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching platform stats:", error);
       res.status(500).json({ message: "Failed to fetch platform stats" });
+    }
+  });
+
+  // Admin routes for provider verification and document management
+  app.get('/api/admin/pending-credentials', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const credentials = await storage.getAllPendingCredentials();
+      res.json(credentials);
+    } catch (error) {
+      console.error("Error fetching pending credentials:", error);
+      res.status(500).json({ message: "Failed to fetch pending credentials" });
+    }
+  });
+
+  app.patch('/api/admin/credentials/:id/verification', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const { status, reviewNotes } = req.body;
+      await storage.updateCredentialVerification(Number(req.params.id), status, req.user.claims.sub, reviewNotes);
+      
+      // Log the verification action
+      await storage.createAuditLog({
+        adminId: req.user.claims.sub,
+        action: `${status}_credential`,
+        targetType: 'credential',
+        targetId: req.params.id,
+        reason: reviewNotes || '',
+        ipAddress: req.ip || '',
+        userAgent: req.get('User-Agent') || '',
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating credential verification:", error);
+      res.status(500).json({ message: "Failed to update credential verification" });
+    }
+  });
+
+  // Financial management routes
+  app.get('/api/admin/transactions', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const filters = {
+        status: req.query.status as string,
+        type: req.query.type as string,
+        providerId: req.query.providerId ? Number(req.query.providerId) : undefined,
+      };
+      
+      const transactions = await storage.getTransactions(filters);
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  // User management routes
+  app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.patch('/api/admin/users/:id/suspend', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const { reason } = req.body;
+      await storage.suspendUser(req.params.id, reason, req.user.claims.sub);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error suspending user:", error);
+      res.status(500).json({ message: "Failed to suspend user" });
+    }
+  });
+
+  app.patch('/api/admin/users/:id/reactivate', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      await storage.reactivateUser(req.params.id, req.user.claims.sub);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error reactivating user:", error);
+      res.status(500).json({ message: "Failed to reactivate user" });
+    }
+  });
+
+  // System settings routes
+  app.get('/api/admin/settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const settings = await storage.getSystemSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching system settings:", error);
+      res.status(500).json({ message: "Failed to fetch system settings" });
+    }
+  });
+
+  app.patch('/api/admin/settings/:key', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const { value } = req.body;
+      await storage.updateSystemSetting(req.params.key, value, req.user.claims.sub);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating system setting:", error);
+      res.status(500).json({ message: "Failed to update system setting" });
+    }
+  });
+
+  // Audit logs routes
+  app.get('/api/admin/audit-logs', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const limit = req.query.limit ? Number(req.query.limit) : 100;
+      const logs = await storage.getAuditLogs(limit);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
+  // Communication oversight routes
+  app.get('/api/admin/conversations', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const conversations = await storage.getAllConversations();
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ message: "Failed to fetch conversations" });
+    }
+  });
+
+  app.post('/api/admin/conversations/:id/flag', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const { reason } = req.body;
+      await storage.flagConversation(req.params.id, reason, req.user.claims.sub);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error flagging conversation:", error);
+      res.status(500).json({ message: "Failed to flag conversation" });
     }
   });
 

@@ -1,320 +1,295 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Upload, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { ProviderCredential } from "@shared/schema";
+import { 
+  FileText, 
+  CheckCircle, 
+  XCircle, 
+  Clock,
+  Eye,
+  Download,
+  Calendar
+} from "lucide-react";
+import Navigation from "@/components/Navigation";
 
-const credentialTypes = [
-  {
-    type: "license",
-    name: "Medical License",
-    description: "Your primary medical practice license",
-    required: true,
-  },
-  {
-    type: "certification",
-    name: "Board Certification",
-    description: "Specialty board certification documents",
-    required: false,
-  },
-  {
-    type: "insurance",
-    name: "Malpractice Insurance",
-    description: "Current malpractice insurance certificate",
-    required: true,
-  },
-  {
-    type: "education",
-    name: "Medical Degree",
-    description: "Medical school diploma or transcript",
-    required: false,
-  },
-];
+interface PendingCredential {
+  id: number;
+  providerId: number;
+  providerName: string;
+  credentialType: string;
+  documentUrl: string;
+  documentName: string;
+  verificationStatus: string;
+  expiryDate: string | null;
+  submittedAt: string;
+}
 
 export default function ProviderVerification() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [credentials, setCredentials] = useState<ProviderCredential[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [uploadingType, setUploadingType] = useState<string | null>(null);
+  const [selectedCredential, setSelectedCredential] = useState<PendingCredential | null>(null);
+  const [reviewNotes, setReviewNotes] = useState("");
 
-  useEffect(() => {
-    fetchCredentials();
-  }, []);
+  const { data: pendingCredentials, isLoading } = useQuery({
+    queryKey: ['/api/admin/pending-credentials'],
+    enabled: user?.userType === 'admin',
+  });
 
-  const fetchCredentials = async () => {
-    try {
-      const response = await apiRequest("GET", `/api/providers/credentials/${user?.id}`);
-      const data = await response.json();
-      setCredentials(data);
-    } catch (error) {
-      console.error("Error fetching credentials:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFileUpload = async (file: File, credentialType: string) => {
-    setUploadingType(credentialType);
-    
-    try {
-      // In a real implementation, you would upload to object storage
-      // For now, we'll simulate the upload
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("credentialType", credentialType);
-
-      const response = await apiRequest("POST", "/api/providers/credentials/upload", formData);
-      const result = await response.json();
-
+  const verificationMutation = useMutation({
+    mutationFn: ({ id, status, reviewNotes }: { id: number; status: string; reviewNotes: string }) =>
+      apiRequest("PATCH", `/api/admin/credentials/${id}/verification`, { status, reviewNotes }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/pending-credentials'] });
+      setSelectedCredential(null);
+      setReviewNotes("");
       toast({
-        title: "Document Uploaded",
-        description: "Your document has been uploaded and is pending verification.",
+        title: "Verification Updated",
+        description: "Provider credential verification has been updated successfully.",
       });
-
-      fetchCredentials();
-    } catch (error) {
+    },
+    onError: () => {
       toast({
-        title: "Upload Failed",
-        description: "There was an error uploading your document. Please try again.",
+        title: "Error",
+        description: "Failed to update verification status.",
         variant: "destructive",
       });
-    } finally {
-      setUploadingType(null);
-    }
-  };
+    },
+  });
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "verified":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case "rejected":
-        return <XCircle className="w-5 h-5 text-red-500" />;
-      case "pending":
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      default:
-        return <AlertCircle className="w-5 h-5 text-gray-400" />;
-    }
+  const handleVerification = (status: 'verified' | 'rejected') => {
+    if (!selectedCredential) return;
+    
+    verificationMutation.mutate({
+      id: selectedCredential.id,
+      status,
+      reviewNotes,
+    });
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "verified":
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Verified</Badge>;
-      case "rejected":
-        return <Badge variant="destructive">Rejected</Badge>;
-      case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</Badge>;
+      case 'pending':
+        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case 'verified':
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Verified</Badge>;
+      case 'rejected':
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
       default:
-        return <Badge variant="outline">Not Uploaded</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  if (isLoading) {
+  const getCredentialTypeLabel = (type: string) => {
+    switch (type) {
+      case 'license':
+        return 'Professional License';
+      case 'certification':
+        return 'Certification';
+      case 'insurance':
+        return 'Insurance Certificate';
+      case 'education':
+        return 'Education Credentials';
+      case 'background_check':
+        return 'Background Check';
+      default:
+        return type;
+    }
+  };
+
+  if (user?.userType !== 'admin') {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="text-center py-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Denied</h2>
+              <p className="text-gray-600">You don't have permission to access this page.</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Provider Verification
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Upload your credentials to complete the verification process and start accepting patients.
-          </p>
+          <h1 data-testid="page-title" className="text-3xl font-bold text-gray-900">Provider Verification</h1>
+          <p className="text-gray-600 mt-2">Review and verify provider credentials and documents</p>
         </div>
 
-        {/* Verification Status Overview */}
-        <Card className="mb-8">
+        <Card>
           <CardHeader>
-            <CardTitle>Verification Status</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Pending Credential Reviews
+            </CardTitle>
             <CardDescription>
-              Your overall verification progress and next steps
+              Review submitted provider documents for verification
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                  Verification in Progress
-                </h3>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Upload all required documents to complete your verification and start accepting patients.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Credential Types */}
-        <div className="space-y-6">
-          {credentialTypes.map((credType) => {
-            const existingCredential = credentials.find(c => c.credentialType === credType.type);
-            
-            return (
-              <Card key={credType.type}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(existingCredential?.verificationStatus || "not_uploaded")}
-                      <div>
-                        <CardTitle className="text-lg">
-                          {credType.name}
-                          {credType.required && (
-                            <span className="text-red-500 ml-1">*</span>
-                          )}
-                        </CardTitle>
-                        <CardDescription>{credType.description}</CardDescription>
-                      </div>
-                    </div>
-                    {getStatusBadge(existingCredential?.verificationStatus || "not_uploaded")}
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  {existingCredential ? (
-                    <div className="space-y-4">
-                      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">Document Uploaded</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              Uploaded on {new Date(existingCredential.createdAt!).toLocaleDateString()}
-                            </p>
-                            {existingCredential.expiryDate && (
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Expires: {new Date(existingCredential.expiryDate).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                          
-                          {existingCredential.verificationStatus === "rejected" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const input = document.createElement("input");
-                                input.type = "file";
-                                input.accept = ".pdf,.jpg,.jpeg,.png";
-                                input.onchange = (e) => {
-                                  const file = (e.target as HTMLInputElement).files?.[0];
-                                  if (file) handleFileUpload(file, credType.type);
-                                };
-                                input.click();
-                              }}
-                              disabled={uploadingType === credType.type}
-                              data-testid={`button-reupload-${credType.type}`}
-                            >
-                              {uploadingType === credType.type ? (
-                                <>
-                                  <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
-                                  Uploading...
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-4 h-4 mr-2" />
-                                  Re-upload
-                                </>
-                              )}
-                            </Button>
-                          )}
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Provider</TableHead>
+                    <TableHead>Document Type</TableHead>
+                    <TableHead>Document Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead>Expires</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pendingCredentials?.map((credential: PendingCredential) => (
+                    <TableRow key={credential.id} data-testid={`credential-row-${credential.id}`}>
+                      <TableCell className="font-medium">{credential.providerName}</TableCell>
+                      <TableCell>{getCredentialTypeLabel(credential.credentialType)}</TableCell>
+                      <TableCell className="max-w-xs truncate">{credential.documentName || 'Document'}</TableCell>
+                      <TableCell>{getStatusBadge(credential.verificationStatus)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(credential.submittedAt).toLocaleDateString()}
                         </div>
-                        
-                        {existingCredential.verificationStatus === "rejected" && (
-                          <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
-                            <p className="text-sm text-red-700 dark:text-red-300">
-                              <strong>Rejection Reason:</strong> Document quality was insufficient or information was unclear. 
-                              Please upload a clearer, high-resolution version.
-                            </p>
+                      </TableCell>
+                      <TableCell>
+                        {credential.expiryDate ? (
+                          <div className="flex items-center gap-1 text-sm text-gray-600">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(credential.expiryDate).toLocaleDateString()}
                           </div>
+                        ) : (
+                          <span className="text-gray-400">No expiry</span>
                         )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-center py-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-                        <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">
-                          Upload your {credType.name.toLowerCase()}
-                        </p>
-                        <Button
-                          onClick={() => {
-                            const input = document.createElement("input");
-                            input.type = "file";
-                            input.accept = ".pdf,.jpg,.jpeg,.png";
-                            input.onchange = (e) => {
-                              const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) handleFileUpload(file, credType.type);
-                            };
-                            input.click();
-                          }}
-                          disabled={uploadingType === credType.type}
-                          data-testid={`button-upload-${credType.type}`}
-                        >
-                          {uploadingType === credType.type ? (
-                            <>
-                              <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Choose File
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        <p><strong>Accepted formats:</strong> PDF, JPG, PNG</p>
-                        <p><strong>Max file size:</strong> 10MB</p>
-                        <p><strong>Requirements:</strong> Clear, readable, and current documents</p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                data-testid={`button-review-${credential.id}`}
+                                onClick={() => setSelectedCredential(credential)}
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                Review
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Review Credential</DialogTitle>
+                                <DialogDescription>
+                                  Review and verify the submitted document for {selectedCredential?.providerName}
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              {selectedCredential && (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-900">Provider</label>
+                                      <p className="text-gray-600">{selectedCredential.providerName}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-900">Document Type</label>
+                                      <p className="text-gray-600">{getCredentialTypeLabel(selectedCredential.credentialType)}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-900">Document Name</label>
+                                      <p className="text-gray-600">{selectedCredential.documentName || 'Document'}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-900">Submitted</label>
+                                      <p className="text-gray-600">{new Date(selectedCredential.submittedAt).toLocaleDateString()}</p>
+                                    </div>
+                                  </div>
 
-        {/* Help Section */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Need Help?</CardTitle>
-            <CardDescription>
-              Having trouble with the verification process?
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 text-sm">
-              <p>
-                <strong>Verification Timeline:</strong> Most documents are reviewed within 24-48 hours.
-              </p>
-              <p>
-                <strong>Document Quality:</strong> Ensure all text is clearly readable and the document is complete.
-              </p>
-              <p>
-                <strong>Support:</strong> Contact our verification team at{" "}
-                <a href="mailto:verification@medlink.ca" className="text-blue-600 dark:text-blue-400 hover:underline">
-                  verification@medlink.ca
-                </a>
-                {" "}if you have questions.
-              </p>
-            </div>
+                                  <div className="border rounded-lg p-4 bg-gray-50">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-sm font-medium text-gray-900">Document</span>
+                                      <Button variant="outline" size="sm" asChild>
+                                        <a href={selectedCredential.documentUrl} target="_blank" rel="noopener noreferrer">
+                                          <Download className="w-4 h-4 mr-1" />
+                                          View Document
+                                        </a>
+                                      </Button>
+                                    </div>
+                                    <p className="text-sm text-gray-600">Click "View Document" to open the submitted file in a new tab for review.</p>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <label htmlFor="reviewNotes" className="text-sm font-medium text-gray-900">
+                                      Review Notes
+                                    </label>
+                                    <Textarea
+                                      id="reviewNotes"
+                                      data-testid="textarea-review-notes"
+                                      placeholder="Add any notes about the verification..."
+                                      value={reviewNotes}
+                                      onChange={(e) => setReviewNotes(e.target.value)}
+                                      rows={3}
+                                    />
+                                  </div>
+
+                                  <div className="flex gap-3 pt-4">
+                                    <Button
+                                      onClick={() => handleVerification('verified')}
+                                      disabled={verificationMutation.isPending}
+                                      className="bg-green-600 hover:bg-green-700"
+                                      data-testid="button-approve"
+                                    >
+                                      <CheckCircle className="w-4 h-4 mr-1" />
+                                      Approve & Verify
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      onClick={() => handleVerification('rejected')}
+                                      disabled={verificationMutation.isPending}
+                                      data-testid="button-reject"
+                                    >
+                                      <XCircle className="w-4 h-4 mr-1" />
+                                      Reject
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+
+            {!isLoading && (!pendingCredentials || pendingCredentials.length === 0) && (
+              <div className="text-center py-8">
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Reviews</h3>
+                <p className="text-gray-600">All provider credentials have been reviewed.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

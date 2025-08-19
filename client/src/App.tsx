@@ -25,6 +25,8 @@ import Checkout from "@/pages/checkout";
 import BookingSuccess from "@/pages/booking-success";
 import Messages from "@/pages/messages";
 import ProviderVerification from "@/pages/provider-verification";
+import ProviderDocumentSubmission from "@/pages/provider-document-submission";
+import ComprehensiveAdminPortal from "@/pages/comprehensive-admin-portal";
 import AdminData from "@/pages/admin-data";
 import AdminPortal from "@/pages/admin-portal";
 
@@ -33,8 +35,11 @@ function Router() {
 
   return (
     <Switch>
-      {/* Admin portal always accessible - handles auth internally */}
+      {/* Admin portals always accessible - handles auth internally */}
       <Route path="/admin-portal" component={AdminPortal} />
+      <Route path="/comprehensive-admin-portal" component={ComprehensiveAdminPortal} />
+      <Route path="/provider-verification" component={ProviderVerification} />
+      <Route path="/provider-documents" component={ProviderDocumentSubmission} />
       
       {isLoading || !isAuthenticated ? (
         <>

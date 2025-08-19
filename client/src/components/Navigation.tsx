@@ -74,9 +74,23 @@ export default function Navigation() {
                   </Link>
                 )}
                 {user?.userType === 'admin' && (
-                  <Link href="/admin-portal">
+                  <>
+                    <Link href="/comprehensive-admin-portal">
+                      <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
+                        Admin Portal
+                      </Button>
+                    </Link>
+                    <Link href="/provider-verification">
+                      <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
+                        Provider Verification
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                {user?.userType === 'provider' && (
+                  <Link href="/provider-documents">
                     <Button variant="ghost" className="text-[hsl(207,90%,54%)]">
-                      Admin Portal
+                      Submit Documents
                     </Button>
                   </Link>
                 )}
