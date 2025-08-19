@@ -31,6 +31,11 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  
+  // Only require secure cookies in production with HTTPS
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isHttps = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
@@ -38,8 +43,9 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: isHttps,
       maxAge: sessionTtl,
+      sameSite: isProduction ? 'none' : 'lax',
     },
   });
 }
@@ -67,66 +73,107 @@ async function upsertUser(
 }
 
 export async function setupAuth(app: Express) {
-  app.set("trust proxy", 1);
-  app.use(getSession());
-  app.use(passport.initialize());
-  app.use(passport.session());
+  try {
+    console.log("Setting up authentication...");
+    
+    // Check required environment variables
+    const requiredEnvVars = ['DATABASE_URL', 'SESSION_SECRET', 'REPL_ID'];
+    for (const envVar of requiredEnvVars) {
+      if (!process.env[envVar]) {
+        throw new Error(`Missing required environment variable: ${envVar}`);
+      }
+    }
+    
+    app.set("trust proxy", 1);
+    app.use(getSession());
+    app.use(passport.initialize());
+    app.use(passport.session());
 
-  const config = await getOidcConfig();
+    const config = await getOidcConfig();
+    console.log("OIDC config loaded successfully");
 
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
-  };
+    const verify: VerifyFunction = async (
+      tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
+      verified: passport.AuthenticateCallback
+    ) => {
+      try {
+        const user = {};
+        updateUserSession(user, tokens);
+        await upsertUser(tokens.claims());
+        verified(null, user);
+      } catch (error) {
+        console.error("Verification error:", error);
+        verified(error);
+      }
+    };
 
-  // Get domains from environment and add custom domain if not present
-  const envDomains = process.env.REPLIT_DOMAINS!.split(",");
-  const customDomain = "mymedlink.ca";
-  const allDomains = envDomains.includes(customDomain) ? envDomains : [...envDomains, customDomain];
+    // Get domains from environment and add custom domain if not present
+    const envDomains = process.env.REPLIT_DOMAINS ? process.env.REPLIT_DOMAINS.split(",") : [];
+    const customDomain = "mymedlink.ca";
+    const allDomains = envDomains.includes(customDomain) ? envDomains : [...envDomains, customDomain];
 
-  for (const domain of allDomains) {
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
-      },
-      verify,
-    );
-    passport.use(strategy);
+    console.log("Setting up auth strategies for domains:", allDomains);
+
+    for (const domain of allDomains) {
+      const strategy = new Strategy(
+        {
+          name: `replitauth:${domain}`,
+          config,
+          scope: "openid email profile offline_access",
+          callbackURL: `https://${domain}/api/callback`,
+        },
+        verify,
+      );
+      passport.use(strategy);
+    }
+  } catch (error) {
+    console.error("Auth setup error:", error);
+    throw error;
   }
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+    try {
+      console.log(`Login attempt for hostname: ${req.hostname}`);
+      passport.authenticate(`replitauth:${req.hostname}`, {
+        prompt: "login consent",
+        scope: ["openid", "email", "profile", "offline_access"],
+      })(req, res, next);
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Authentication setup error" });
+    }
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
+    try {
+      console.log(`Callback for hostname: ${req.hostname}`);
+      passport.authenticate(`replitauth:${req.hostname}`, {
+        successReturnToOrRedirect: "/",
+        failureRedirect: "/api/login",
+      })(req, res, next);
+    } catch (error) {
+      console.error("Callback error:", error);
+      res.status(500).json({ message: "Authentication callback error" });
+    }
   });
 
-  app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+  app.get("/api/logout", async (req, res) => {
+    req.logout(async () => {
+      try {
+        const logoutConfig = await getOidcConfig();
+        res.redirect(
+          client.buildEndSessionUrl(logoutConfig, {
+            client_id: process.env.REPL_ID!,
+            post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+          }).href
+        );
+      } catch (error) {
+        console.error("Logout error:", error);
+        res.redirect("/");
+      }
     });
   });
 }
