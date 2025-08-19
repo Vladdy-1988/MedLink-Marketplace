@@ -1,4 +1,4 @@
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,10 +9,17 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function ProviderProfile() {
   const [, params] = useRoute("/provider/:id");
   const providerId = params?.id ? parseInt(params.id) : 1;
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [isMessaging, setIsMessaging] = useState(false);
   
   // Fetch provider data from API
   const { data: provider, isLoading } = useQuery({
@@ -201,14 +208,51 @@ export default function ProviderProfile() {
                   <div className="text-gray-300 font-medium">Contact for quote based on your needs</div>
                 </div>
                 
-                <Link href={`/providers/${provider.id}/message`}>
-                  <Button 
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
-                  >
-                    Message Provider
-                    <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={async () => {
+                    if (!user) {
+                      toast({
+                        title: "Authentication Required",
+                        description: "Please log in to message providers",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+
+                    setIsMessaging(true);
+                    try {
+                      // Send an initial message using provider data we already have
+                      const messageData = {
+                        receiverId: provider.userId,
+                        content: `Hi ${provider.firstName} ${provider.lastName}, I'm interested in your healthcare services and would like to get a personalized quote. Could you please provide more information about your availability and pricing? Thank you!`,
+                      };
+
+                      await apiRequest("POST", "/api/messages", messageData);
+                      
+                      toast({
+                        title: "Message Sent",
+                        description: `Your message has been sent to ${provider.firstName} ${provider.lastName}`,
+                      });
+
+                      // Navigate to messages page
+                      setLocation("/patient-dashboard?tab=messages");
+                    } catch (error) {
+                      console.error("Error sending message:", error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to send message. Please try again.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsMessaging(false);
+                    }
+                  }}
+                  disabled={isMessaging}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
+                >
+                  {isMessaging ? "Sending..." : "Message Provider"}
+                  <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                </Button>
                 
                 <Link href={`/booking/${provider.id}/1`}>
                   <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl">
