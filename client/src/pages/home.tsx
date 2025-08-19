@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { featuredProviders } from "@/lib/mockData";
-import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
+import Footer from "@/components/Footer";
 import heroImage from "@assets/pexels-matthiaszomer-339620_1755038074358.jpg";
 
 export default function Home() {
@@ -382,100 +383,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-            {/* Company Info */}
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center mb-6">
-                <MedlinkLogo size="md" />
-              </div>
-              <p className="text-gray-400 mb-6 max-w-md">
-                Professional in-home healthcare services across Calgary. Licensed providers, secure booking, and trusted care at your doorstep.
-              </p>
-              
-              {/* Contact Info */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center text-gray-400">
-                  <span className="text-sm">📧 support@medlink.ca</span>
-                </div>
-                <div className="flex items-center text-gray-400">
-                  <span className="text-sm">📞 1-800-MED-LINK</span>
-                </div>
-                <div className="flex items-center text-gray-400">
-                  <span className="text-sm">📍 Calgary, Alberta</span>
-                </div>
-              </div>
-              
-              {/* Social Links */}
-              <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Facebook className="h-5 w-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Twitter className="h-5 w-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Instagram className="h-5 w-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Linkedin className="h-5 w-5" />
-                </a>
-              </div>
-            </div>
-
-            {/* Services */}
-            <div>
-              <h4 className="text-lg font-semibold mb-6">Services</h4>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/services" className="hover:text-white transition-colors">General Practice</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Nursing Care</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Physical Therapy</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Mental Health</Link></li>
-                <li><Link href="/services" className="hover:text-white transition-colors">Lab Tests</Link></li>
-              </ul>
-            </div>
-
-            {/* For Patients */}
-            <div>
-              <h4 className="text-lg font-semibold mb-6">For Patients</h4>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
-                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How it Works</Link></li>
-                <li><Link href="/rapid-services" className="hover:text-white transition-colors">Rapid Services</Link></li>
-                <li><Link href="/patient-dashboard" className="hover:text-white transition-colors">My Dashboard</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="text-lg font-semibold mb-6">Company</h4>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link href="/safety" className="hover:text-white transition-colors">Safety & Quality</Link></li>
-                <li><Link href="/provider-registration" className="hover:text-white transition-colors">Become a Provider</Link></li>
-                <li><Link href="/support" className="hover:text-white transition-colors">Contact Us</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          {/* Bottom Section */}
-          <div className="border-t border-gray-800 mt-12 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 text-sm mb-4 md:mb-0">
-                © 2025 MedLink House Calls. All rights reserved.
-              </p>
-              <div className="flex space-x-6 text-sm text-gray-400">
-                <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-                <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
-                <Link href="/accessibility" className="hover:text-white transition-colors">Accessibility</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
