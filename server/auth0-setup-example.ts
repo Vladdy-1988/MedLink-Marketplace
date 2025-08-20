@@ -5,6 +5,7 @@ import { Strategy as Auth0Strategy } from 'passport-auth0';
 import passport from 'passport';
 import session from 'express-session';
 import type { Express } from 'express';
+import { storage } from './storage';
 
 // Auth0 Configuration (HIPAA-compliant setup)
 export function setupAuth0(app: Express) {

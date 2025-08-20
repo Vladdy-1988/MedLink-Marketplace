@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import ScrollToTop from "@/components/ScrollToTop";
+import { Auth0Provider } from "@/components/Auth0Provider";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
@@ -29,6 +30,7 @@ import ProviderDocumentSubmission from "@/pages/provider-document-submission";
 import ComprehensiveAdminPortal from "@/pages/comprehensive-admin-portal";
 import AdminData from "@/pages/admin-data";
 import AdminPortal from "@/pages/admin-portal";
+import AuthTest from "@/pages/auth-test";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -40,6 +42,7 @@ function Router() {
       <Route path="/comprehensive-admin-portal" component={ComprehensiveAdminPortal} />
       <Route path="/provider-verification" component={ProviderVerification} />
       <Route path="/provider-documents" component={ProviderDocumentSubmission} />
+      <Route path="/auth-test" component={AuthTest} />
       
       {isLoading || !isAuthenticated ? (
         <>
@@ -84,13 +87,15 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <ScrollToTop />
-        <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <Auth0Provider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <ScrollToTop />
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </Auth0Provider>
   );
 }
 
