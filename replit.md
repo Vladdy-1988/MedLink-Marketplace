@@ -69,6 +69,13 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **ESLint/Prettier**: Code quality and formatting
 
 ## Recent Changes
+- **Auth0 Production Authentication Fix (August 2025)**: Resolved "Failed to deserialize user out of session" error on production domain (mymedlink.ca). 
+  - ✅ **Production Callback URLs**: Fixed Auth0 callback and logout URLs for mymedlink.ca domain
+  - ✅ **Session Configuration**: Updated cookie settings for HTTPS and production domain support
+  - ✅ **Error Handling**: Improved session deserialization with better error logging and fallback handling
+  - ✅ **Documentation**: Created comprehensive Auth0 dashboard setup guide for production deployment
+  - ✅ **Security**: Implemented proper HTTPS cookie settings and domain-specific session management
+  - 🔧 **Auth0 Dashboard Setup Required**: User needs to add mymedlink.ca URLs to Auth0 application settings
 - **Improved Logged-Out User Experience (August 2025)**: Enhanced messaging clarity for non-authenticated users across all provider interaction features.
   - ✅ **Clear Button Text**: Updated "Message Provider" and "Schedule Consultation" buttons to show "Sign In to Message" and "Sign In to Schedule" for logged-out users
   - ✅ **Better Toast Messages**: Improved notification text to be more helpful and specific ("Please sign in to message this healthcare provider and get a personalized quote")

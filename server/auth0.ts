@@ -16,19 +16,23 @@ export function getSession() {
     tableName: "sessions",
   });
   
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
   const isHttps = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
   
+  console.log("Session configuration:", { isProduction, isHttps });
+  
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || 'fallback-secret-for-development',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    name: 'medlink.session',
     cookie: {
       httpOnly: true,
       secure: isHttps,
       maxAge: sessionTtl,
       sameSite: isProduction ? 'none' : 'lax',
+      domain: isProduction ? '.mymedlink.ca' : undefined,
     },
   });
 }
@@ -56,18 +60,21 @@ export async function setupAuth(app: Express) {
         domain: process.env.AUTH0_DOMAIN,
         clientID: process.env.AUTH0_CLIENT_ID,
         clientSecret: process.env.AUTH0_CLIENT_SECRET,
-        callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:5000/api/callback'
+        callbackURL: process.env.AUTH0_CALLBACK_URL || (process.env.REPLIT_DEPLOYMENT === '1' ? 'https://mymedlink.ca/api/callback' : 'http://localhost:5000/api/callback')
       }, async (accessToken: string, refreshToken: string, extraParams: any, profile: any, done: any) => {
         try {
           console.log("Auth0 callback - creating/updating user:", profile.id);
           
-          const user = await storage.upsertUser({
+          const userData = {
             id: profile.id,
             email: profile.emails?.[0]?.value || profile.email || '',
             firstName: profile.given_name || profile.name?.givenName || '',
             lastName: profile.family_name || profile.name?.familyName || '',
             profileImageUrl: profile.picture || '',
-          });
+          };
+          
+          console.log("Creating/updating user with data:", userData);
+          const user = await storage.upsertUser(userData);
           
           console.log("User created/updated successfully:", user.id);
           return done(null, user);
@@ -84,11 +91,18 @@ export async function setupAuth(app: Express) {
 
       passport.deserializeUser(async (id: string, done) => {
         try {
+          console.log("Attempting to deserialize user with ID:", id);
           const user = await storage.getUser(id);
+          if (!user) {
+            console.log("User not found for ID:", id);
+            return done(null, false);
+          }
+          console.log("User deserialized successfully:", user.email);
           done(null, user);
         } catch (error) {
           console.error("Error deserializing user:", error);
-          done(error);
+          // Don't pass the error, just return null user to avoid breaking the session
+          done(null, false);
         }
       });
 
@@ -105,7 +119,8 @@ export async function setupAuth(app: Express) {
       });
 
       app.get('/api/logout', (req, res) => {
-        const returnTo = encodeURIComponent(process.env.BASE_URL || 'http://localhost:5000');
+        const baseUrl = process.env.REPLIT_DEPLOYMENT === '1' ? 'https://mymedlink.ca' : 'http://localhost:5000';
+        const returnTo = encodeURIComponent(baseUrl);
         
         req.logout((err) => {
           if (err) {
