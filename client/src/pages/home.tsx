@@ -28,23 +28,35 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-red-500">
-      {/* MASSIVE CHANGE INDICATOR - IMPOSSIBLE TO MISS */}
-      <div className="fixed top-0 left-0 w-full h-20 bg-yellow-400 z-[9999] flex items-center justify-center">
-        <h1 className="text-black text-4xl font-black">🚨 BACKGROUND CHANGED - CAN YOU SEE THIS? 🚨</h1>
-      </div>
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Hero Section - COMPLETELY NEW BACKGROUND */}
-      <section className="relative min-h-screen overflow-hidden bg-purple-900">
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-red-900 via-purple-900 to-blue-900">
-          {/* Impossible to miss indicators */}
-          <div className="absolute top-32 left-4 bg-lime-400 text-black px-8 py-4 rounded-lg font-black text-2xl z-50 animate-pulse">
-            NEW DESIGN HERE! ✅
+      {/* Hero Section */}
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Modern Gradient Background */}
+        <div className="absolute inset-0 z-0">
+          {/* Base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900" />
+          
+          {/* Animated gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-transparent to-green-600/20" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-500/10 to-teal-600/30" />
+          
+          {/* Geometric shapes */}
+          <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-green-400/10 rounded-full blur-3xl"></div>
+          
+          {/* Medical cross pattern overlay */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-1/4 w-1 h-20 bg-white transform rotate-45"></div>
+            <div className="absolute top-1/4 left-1/4 w-20 h-1 bg-white transform rotate-45"></div>
+            <div className="absolute top-3/4 right-1/4 w-1 h-16 bg-white transform -rotate-45"></div>
+            <div className="absolute top-3/4 right-1/4 w-16 h-1 bg-white transform -rotate-45"></div>
           </div>
-          <div className="absolute top-32 right-4 bg-orange-500 text-white px-8 py-4 rounded-lg font-black text-2xl z-50 animate-bounce">
-            BACKGROUND UPDATED! 🎨
-          </div>
+          
+          {/* Subtle texture overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
         </div>
 
         {/* Content */}
