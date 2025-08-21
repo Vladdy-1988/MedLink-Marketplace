@@ -63,18 +63,18 @@ export default function Home() {
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Apple-style large headline - Personalized for logged-in users */}
+              {/* Modern Hero headline */}
               <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
-                Welcome back,
-                <span className="block text-white">
-                  {user?.firstName || "Patient"}
+                Modern Healthcare
+                <span className="block text-emerald-300">
+                  Delivered to You
                 </span>
               </h1>
               
-              {/* Apple-style subtitle */}
+              {/* Updated Subtitle */}
               <div className="max-w-4xl mx-auto mb-16">
                 <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
-                  Your trusted healthcare providers are ready to deliver professional in-home medical services.
+                  Experience premium in-home medical services with Calgary's most trusted healthcare professionals.
                 </p>
                 <p className="text-xl sm:text-2xl font-light text-white">
                   Safe. Convenient. Trusted.
