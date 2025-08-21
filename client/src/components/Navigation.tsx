@@ -5,16 +5,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { MedlinkLogo } from "./MedlinkLogo";
 
 export default function Navigation() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loginWithRedirect, logout } = useAuth();
   const [location] = useLocation();
 
   const handleLogin = useCallback(() => {
-    window.location.href = "/api/login";
-  }, []);
+    if (typeof loginWithRedirect === 'function') {
+      loginWithRedirect();
+    } else {
+      window.location.href = "/auth-login";
+    }
+  }, [loginWithRedirect]);
 
   const handleLogout = useCallback(() => {
-    window.location.href = "/api/logout";
-  }, []);
+    if (typeof logout === 'function') {
+      logout();
+    } else {
+      window.location.href = "/api/logout";
+    }
+  }, [logout]);
 
   const handleServicesClick = useCallback(() => {
     if (location === '/') {
