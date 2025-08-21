@@ -28,16 +28,22 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-red-500">
+      {/* MASSIVE CHANGE INDICATOR - IMPOSSIBLE TO MISS */}
+      <div className="fixed top-0 left-0 w-full h-20 bg-yellow-400 z-[9999] flex items-center justify-center">
+        <h1 className="text-black text-4xl font-black">🚨 BACKGROUND CHANGED - CAN YOU SEE THIS? 🚨</h1>
+      </div>
       <Navigation />
       
-      {/* Hero Section - NEW GRADIENT BACKGROUND */}
-      <section className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #065f46 100%)' }}>
-        {/* NOTICE: Background changed to gradient - no more photo */}
-        <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.3) 0%, transparent 60%), radial-gradient(circle at 80% 10%, rgba(34, 197, 94, 0.2) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 60%)' }}>
-          {/* Visible indicator this is the new design */}
-          <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-bold z-50">
-            NEW BACKGROUND ✓
+      {/* Hero Section - COMPLETELY NEW BACKGROUND */}
+      <section className="relative min-h-screen overflow-hidden bg-purple-900">
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-red-900 via-purple-900 to-blue-900">
+          {/* Impossible to miss indicators */}
+          <div className="absolute top-32 left-4 bg-lime-400 text-black px-8 py-4 rounded-lg font-black text-2xl z-50 animate-pulse">
+            NEW DESIGN HERE! ✅
+          </div>
+          <div className="absolute top-32 right-4 bg-orange-500 text-white px-8 py-4 rounded-lg font-black text-2xl z-50 animate-bounce">
+            BACKGROUND UPDATED! 🎨
           </div>
         </div>
 
