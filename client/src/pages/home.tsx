@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
-import heroImage from "@assets/pexels-rdne-6149191_1753139300341.jpg";
+// Removed heroImage import - now using pure CSS gradient background
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -32,18 +32,31 @@ export default function Home() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
-        {/* Background Image - Healthcare Professional */}
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Modern Gradient Background */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage}
-            alt="Healthcare professional providing medical examination and patient care"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Medical-themed gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/70 to-green-900/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-transparent to-green-800/40" />
+          {/* Base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900" />
+          
+          {/* Animated gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-transparent to-green-600/20" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-500/10 to-teal-600/30" />
+          
+          {/* Geometric shapes */}
+          <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-green-400/10 rounded-full blur-3xl"></div>
+          
+          {/* Medical cross pattern overlay */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-1/4 w-1 h-20 bg-white transform rotate-45"></div>
+            <div className="absolute top-1/4 left-1/4 w-20 h-1 bg-white transform rotate-45"></div>
+            <div className="absolute top-3/4 right-1/4 w-1 h-16 bg-white transform -rotate-45"></div>
+            <div className="absolute top-3/4 right-1/4 w-16 h-1 bg-white transform -rotate-45"></div>
+          </div>
+          
+          {/* Subtle texture overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
         </div>
 
         {/* Content */}
