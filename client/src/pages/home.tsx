@@ -63,11 +63,11 @@ export default function Home() {
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Modern Hero headline */}
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
-                Modern Healthcare
-                <span className="block text-emerald-300">
-                  Delivered to You
+              {/* TESTING - This should be visible immediately */}
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-red-500 text-balance">
+                🚀 UPDATED VERSION
+                <span className="block text-yellow-400">
+                  TEST TEST TEST
                 </span>
               </h1>
               
