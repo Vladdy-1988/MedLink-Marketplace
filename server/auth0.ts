@@ -60,7 +60,7 @@ export async function setupAuth(app: Express) {
         domain: process.env.AUTH0_DOMAIN,
         clientID: process.env.AUTH0_CLIENT_ID,
         clientSecret: process.env.AUTH0_CLIENT_SECRET,
-        callbackURL: process.env.AUTH0_CALLBACK_URL || (process.env.REPLIT_DEPLOYMENT === '1' ? 'https://mymedlink.ca/api/callback' : 'http://localhost:5000/api/callback')
+        callbackURL: process.env.AUTH0_CALLBACK_URL || 'https://mymedlink.ca/api/callback'
       }, async (accessToken: string, refreshToken: string, extraParams: any, profile: any, done: any) => {
         try {
           console.log("Auth0 callback - creating/updating user:", profile.id);
@@ -119,7 +119,7 @@ export async function setupAuth(app: Express) {
       });
 
       app.get('/api/logout', (req, res) => {
-        const baseUrl = process.env.REPLIT_DEPLOYMENT === '1' ? 'https://mymedlink.ca' : 'http://localhost:5000';
+        const baseUrl = 'https://mymedlink.ca';
         const returnTo = encodeURIComponent(baseUrl);
         
         req.logout((err) => {
