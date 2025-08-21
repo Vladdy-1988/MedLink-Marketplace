@@ -18,121 +18,185 @@ export default function Landing() {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
-        {/* Background Image - Healthcare Professional */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage}
-            alt="Healthcare professional providing medical consultation and blood pressure check"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Medical-themed gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/70 to-green-900/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-transparent to-green-800/40" />
+      {/* Hero Section - Redesigned */}
+      <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-40 right-20 w-96 h-96 bg-green-400/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex items-center min-h-screen">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-            <div className="text-center">
-              {/* Apple-style large headline */}
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
-                Healthcare
-                <span className="block text-white">
-                  at your door
-                </span>
-              </h1>
+        {/* Modern grid pattern overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
+        </div>
+
+        {/* Content Container */}
+        <div className="relative z-10 min-h-screen flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               
-              {/* Apple-style subtitle */}
-              <div className="max-w-4xl mx-auto mb-16">
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
-                  Connect with licensed healthcare providers in Calgary for professional in-home medical services.
-                </p>
-                <p className="text-xl sm:text-2xl font-light text-white">
-                  Safe. Convenient. Trusted.
-                </p>
-              </div>
-              
-              {/* Apple-style CTA buttons */}
-              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
-                <Link href="/providers">
-                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                    Find Providers
-                  </Button>
-                </Link>
-                <Link href="/how-it-works">
-                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                    Learn how it works
-                  </Button>
-                </Link>
+              {/* Left Column - Content */}
+              <div className="text-left space-y-8">
+                {/* Trust badges */}
+                <div className="flex items-center space-x-4 text-blue-200/80">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium">Licensed Providers</span>
+                  </div>
+                  <div className="w-1 h-4 bg-blue-200/40"></div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse delay-300"></div>
+                    <span className="text-sm font-medium">Insured Services</span>
+                  </div>
+                  <div className="w-1 h-4 bg-blue-200/40"></div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-700"></div>
+                    <span className="text-sm font-medium">Same-Day Available</span>
+                  </div>
+                </div>
+
+                {/* Main headline */}
+                <div className="space-y-6">
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight">
+                    Healthcare
+                    <span className="block text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-green-400 bg-clip-text">
+                      that comes
+                    </span>
+                    <span className="block text-white">
+                      to you
+                    </span>
+                  </h1>
+                  
+                  <p className="text-xl sm:text-2xl text-blue-100/90 leading-relaxed max-w-2xl">
+                    Skip the waiting rooms. Connect with Calgary's top healthcare professionals who bring quality medical care directly to your home.
+                  </p>
+                </div>
+
+                {/* Key benefits */}
+                <div className="grid grid-cols-3 gap-6 py-8">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                      <Activity className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-lg font-semibold text-white mb-1">200+</div>
+                    <div className="text-sm text-blue-200">Providers</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                      <Heart className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-lg font-semibold text-white mb-1">24/7</div>
+                    <div className="text-sm text-blue-200">Support</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                      <UserCheck className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-lg font-semibold text-white mb-1">98%</div>
+                    <div className="text-sm text-blue-200">Satisfaction</div>
+                  </div>
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link href="/providers">
+                    <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg px-8 py-6 rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 transform hover:scale-105">
+                      <Search className="mr-2 h-5 w-5" />
+                      Find Your Provider
+                    </Button>
+                  </Link>
+                  <Link href="/how-it-works">
+                    <Button size="lg" variant="outline" className="border-2 border-white/20 hover:border-white/40 text-white hover:text-blue-100 text-lg px-8 py-6 rounded-2xl font-semibold bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all duration-500">
+                      How It Works
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
-              {/* Clean search interface */}
-              <div className="max-w-5xl mx-auto">
-                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
+              {/* Right Column - Interactive Search Card */}
+              <div className="lg:pl-8">
+                <div className="bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 p-8 shadow-2xl">
+                  <div className="text-center mb-8">
+                    <h2 className="text-2xl font-bold text-white mb-2">Book Your Care</h2>
+                    <p className="text-blue-100/80">Choose your service and get matched instantly</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Service selection */}
+                    <div className="space-y-3">
+                      <Label className="text-white font-medium">What do you need?</Label>
                       <Select>
-                        <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
-                          <SelectValue placeholder="All Services" />
+                        <SelectTrigger className="h-14 text-lg rounded-2xl border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder:text-white/60">
+                          <SelectValue placeholder="Select a service" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Services</SelectItem>
-                          <SelectItem value="general-practice">General Practice</SelectItem>
-                          <SelectItem value="nursing">Nursing Services</SelectItem>
-                          <SelectItem value="physical-therapy">Physical Therapy</SelectItem>
-                          <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
-                          <SelectItem value="palliative-care">Palliative Care</SelectItem>
-                          <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
-                          <SelectItem value="mental-health">Mental Health</SelectItem>
-                          <SelectItem value="vaccinations">Vaccinations</SelectItem>
-                          <SelectItem value="dental-care">Dental Care</SelectItem>
-                          <SelectItem value="hearing-services">Hearing Services</SelectItem>
-                          <SelectItem value="vision-care">Vision Care</SelectItem>
-                          <SelectItem value="podiatry">Podiatry</SelectItem>
-                          <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
-                          <SelectItem value="nutrition">Nutrition</SelectItem>
-                          <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                          <SelectItem value="iv-therapy">IV Therapy</SelectItem>
+                          <SelectItem value="general-practice">🩺 General Practice</SelectItem>
+                          <SelectItem value="nursing">👩‍⚕️ Nursing Care</SelectItem>
+                          <SelectItem value="physical-therapy">🤸‍♀️ Physical Therapy</SelectItem>
+                          <SelectItem value="mental-health">🧠 Mental Health</SelectItem>
+                          <SelectItem value="lab-tests">🧪 Lab Tests</SelectItem>
+                          <SelectItem value="vaccinations">💉 Vaccinations</SelectItem>
+                          <SelectItem value="dental-care">🦷 Dental Care</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-lg font-semibold text-gray-800">Date</Label>
-                      <Input 
-                        type="date" 
-                        min={new Date().toISOString().split('T')[0]} 
-                        className="h-14 text-lg rounded-xl border-gray-200"
-                      />
+
+                    {/* Urgency selector */}
+                    <div className="space-y-3">
+                      <Label className="text-white font-medium">When do you need care?</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button variant="outline" className="h-12 border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-sm transition-all">
+                          🚨 ASAP
+                        </Button>
+                        <Button variant="outline" className="h-12 border-white/20 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-sm transition-all">
+                          📅 Schedule
+                        </Button>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-lg font-semibold text-gray-800">Location</Label>
+
+                    {/* Location */}
+                    <div className="space-y-3">
+                      <Label className="text-white font-medium">Your location</Label>
                       <Input 
                         type="text" 
-                        placeholder="Calgary, AB" 
-                        className="h-14 text-lg rounded-xl border-gray-200"
+                        placeholder="Enter your address in Calgary" 
+                        className="h-14 text-lg rounded-2xl border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder:text-white/60"
                       />
                     </div>
+
+                    {/* Search button */}
+                    <Link href="/providers">
+                      <Button className="w-full h-14 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white text-lg font-semibold rounded-2xl shadow-lg hover:shadow-green-500/25 transition-all duration-500 transform hover:scale-[1.02]">
+                        <Search className="mr-2 h-5 w-5" />
+                        Find Available Providers
+                      </Button>
+                    </Link>
+
+                    {/* Quick stats */}
+                    <div className="pt-6 border-t border-white/10">
+                      <div className="text-center text-white/80 text-sm">
+                        <span className="font-semibold text-green-400">47 providers</span> available today in your area
+                      </div>
+                    </div>
                   </div>
-                  <Link href="/providers">
-                    <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
-                      <Search className="mr-3 h-6 w-6" />
-                      Find Healthcare Providers
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Subtle scroll indicator */}
+        {/* Modern scroll indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+          <div className="flex flex-col items-center space-y-2 animate-bounce">
+            <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse"></div>
+            </div>
+            <span className="text-xs text-white/60 font-medium">Scroll to explore</span>
           </div>
         </div>
       </section>
