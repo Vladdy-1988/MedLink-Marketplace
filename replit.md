@@ -76,6 +76,11 @@ Branding: MedLink (capital L) with house-with-heart logo design.
   - ✅ **Documentation**: Created comprehensive Auth0 dashboard setup guide for production deployment
   - ✅ **Security**: Implemented proper HTTPS cookie settings and domain-specific session management
   - 🔧 **Auth0 Dashboard Setup Required**: User needs to add mymedlink.ca URLs to Auth0 application settings
+- **Production Routing Fix (August 2025)**: Resolved 404 "Page Not Found" error on mymedlink.ca by building static production files and configuring fallback routing for single-page application.
+  - ✅ **Static Build**: Generated production build files in correct directory structure
+  - ✅ **Fallback Routing**: Configured server to serve index.html for all non-API routes
+  - ✅ **Client-Side Routing**: Enabled React Router (wouter) to handle navigation on production site
+  - ✅ **All Routes Working**: Homepage, providers, services, about, and all other pages now accessible
 - **Improved Logged-Out User Experience (August 2025)**: Enhanced messaging clarity for non-authenticated users across all provider interaction features.
   - ✅ **Clear Button Text**: Updated "Message Provider" and "Schedule Consultation" buttons to show "Sign In to Message" and "Sign In to Schedule" for logged-out users
   - ✅ **Better Toast Messages**: Improved notification text to be more helpful and specific ("Please sign in to message this healthcare provider and get a personalized quote")
