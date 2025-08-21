@@ -140,36 +140,7 @@ export default function Landing() {
       {/* Service Categories */}
       <ServiceCategories />
 
-      {/* Featured Providers */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-12">
-            <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Top-Rated Healthcare Providers</h2>
-              <p className="text-xl text-gray-600">Trusted professionals serving the Calgary community</p>
-            </div>
-            <Link href="/providers">
-              <Button className="hidden md:block bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
-                View All Providers
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {featuredProviders.slice(0, 8).map((provider) => (
-              <ProviderCard key={provider.id} provider={provider} />
-            ))}
-          </div>
-          
-          <div className="text-center mt-8 md:hidden">
-            <Link href="/providers">
-              <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
-                View All Providers
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+
 
       {/* Insurance Coverage Section */}
       <section className="py-16 bg-gradient-to-r from-blue-50 to-green-50">
