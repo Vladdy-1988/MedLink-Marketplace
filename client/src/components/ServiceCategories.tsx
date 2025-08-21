@@ -1,4 +1,3 @@
-import React from "react";
 import { coreServiceCategories, additionalServiceCategories } from "@/lib/mockData";
 import { 
   Stethoscope, UserCheck, Activity, Home, Heart, TestTube, Brain, Syringe, 
@@ -145,7 +144,7 @@ export default function ServiceCategories() {
           </p>
         </motion.div>
 
-        {/* Most Popular Services - Trending and High-Demand Services */}
+        {/* Popular Services - Show only 6 most common ones on homepage */}
         <motion.div 
           className="mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -155,80 +154,33 @@ export default function ServiceCategories() {
         >
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-                  Most Popular Services
-                </span>
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">⭐ Trending services with highest booking rates in Calgary</p>
-              <div className="flex items-center mt-2 text-sm text-orange-600 font-medium">
-                <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
-                High demand - Book early to secure your preferred time slot
-              </div>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Most Popular Services</h3>
+              <p className="text-gray-600 dark:text-gray-300">The most requested healthcare services in Calgary</p>
             </div>
             <Link href="/services">
-              <Button className="hidden md:flex bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-full px-6 py-3 group shadow-lg">
-                View All Services
+              <Button className="hidden md:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-6 py-3 group">
+                View All 16 Services
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
           
-          {/* Popular services with trending indicators */}
+          {/* Show only the 6 most popular services */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { ...coreServiceCategories[0], trending: true, bookingRate: "95%" }, // General Practice
-              { ...coreServiceCategories[1], trending: true, bookingRate: "88%" }, // Nursing Services  
-              { ...coreServiceCategories[2], trending: false, bookingRate: "82%" }, // Physical Therapy
-              { ...coreServiceCategories[5], trending: true, bookingRate: "76%" }, // Mobile Lab Tests
-              { ...coreServiceCategories[6], trending: false, bookingRate: "71%" }, // Mental Health
-              { ...additionalServiceCategories[0], trending: true, bookingRate: "68%" } // Dental Care
+              coreServiceCategories[0], // General Practice
+              coreServiceCategories[1], // Nursing Services  
+              coreServiceCategories[2], // Physical Therapy
+              coreServiceCategories[5], // Mobile Lab Tests
+              coreServiceCategories[6], // Mental Health
+              additionalServiceCategories[0] // Dental Care
             ].map((service, index) => (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.05 }}
-                key={service.id}
-                className={`relative ${getColorClasses(service.color).bg} rounded-2xl p-6 hover:shadow-2xl transition-all duration-500 cursor-pointer group hover:-translate-y-2 border border-white/20 backdrop-blur-sm`}
-              >
-                {/* Trending badge */}
-                {service.trending && (
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                    🔥 TRENDING
-                  </div>
-                )}
-                
-                {/* Booking rate indicator */}
-                <div className="absolute top-4 right-4 bg-white/90 text-gray-700 text-xs font-semibold px-2 py-1 rounded-full">
-                  {service.bookingRate} booked
-                </div>
-                
-                <div className={`w-14 h-14 ${getColorClasses(service.color).icon} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  {iconMap[service.icon as keyof typeof iconMap] && 
-                    React.createElement(iconMap[service.icon as keyof typeof iconMap], { className: "w-6 h-6" })
-                  }
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                  {service.name}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                  {service.description}
-                </p>
-                <div className="space-y-2">
-                  {service.insurance && (
-                    <div className="flex items-center text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      {service.insurance}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
+              <ServiceCard key={service.id} service={service} index={index} />
             ))}
           </div>
         </motion.div>
 
-        {/* Complete Healthcare Coverage - Comprehensive Service Categories */}
+        {/* Service Categories Overview */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -236,28 +188,10 @@ export default function ServiceCategories() {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent">
-                Complete Healthcare Coverage
-              </span>
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto text-lg">
-              🏥 Full spectrum of medical services organized by specialty areas - from primary care to specialized treatments, all available in your home
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Complete Healthcare Coverage</h3>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Browse our comprehensive range of healthcare services organized by specialty
             </p>
-            <div className="flex items-center justify-center mt-4 space-x-6 text-sm text-gray-500">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                Primary Care
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                Specialized Services
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                Therapeutic Care
-              </div>
-            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
