@@ -11,7 +11,7 @@ import { Search, Activity, Heart, Facebook, Twitter, Instagram, Linkedin } from 
 import { UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
-import heroImage from "@assets/pexels-matthiaszomer-339620_1755038074358.jpg";
+// Removed heroImage import - now using pure CSS gradient background
 
 export default function Landing() {
   return (
@@ -19,36 +19,49 @@ export default function Landing() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
-        {/* Background Image - Healthcare Professional */}
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Modern Gradient Background */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage}
-            alt="Healthcare professional providing medical consultation and blood pressure check"
-            className="w-full h-full object-cover object-center"
-          />
-          {/* Medical-themed gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/70 to-green-900/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 via-transparent to-green-800/40" />
+          {/* Base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900" />
+          
+          {/* Animated gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-transparent to-green-600/20" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-500/10 to-teal-600/30" />
+          
+          {/* Geometric shapes */}
+          <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-green-400/10 rounded-full blur-3xl"></div>
+          
+          {/* Medical cross pattern overlay */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-1/4 w-1 h-20 bg-white transform rotate-45"></div>
+            <div className="absolute top-1/4 left-1/4 w-20 h-1 bg-white transform rotate-45"></div>
+            <div className="absolute top-3/4 right-1/4 w-1 h-16 bg-white transform -rotate-45"></div>
+            <div className="absolute top-3/4 right-1/4 w-16 h-1 bg-white transform -rotate-45"></div>
+          </div>
+          
+          {/* Subtle texture overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
         </div>
 
         {/* Content */}
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
             <div className="text-center">
-              {/* Apple-style large headline */}
+              {/* Modern Healthcare Hero */}
               <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
-                Healthcare
-                <span className="block text-white">
-                  at your door
+                Premium Healthcare
+                <span className="block text-emerald-300">
+                  at Your Doorstep
                 </span>
               </h1>
               
-              {/* Apple-style subtitle */}
+              {/* Updated Subtitle */}
               <div className="max-w-4xl mx-auto mb-16">
                 <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
-                  Connect with licensed healthcare providers in Calgary for professional in-home medical services.
+                  Experience premium in-home medical services with Calgary's most trusted healthcare professionals.
                 </p>
                 <p className="text-xl sm:text-2xl font-light text-white">
                   Safe. Convenient. Trusted.
@@ -209,32 +222,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16 bg-white" id="how-it-works">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">How MedLink Works</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Simple, secure, and convenient healthcare at your doorstep</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              { number: 1, title: "Search & Browse", description: "Find qualified healthcare providers by service type, location, and availability in Calgary.", color: "bg-[hsl(207,90%,54%)]" },
-              { number: 2, title: "Book Appointment", description: "Choose your preferred provider, select a convenient time, and securely book your appointment online.", color: "bg-[hsl(159,100%,34%)]" },
-              { number: 3, title: "Receive Care", description: "Your provider visits your home with all necessary equipment for professional healthcare services.", color: "bg-[hsl(259,78%,60%)]" },
-              { number: 4, title: "Rate & Review", description: "Share your experience to help other patients and maintain our quality standards.", color: "bg-orange-500" }
-            ].map((step) => (
-              <div key={step.number} className="text-center group">
-                <div className={`w-16 h-16 ${step.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                  <span className="text-2xl font-bold text-white">{step.number}</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Become a Provider */}
       <section className="py-16 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(259,78%,60%)] text-white" id="become-provider">
