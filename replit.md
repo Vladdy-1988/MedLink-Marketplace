@@ -85,7 +85,7 @@ Branding: MedLink (capital L) with house-with-heart logo design.
 - **Homepage Layout Optimization (August 2025)**: Streamlined homepage design by removing workflow section per user preference for cleaner, more focused layout.
   - ✅ **Removed "How MedLink Works" Section**: Deleted the 4-step workflow section from both Landing and Home pages
   - ✅ **Modern Background Redesign**: Completely redesigned hero section background from photo-based to modern gradient design with layered gradients, geometric shapes, and subtle medical theming
-  - ✅ **Updated Branding**: Changed title to "Premium Healthcare at Your Doorstep" with emerald green accent color
+  - ✅ **Updated Title**: Changed title to clean "Healthcare at Your Door" without color accents
   - ✅ **Fixed Display Issue**: Resolved confusion between Landing page (non-authenticated users) and Home page (authenticated users) - both now updated with modern design
   - ✅ **Simplified Layout**: Pages now focus on hero section, featured providers, and insurance coverage information
 - **Improved Logged-Out User Experience (August 2025)**: Enhanced messaging clarity for non-authenticated users across all provider interaction features.

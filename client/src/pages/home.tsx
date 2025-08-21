@@ -65,9 +65,9 @@ export default function Home() {
             <div className="text-center">
               {/* Modern Healthcare Hero */}
               <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
-                Premium Healthcare
-                <span className="block text-emerald-300">
-                  at Your Doorstep
+                Healthcare
+                <span className="block text-white">
+                  at Your Door
                 </span>
               </h1>
               
