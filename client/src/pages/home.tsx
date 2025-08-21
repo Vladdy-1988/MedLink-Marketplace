@@ -268,62 +268,7 @@ export default function Home() {
       {/* Service Categories */}
       <ServiceCategories />
 
-      {/* Featured Providers */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-12">
-            <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Recommended for You</h2>
-              <p className="text-xl text-gray-600">Based on your location and preferences</p>
-            </div>
-            <Link href="/providers">
-              <Button className="hidden md:block bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
-                View All Providers
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {providersLoading ? (
-              // Show loading skeleton
-              Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="bg-white rounded-3xl p-6 shadow-lg animate-pulse">
-                  <div className="h-56 bg-gray-200 rounded-t-3xl mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                </div>
-              ))
-            ) : (
-              providers.slice(0, 8).map((provider: any) => (
-                <ProviderCard key={provider.id} provider={{
-                  id: provider.id,
-                  userId: provider.userId,
-                  name: `${provider.firstName} ${provider.lastName}`,
-                  specialty: provider.specialization,
-                  experience: `${provider.yearsExperience} years exp.`,
-                  rating: parseFloat(provider.rating) || 4.5,
-                  reviewCount: provider.reviewCount || 0,
-                  location: "Calgary, AB",
-                  price: "Message Provider",
-                  description: provider.bio || "Experienced healthcare provider offering quality in-home services.",
-                  image: provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
-                  verified: provider.isVerified || false,
-                  tags: [provider.specialization],
-                  rapidService: false
-                }} />
-              ))
-            )}
-          </div>
-          
-          <div className="text-center mt-8 md:hidden">
-            <Link href="/providers">
-              <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
-                View All Providers
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+
 
       {/* Insurance Coverage Section */}
       <section className="py-16 bg-gradient-to-r from-blue-50 to-green-50">
