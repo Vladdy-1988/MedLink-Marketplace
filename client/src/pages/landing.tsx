@@ -233,97 +233,133 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Insurance Coverage */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-emerald-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Insurance Coverage - Redesigned to be more distinct */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Insurance Coverage</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Many services are covered by Alberta Health Services and private insurance plans
+            <Badge className="bg-green-100 text-green-800 px-4 py-2 mb-6">
+              💰 Insurance Accepted
+            </Badge>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Most Services Are Covered</h2>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+              Save money with Alberta Health Services coverage and private insurance benefits. 
+              Our providers help with documentation and billing to maximize your coverage.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg bg-white rounded-2xl">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Activity className="h-8 w-8 text-white" />
+          {/* Coverage Table Style */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-3xl p-8 mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Left Column - Public Coverage */}
+              <div>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                    <Shield className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Alberta Health Services</h3>
+                    <p className="text-gray-600">Provincial health coverage</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Alberta Health Services</h3>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    General Practice visits
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Home nursing care
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Laboratory tests
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Vaccinations
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-0 shadow-lg bg-white rounded-2xl">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Heart className="h-8 w-8 text-white" />
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <span className="text-gray-700">General Practice visits</span>
+                    </div>
+                    <Badge variant="outline" className="text-green-700 border-green-200">100% Covered</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <span className="text-gray-700">Home nursing care</span>
+                    </div>
+                    <Badge variant="outline" className="text-green-700 border-green-200">100% Covered</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <span className="text-gray-700">Laboratory tests</span>
+                    </div>
+                    <Badge variant="outline" className="text-green-700 border-green-200">With requisition</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <span className="text-gray-700">Vaccinations</span>
+                    </div>
+                    <Badge variant="outline" className="text-green-700 border-green-200">100% Covered</Badge>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Extended Health Plans</h3>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Physical therapy
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Mental health counseling
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Dietitian consultations
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Speech therapy
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-0 shadow-lg bg-white rounded-2xl">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <UserCheck className="h-8 w-8 text-white" />
+              </div>
+              
+              {/* Right Column - Private Coverage */}
+              <div>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center mr-4">
+                    <Heart className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Extended Health Plans</h3>
+                    <p className="text-gray-600">Private insurance benefits</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Specialty Coverage</h3>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Dental care services
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Podiatry care
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Medical equipment
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Prescriptions
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
+                      <span className="text-gray-700">Physical therapy</span>
+                    </div>
+                    <Badge variant="outline" className="text-emerald-700 border-emerald-200">80-100%</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
+                      <span className="text-gray-700">Mental health counseling</span>
+                    </div>
+                    <Badge variant="outline" className="text-emerald-700 border-emerald-200">80-100%</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
+                      <span className="text-gray-700">Dental care</span>
+                    </div>
+                    <Badge variant="outline" className="text-emerald-700 border-emerald-200">Varies</Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between py-3 px-4 bg-white rounded-xl shadow-sm">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-emerald-500 mr-3" />
+                      <span className="text-gray-700">Specialty services</span>
+                    </div>
+                    <Badge variant="outline" className="text-emerald-700 border-emerald-200">Varies</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Help Section */}
+          <div className="bg-gray-900 rounded-3xl p-8 text-center text-white">
+            <h3 className="text-2xl font-bold mb-4">Need Help with Insurance Claims?</h3>
+            <p className="text-lg text-gray-300 mb-6 max-w-3xl mx-auto">
+              Our providers can assist with documentation and direct billing to help you maximize your insurance benefits and minimize out-of-pocket costs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded-xl font-semibold">
+                Check Your Coverage
+              </Button>
+              <Button variant="outline" className="border-gray-400 text-white hover:bg-white hover:text-gray-900 px-6 py-3 rounded-xl font-semibold">
+                Contact Support
+              </Button>
+            </div>
           </div>
         </div>
       </section>
