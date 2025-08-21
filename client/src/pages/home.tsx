@@ -31,32 +31,14 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative min-h-screen overflow-hidden">
-        {/* Modern Gradient Background */}
-        <div className="absolute inset-0 z-0">
-          {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900" />
-          
-          {/* Animated gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-transparent to-green-600/20" />
-          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-500/10 to-teal-600/30" />
-          
-          {/* Geometric shapes */}
-          <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-green-400/10 rounded-full blur-3xl"></div>
-          
-          {/* Medical cross pattern overlay */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/4 left-1/4 w-1 h-20 bg-white transform rotate-45"></div>
-            <div className="absolute top-1/4 left-1/4 w-20 h-1 bg-white transform rotate-45"></div>
-            <div className="absolute top-3/4 right-1/4 w-1 h-16 bg-white transform -rotate-45"></div>
-            <div className="absolute top-3/4 right-1/4 w-16 h-1 bg-white transform -rotate-45"></div>
+      {/* Hero Section - NEW GRADIENT BACKGROUND */}
+      <section className="relative min-h-screen overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #065f46 100%)' }}>
+        {/* NOTICE: Background changed to gradient - no more photo */}
+        <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.3) 0%, transparent 60%), radial-gradient(circle at 80% 10%, rgba(34, 197, 94, 0.2) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 60%)' }}>
+          {/* Visible indicator this is the new design */}
+          <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded font-bold z-50">
+            NEW BACKGROUND ✓
           </div>
-          
-          {/* Subtle texture overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
         </div>
 
         {/* Content */}
