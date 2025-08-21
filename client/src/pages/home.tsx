@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
-import heroImage from "@assets/pexels-matthiaszomer-339620_1755038074358.jpg";
+import heroImage from "@assets/pexels-thirdman-7659565_1755038074358.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -37,7 +37,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           <img 
             src={heroImage}
-            alt="Healthcare professional providing medical consultation and blood pressure check"
+            alt="Healthcare professional providing medical care and consultation services"
             className="w-full h-full object-cover object-center"
           />
           {/* Medical-themed gradient overlays */}
