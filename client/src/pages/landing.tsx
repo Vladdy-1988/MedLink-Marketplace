@@ -20,28 +20,32 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative min-h-screen overflow-hidden">
-        {/* Clean Medical Background */}
+        {/* Modern Geometric Background */}
         <div className="absolute inset-0 z-0">
-          {/* Soft medical gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-green-50" />
+          {/* Rich gradient base */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-emerald-800 to-teal-900" />
           
-          {/* Floating elements */}
-          <div className="absolute top-20 right-1/4 w-64 h-64 bg-blue-100/40 rounded-full blur-2xl animate-pulse"></div>
-          <div className="absolute bottom-32 left-1/4 w-48 h-48 bg-green-100/40 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
-          <div className="absolute top-1/3 right-1/3 w-32 h-32 bg-purple-100/30 rounded-full blur-xl animate-pulse" style={{animationDelay: '2s'}}></div>
+          {/* Geometric overlays */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-emerald-600/20 via-transparent to-cyan-500/15" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-teal-500/10 to-blue-600/20" />
           
-          {/* Subtle medical patterns */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/4 right-1/5 w-2 h-12 bg-blue-400 rounded-full"></div>
-            <div className="absolute top-1/4 right-1/5 w-12 h-2 bg-blue-400 rounded-full"></div>
-            <div className="absolute bottom-1/3 left-1/6 w-1.5 h-10 bg-green-400 rounded-full"></div>
-            <div className="absolute bottom-1/3 left-1/6 w-10 h-1.5 bg-green-400 rounded-full"></div>
-            <div className="absolute top-2/3 right-1/6 w-1 h-8 bg-purple-400 rounded-full"></div>
-            <div className="absolute top-2/3 right-1/6 w-8 h-1 bg-purple-400 rounded-full"></div>
+          {/* Modern geometric shapes */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-emerald-400/10 to-transparent transform rotate-45 rounded-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-teal-400/15 to-transparent transform -rotate-12 rounded-3xl"></div>
+          <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-cyan-400/8 to-transparent rounded-full blur-xl"></div>
+          
+          {/* Clean line patterns */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-1/3 left-1/4 w-32 h-0.5 bg-emerald-300 transform rotate-45"></div>
+            <div className="absolute top-1/3 left-1/4 w-0.5 h-32 bg-emerald-300 transform rotate-45"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-24 h-0.5 bg-teal-300 transform -rotate-45"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-0.5 h-24 bg-teal-300 transform -rotate-45"></div>
+            <div className="absolute top-2/3 left-1/3 w-16 h-0.5 bg-cyan-300"></div>
+            <div className="absolute top-2/3 left-1/3 w-0.5 h-16 bg-cyan-300"></div>
           </div>
           
-          {/* Elegant overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/95 via-blue-800/80 to-blue-700/70" />
+          {/* Sophisticated overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
         </div>
 
         {/* Content */}
