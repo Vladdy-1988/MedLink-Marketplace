@@ -18,8 +18,11 @@ export function getSession() {
     tableName: "sessions",
   });
   
-  const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
-  const isHttps = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
+  // Check if we're in production - using multiple environment variables to ensure detection
+  const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || 
+                       process.env.NODE_ENV === 'production' ||
+                       process.env.REPLIT_DEV_DOMAIN?.includes('mymedlink.ca');
+  const isHttps = isProduction;
   
   console.log("Session configuration:", { isProduction, isHttps });
   
@@ -58,13 +61,15 @@ export async function setupAuth(app: Express) {
 
     // Auth0 Strategy - only if Auth0 credentials are available
     if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
-      const baseURL = process.env.NODE_ENV === 'production' 
+      // Use production URL when deployed
+      const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
+      const baseURL = isProduction
         ? 'https://mymedlink.ca'
         : process.env.REPL_SLUG 
           ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
           : 'http://localhost:5000';
       const callbackURL = `${baseURL}/api/callback`;
-      console.log('Auth0 callback URL:', callbackURL);
+      console.log('Auth0 configuration:', { isProduction, baseURL, callbackURL });
         
       passport.use(new Auth0Strategy({
         domain: process.env.AUTH0_DOMAIN,
@@ -121,15 +126,20 @@ export async function setupAuth(app: Express) {
         scope: 'openid email profile'
       }));
 
-      app.get('/api/callback', passport.authenticate('auth0', {
-        failureRedirect: '/login-failed'
-      }), (req, res) => {
-        console.log("Auth0 callback successful, redirecting to home");
-        res.redirect('/');
-      });
+      app.get('/api/callback', 
+        passport.authenticate('auth0', {
+          failureRedirect: '/login-failed',
+          failureMessage: true
+        }), 
+        (req, res) => {
+          console.log("Auth0 callback successful, redirecting to home");
+          res.redirect('/');
+        }
+      );
 
       app.get('/api/logout', (req, res) => {
-        const baseUrl = process.env.NODE_ENV === 'production' 
+        const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
+        const baseUrl = isProduction
           ? 'https://mymedlink.ca'
           : process.env.REPL_SLUG 
             ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`

@@ -32,6 +32,7 @@ import AdminData from "@/pages/admin-data";
 import AdminPortal from "@/pages/admin-portal";
 import AuthTest from "@/pages/auth-test";
 import AuthLogin from "@/pages/auth-login";
+import LoginFailed from "@/pages/login-failed";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/provider-documents" component={ProviderDocumentSubmission} />
       <Route path="/auth-test" component={AuthTest} />
       <Route path="/auth-login" component={AuthLogin} />
+      <Route path="/login-failed" component={LoginFailed} />
       
       {isLoading || !isAuthenticated ? (
         <>
