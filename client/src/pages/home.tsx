@@ -33,46 +33,28 @@ export default function Home() {
       
       {/* Hero Section */}
       <section className="relative min-h-screen overflow-hidden">
-        {/* Warm Professional Background */}
+        {/* Clean Medical Background */}
         <div className="absolute inset-0 z-0">
-          {/* Warm gradient base */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900" />
+          {/* Soft medical gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-green-50" />
           
-          {/* Flowing overlays */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/25 via-violet-500/15 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-purple-600/10 to-indigo-700/20" />
+          {/* Floating elements */}
+          <div className="absolute top-20 right-1/4 w-64 h-64 bg-blue-100/40 rounded-full blur-2xl animate-pulse"></div>
+          <div className="absolute bottom-32 left-1/4 w-48 h-48 bg-green-100/40 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/3 right-1/3 w-32 h-32 bg-purple-100/30 rounded-full blur-xl animate-pulse" style={{animationDelay: '2s'}}></div>
           
-          {/* Abstract flowing shapes */}
-          <div className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-violet-400/15 to-transparent rounded-full blur-3xl transform rotate-12"></div>
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute top-1/3 right-1/5 w-72 h-72 bg-gradient-to-r from-purple-400/8 to-blue-400/8 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-gradient-to-br from-pink-400/10 to-transparent rounded-full blur-2xl"></div>
-          
-          {/* Elegant flowing lines */}
-          <div className="absolute inset-0 opacity-20">
-            <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path d="M0,20 Q25,10 50,20 T100,15" stroke="url(#gradient1)" strokeWidth="0.2" fill="none" />
-              <path d="M0,60 Q30,50 60,60 T100,55" stroke="url(#gradient2)" strokeWidth="0.15" fill="none" />
-              <path d="M0,80 Q40,70 80,80 T100,75" stroke="url(#gradient3)" strokeWidth="0.1" fill="none" />
-              <defs>
-                <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
-                </linearGradient>
-                <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.2" />
-                </linearGradient>
-                <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#ec4899" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
-                </linearGradient>
-              </defs>
-            </svg>
+          {/* Subtle medical patterns */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 right-1/5 w-2 h-12 bg-blue-400 rounded-full"></div>
+            <div className="absolute top-1/4 right-1/5 w-12 h-2 bg-blue-400 rounded-full"></div>
+            <div className="absolute bottom-1/3 left-1/6 w-1.5 h-10 bg-green-400 rounded-full"></div>
+            <div className="absolute bottom-1/3 left-1/6 w-10 h-1.5 bg-green-400 rounded-full"></div>
+            <div className="absolute top-2/3 right-1/6 w-1 h-8 bg-purple-400 rounded-full"></div>
+            <div className="absolute top-2/3 right-1/6 w-8 h-1 bg-purple-400 rounded-full"></div>
           </div>
           
-          {/* Rich overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/25" />
+          {/* Elegant overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/95 via-blue-800/80 to-blue-700/70" />
         </div>
 
         {/* Content */}
