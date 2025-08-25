@@ -61,15 +61,19 @@ export async function setupAuth(app: Express) {
 
     // Auth0 Strategy - only if Auth0 credentials are available
     if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
-      // Use production URL when deployed
-      const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
-      const baseURL = isProduction
-        ? 'https://mymedlink.ca'
-        : process.env.REPL_SLUG 
-          ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
-          : 'http://localhost:5000';
-      const callbackURL = `${baseURL}/api/callback`;
-      console.log('Auth0 configuration:', { isProduction, baseURL, callbackURL });
+      // Force production URL when AUTH0_CALLBACK_URL is set to mymedlink.ca
+      const callbackURL = process.env.AUTH0_CALLBACK_URL || 
+        (process.env.REPLIT_DEPLOYMENT === '1' 
+          ? 'https://mymedlink.ca/api/callback'
+          : process.env.REPL_SLUG 
+            ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/callback`
+            : 'http://localhost:5000/api/callback');
+      
+      console.log('Auth0 configuration:', { 
+        deployment: process.env.REPLIT_DEPLOYMENT,
+        callbackURL,
+        domain: process.env.AUTH0_DOMAIN 
+      });
         
       passport.use(new Auth0Strategy({
         domain: process.env.AUTH0_DOMAIN,
@@ -138,13 +142,13 @@ export async function setupAuth(app: Express) {
       );
 
       app.get('/api/logout', (req, res) => {
-        const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || process.env.NODE_ENV === 'production';
-        const baseUrl = isProduction
-          ? 'https://mymedlink.ca'
-          : process.env.REPL_SLUG 
-            ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
-            : 'http://localhost:5000';
-        const returnTo = encodeURIComponent(baseUrl);
+        const returnUrl = process.env.AUTH0_LOGOUT_URL || 
+          (process.env.REPLIT_DEPLOYMENT === '1'
+            ? 'https://mymedlink.ca'
+            : process.env.REPL_SLUG 
+              ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+              : 'http://localhost:5000');
+        const returnTo = encodeURIComponent(returnUrl);
         
         req.logout((err) => {
           if (err) {
