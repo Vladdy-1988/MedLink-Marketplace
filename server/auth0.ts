@@ -5,6 +5,8 @@ import type { Express, RequestHandler } from 'express';
 import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 
+declare module 'passport-auth0';
+
 // Auth0 Configuration for Healthcare Application
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -56,11 +58,19 @@ export async function setupAuth(app: Express) {
 
     // Auth0 Strategy - only if Auth0 credentials are available
     if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
+      const baseURL = process.env.NODE_ENV === 'production' 
+        ? 'https://mymedlink.ca'
+        : process.env.REPL_SLUG 
+          ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+          : 'http://localhost:5000';
+      const callbackURL = `${baseURL}/api/callback`;
+      console.log('Auth0 callback URL:', callbackURL);
+        
       passport.use(new Auth0Strategy({
         domain: process.env.AUTH0_DOMAIN,
         clientID: process.env.AUTH0_CLIENT_ID,
         clientSecret: process.env.AUTH0_CLIENT_SECRET,
-        callbackURL: process.env.AUTH0_CALLBACK_URL || 'https://mymedlink.ca/api/callback'
+        callbackURL: callbackURL
       }, async (accessToken: string, refreshToken: string, extraParams: any, profile: any, done: any) => {
         try {
           console.log("Auth0 callback - creating/updating user:", profile.id);
@@ -119,7 +129,11 @@ export async function setupAuth(app: Express) {
       });
 
       app.get('/api/logout', (req, res) => {
-        const baseUrl = 'https://mymedlink.ca';
+        const baseUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://mymedlink.ca'
+          : process.env.REPL_SLUG 
+            ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+            : 'http://localhost:5000';
         const returnTo = encodeURIComponent(baseUrl);
         
         req.logout((err) => {
@@ -165,13 +179,7 @@ export async function setupAuth(app: Express) {
       });
     }
 
-    // Common auth routes
-    app.get('/api/auth/user', (req, res) => {
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      res.json(req.user);
-    });
+    // Common auth routes - removed since it's handled in routes.ts
 
   } catch (error) {
     console.error("Error setting up authentication:", error);

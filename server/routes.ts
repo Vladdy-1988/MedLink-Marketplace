@@ -24,46 +24,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - use Auth0 if configured, otherwise use demo auth
   const isAuth0Configured = process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET;
   
-  if (isAuth0Configured) {
-    try {
-      await setupAuth(app);
-      console.log("Auth0 authentication setup completed successfully");
-    } catch (error) {
-      console.error("Failed to setup Auth0 authentication:", error);
-      console.log("Falling back to demo authentication");
-      setupDemoAuth(app);
-    }
-  } else {
-    console.log("Auth0 not configured, using demo authentication");
-    setupDemoAuth(app);
+  try {
+    await setupAuth(app);
+    console.log("Auth0 authentication setup completed successfully");
+  } catch (error) {
+    console.error("Failed to setup Auth0 authentication:", error);
+    throw error;
   }
   
-  // Create a custom auth check that works with both Auth0 and demo auth
-  const checkAuth = (req: any, res: any, next: any) => {
-    if (isAuth0Configured && isAuthenticated) {
-      return isAuthenticated(req, res, next);
-    }
-    // For demo auth, check session
-    if (req.session?.user) {
-      req.user = req.session.user;
-      return next();
-    }
-    return res.status(401).json({ message: 'Unauthorized' });
-  };
+  // Use isAuthenticated middleware from Auth0
+  const checkAuth = isAuthenticated;
 
-  // Auth routes - handled by demoAuth.ts when Auth0 is not configured
-  if (isAuth0Configured) {
-    app.get('/api/auth/user', checkAuth, async (req: any, res) => {
-      try {
-        const userId = req.user.claims.sub;
-        const user = await storage.getUser(userId);
-        res.json(user);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({ message: "Failed to fetch user" });
+  // Auth routes
+  app.get('/api/auth/user', checkAuth, async (req: any, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
       }
-    });
-  }
+      res.json(req.user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
 
   // Provider routes
   app.post('/api/providers', checkAuth, async (req: any, res) => {
