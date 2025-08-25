@@ -90,7 +90,7 @@ export async function setupAuth(app: Express) {
         clientID: process.env.AUTH0_CLIENT_ID,
         clientSecret: process.env.AUTH0_CLIENT_SECRET,
         callbackURL: callbackURL,
-        state: false  // Disable state parameter for simplicity
+        state: true  // Enable state parameter for security
       }, async (accessToken: string, refreshToken: string, extraParams: any, profile: any, done: any) => {
         try {
           console.log("Auth0 callback - creating/updating user:", profile.id);
