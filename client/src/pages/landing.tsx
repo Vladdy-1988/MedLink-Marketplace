@@ -20,32 +20,46 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative min-h-screen overflow-hidden">
-        {/* Modern Geometric Background */}
+        {/* Warm Professional Background */}
         <div className="absolute inset-0 z-0">
-          {/* Rich gradient base */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-emerald-800 to-teal-900" />
+          {/* Warm gradient base */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900" />
           
-          {/* Geometric overlays */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-emerald-600/20 via-transparent to-cyan-500/15" />
-          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-teal-500/10 to-blue-600/20" />
+          {/* Flowing overlays */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/25 via-violet-500/15 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-purple-600/10 to-indigo-700/20" />
           
-          {/* Modern geometric shapes */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-emerald-400/10 to-transparent transform rotate-45 rounded-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-teal-400/15 to-transparent transform -rotate-12 rounded-3xl"></div>
-          <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-gradient-to-br from-cyan-400/8 to-transparent rounded-full blur-xl"></div>
+          {/* Abstract flowing shapes */}
+          <div className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-violet-400/15 to-transparent rounded-full blur-3xl transform rotate-12"></div>
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-transparent rounded-full blur-3xl"></div>
+          <div className="absolute top-1/3 right-1/5 w-72 h-72 bg-gradient-to-r from-purple-400/8 to-blue-400/8 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-56 h-56 bg-gradient-to-br from-pink-400/10 to-transparent rounded-full blur-2xl"></div>
           
-          {/* Clean line patterns */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-1/3 left-1/4 w-32 h-0.5 bg-emerald-300 transform rotate-45"></div>
-            <div className="absolute top-1/3 left-1/4 w-0.5 h-32 bg-emerald-300 transform rotate-45"></div>
-            <div className="absolute bottom-1/3 right-1/4 w-24 h-0.5 bg-teal-300 transform -rotate-45"></div>
-            <div className="absolute bottom-1/3 right-1/4 w-0.5 h-24 bg-teal-300 transform -rotate-45"></div>
-            <div className="absolute top-2/3 left-1/3 w-16 h-0.5 bg-cyan-300"></div>
-            <div className="absolute top-2/3 left-1/3 w-0.5 h-16 bg-cyan-300"></div>
+          {/* Elegant flowing lines */}
+          <div className="absolute inset-0 opacity-20">
+            <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0,20 Q25,10 50,20 T100,15" stroke="url(#gradient1)" strokeWidth="0.2" fill="none" />
+              <path d="M0,60 Q30,50 60,60 T100,55" stroke="url(#gradient2)" strokeWidth="0.15" fill="none" />
+              <path d="M0,80 Q40,70 80,80 T100,75" stroke="url(#gradient3)" strokeWidth="0.1" fill="none" />
+              <defs>
+                <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.6" />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+                </linearGradient>
+                <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.2" />
+                </linearGradient>
+                <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#ec4899" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
           
-          {/* Sophisticated overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+          {/* Rich overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/25" />
         </div>
 
         {/* Content */}
