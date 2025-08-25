@@ -49,8 +49,8 @@ export async function setupAuth(app: Express) {
       }
     }
 
-    // Setup session middleware
-    app.use(getSession());
+    // Don't setup session here if it's already setup in routes.ts
+    // app.use(getSession());
     app.use(passport.initialize());
     app.use(passport.session());
 
