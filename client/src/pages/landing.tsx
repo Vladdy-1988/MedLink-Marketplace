@@ -20,30 +20,28 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative min-h-screen overflow-hidden">
-        {/* Modern Gradient Background */}
+        {/* Clean Medical Background */}
         <div className="absolute inset-0 z-0">
-          {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900" />
+          {/* Soft medical gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-green-50" />
           
-          {/* Animated gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-transparent to-green-600/20" />
-          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-500/10 to-teal-600/30" />
+          {/* Floating elements */}
+          <div className="absolute top-20 right-1/4 w-64 h-64 bg-blue-100/40 rounded-full blur-2xl animate-pulse"></div>
+          <div className="absolute bottom-32 left-1/4 w-48 h-48 bg-green-100/40 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/3 right-1/3 w-32 h-32 bg-purple-100/30 rounded-full blur-xl animate-pulse" style={{animationDelay: '2s'}}></div>
           
-          {/* Geometric shapes */}
-          <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-green-400/10 rounded-full blur-3xl"></div>
-          
-          {/* Medical cross pattern overlay */}
+          {/* Subtle medical patterns */}
           <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/4 left-1/4 w-1 h-20 bg-white transform rotate-45"></div>
-            <div className="absolute top-1/4 left-1/4 w-20 h-1 bg-white transform rotate-45"></div>
-            <div className="absolute top-3/4 right-1/4 w-1 h-16 bg-white transform -rotate-45"></div>
-            <div className="absolute top-3/4 right-1/4 w-16 h-1 bg-white transform -rotate-45"></div>
+            <div className="absolute top-1/4 right-1/5 w-2 h-12 bg-blue-400 rounded-full"></div>
+            <div className="absolute top-1/4 right-1/5 w-12 h-2 bg-blue-400 rounded-full"></div>
+            <div className="absolute bottom-1/3 left-1/6 w-1.5 h-10 bg-green-400 rounded-full"></div>
+            <div className="absolute bottom-1/3 left-1/6 w-10 h-1.5 bg-green-400 rounded-full"></div>
+            <div className="absolute top-2/3 right-1/6 w-1 h-8 bg-purple-400 rounded-full"></div>
+            <div className="absolute top-2/3 right-1/6 w-8 h-1 bg-purple-400 rounded-full"></div>
           </div>
           
-          {/* Subtle texture overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
+          {/* Elegant overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/95 via-blue-800/80 to-blue-700/70" />
         </div>
 
         {/* Content */}
