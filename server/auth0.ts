@@ -21,7 +21,8 @@ export function getSession() {
   // Check if we're in production - using multiple environment variables to ensure detection
   const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || 
                        process.env.NODE_ENV === 'production' ||
-                       process.env.REPLIT_DEV_DOMAIN?.includes('mymedlink.ca');
+                       process.env.REPLIT_DEV_DOMAIN?.includes('mymedlink.ca') ||
+                       process.env.AUTH0_CALLBACK_URL?.includes('mymedlink.ca');
   const isHttps = isProduction;
   
   console.log("Session configuration:", { isProduction, isHttps });
@@ -61,16 +62,25 @@ export async function setupAuth(app: Express) {
 
     // Auth0 Strategy - only if Auth0 credentials are available
     if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
-      // Force production URL when AUTH0_CALLBACK_URL is set to mymedlink.ca
-      const callbackURL = process.env.AUTH0_CALLBACK_URL || 
-        (process.env.REPLIT_DEPLOYMENT === '1' 
-          ? 'https://mymedlink.ca/api/callback'
-          : process.env.REPL_SLUG 
-            ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/callback`
-            : 'http://localhost:5000/api/callback');
+      // Determine callback URL based on environment
+      let callbackURL;
+      
+      // If we're deployed to production (mymedlink.ca)
+      if (process.env.REPLIT_DEPLOYMENT === '1' && process.env.AUTH0_CALLBACK_URL?.includes('mymedlink.ca')) {
+        callbackURL = process.env.AUTH0_CALLBACK_URL;
+      } 
+      // If we're in Replit development environment
+      else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+        callbackURL = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/callback`;
+      }
+      // Local development
+      else {
+        callbackURL = 'http://localhost:5000/api/callback';
+      }
       
       console.log('Auth0 configuration:', { 
         deployment: process.env.REPLIT_DEPLOYMENT,
+        isProduction: process.env.AUTH0_CALLBACK_URL?.includes('mymedlink.ca'),
         callbackURL,
         domain: process.env.AUTH0_DOMAIN 
       });
@@ -79,7 +89,8 @@ export async function setupAuth(app: Express) {
         domain: process.env.AUTH0_DOMAIN,
         clientID: process.env.AUTH0_CLIENT_ID,
         clientSecret: process.env.AUTH0_CLIENT_SECRET,
-        callbackURL: callbackURL
+        callbackURL: callbackURL,
+        state: false  // Disable state parameter for simplicity
       }, async (accessToken: string, refreshToken: string, extraParams: any, profile: any, done: any) => {
         try {
           console.log("Auth0 callback - creating/updating user:", profile.id);
@@ -131,6 +142,14 @@ export async function setupAuth(app: Express) {
       }));
 
       app.get('/api/callback', 
+        (req, res, next) => {
+          console.log('Auth0 callback received:', {
+            query: req.query,
+            headers: req.headers.host,
+            url: req.url
+          });
+          next();
+        },
         passport.authenticate('auth0', {
           failureRedirect: '/login-failed',
           failureMessage: true
@@ -142,12 +161,21 @@ export async function setupAuth(app: Express) {
       );
 
       app.get('/api/logout', (req, res) => {
-        const returnUrl = process.env.AUTH0_LOGOUT_URL || 
-          (process.env.REPLIT_DEPLOYMENT === '1'
-            ? 'https://mymedlink.ca'
-            : process.env.REPL_SLUG 
-              ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
-              : 'http://localhost:5000');
+        let returnUrl;
+        
+        // If we're deployed to production
+        if (process.env.REPLIT_DEPLOYMENT === '1' && process.env.AUTH0_LOGOUT_URL?.includes('mymedlink.ca')) {
+          returnUrl = process.env.AUTH0_LOGOUT_URL;
+        }
+        // If we're in Replit development environment
+        else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+          returnUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+        }
+        // Local development
+        else {
+          returnUrl = 'http://localhost:5000';
+        }
+        
         const returnTo = encodeURIComponent(returnUrl);
         
         req.logout((err) => {

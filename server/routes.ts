@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth0";
 import { setupDemoAuth } from "./demoAuth";
+import { setupAuth0Debug } from "./auth0Debug";
 import { insertProviderSchema, insertServiceSchema, insertBookingSchema, insertMessageSchema, insertReviewSchema, insertProviderCredentialSchema } from "@shared/schema";
 import { emailService } from "./emailService";
 import { z } from "zod";
@@ -26,6 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   try {
     await setupAuth(app);
+    setupAuth0Debug(app); // Add debug endpoints
     console.log("Auth0 authentication setup completed successfully");
   } catch (error) {
     console.error("Failed to setup Auth0 authentication:", error);
