@@ -5,8 +5,6 @@ import type { Express, RequestHandler } from 'express';
 import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 
-declare module 'passport-auth0';
-
 // Auth0 Configuration for Healthcare Application
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week

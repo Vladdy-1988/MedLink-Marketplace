@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Heart, Plus, Edit, Trash2, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,9 +63,9 @@ export function HealthProfileManagement() {
   });
 
   // Fetch health profile
-  const { data: healthProfile, isLoading } = useQuery({
+  const { data: healthProfile, isLoading } = useQuery<HealthProfile | null>({
     queryKey: ['/api/user/health-profile'],
-    queryFn: () => apiRequest('GET', '/api/user/health-profile'),
+    queryFn: () => apiRequestJson<HealthProfile | null>('GET', '/api/user/health-profile'),
   });
 
   // Create or update health profile mutation

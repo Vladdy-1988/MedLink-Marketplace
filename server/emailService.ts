@@ -23,7 +23,7 @@ export class EmailService {
         to: params.to,
         from: params.from || this.fromEmail,
         subject: params.subject,
-        text: params.text,
+        text: params.text || "",
         html: params.html,
       });
       return true;

@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, Plus, Edit, Trash2, Star, Calendar } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,9 +56,9 @@ export function PaymentMethodManagement() {
   });
 
   // Fetch payment methods
-  const { data: paymentMethods = [], isLoading } = useQuery({
+  const { data: paymentMethods = [], isLoading } = useQuery<PaymentMethod[]>({
     queryKey: ['/api/user/payment-methods'],
-    queryFn: () => apiRequest('GET', '/api/user/payment-methods'),
+    queryFn: () => apiRequestJson<PaymentMethod[]>('GET', '/api/user/payment-methods'),
   });
 
   // Create payment method mutation

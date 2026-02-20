@@ -143,30 +143,6 @@ export class ObjectStorageService {
     });
   }
 
-  // Gets the upload URL for provider documents.
-  async getProviderDocumentUploadURL(): Promise<string> {
-    const privateObjectDir = this.getPrivateObjectDir();
-    if (!privateObjectDir) {
-      throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
-          "tool and set PRIVATE_OBJECT_DIR env var."
-      );
-    }
-
-    const documentId = randomUUID();
-    const fullPath = `${privateObjectDir}/provider-documents/${documentId}`;
-
-    const { bucketName, objectName } = parseObjectPath(fullPath);
-
-    // Sign URL for PUT method with TTL
-    return signObjectURL({
-      bucketName,
-      objectName,
-      method: "PUT",
-      ttlSec: 900,
-    });
-  }
-
   // Gets the provider document file.
   async getProviderDocumentFile(documentPath: string): Promise<File> {
     if (!documentPath.startsWith("/objects/provider-documents/")) {
@@ -217,50 +193,6 @@ export class ObjectStorageService {
     return `/objects/provider-documents/${documentId}`;
   }
 
-  // Gets the provider document file from the object path.
-  async getProviderDocumentFile(objectPath: string): Promise<File> {
-    if (!objectPath.startsWith("/objects/provider-documents/")) {
-      throw new ObjectNotFoundError();
-    }
-
-    const documentId = objectPath.replace("/objects/provider-documents/", "");
-    let entityDir = this.getPrivateObjectDir();
-    if (!entityDir.endsWith("/")) {
-      entityDir = `${entityDir}/`;
-    }
-    const documentPath = `${entityDir}provider-documents/${documentId}`;
-    const { bucketName, objectName } = parseObjectPath(documentPath);
-    const bucket = objectStorageClient.bucket(bucketName);
-    const documentFile = bucket.file(objectName);
-    const [exists] = await documentFile.exists();
-    if (!exists) {
-      throw new ObjectNotFoundError();
-    }
-    return documentFile;
-  }
-
-  normalizeProviderDocumentPath(rawPath: string): string {
-    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
-      return rawPath;
-    }
-  
-    // Extract the path from the URL by removing query parameters and domain
-    const url = new URL(rawPath);
-    const rawObjectPath = url.pathname;
-  
-    let documentDir = this.getPrivateObjectDir();
-    if (!documentDir.endsWith("/")) {
-      documentDir = `${documentDir}/`;
-    }
-  
-    if (!rawObjectPath.startsWith(`${documentDir}provider-documents/`)) {
-      return rawObjectPath;
-    }
-  
-    // Extract the document ID from the path
-    const documentId = rawObjectPath.slice(`${documentDir}provider-documents/`.length);
-    return `/objects/provider-documents/${documentId}`;
-  }
 }
 
 function parseObjectPath(path: string): {

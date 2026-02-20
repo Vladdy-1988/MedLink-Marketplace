@@ -38,7 +38,7 @@ export default function ProviderVerification() {
   const [selectedCredential, setSelectedCredential] = useState<PendingCredential | null>(null);
   const [reviewNotes, setReviewNotes] = useState("");
 
-  const { data: pendingCredentials, isLoading } = useQuery({
+  const { data: pendingCredentials, isLoading } = useQuery<PendingCredential[]>({
     queryKey: ['/api/admin/pending-credentials'],
     enabled: user?.userType === 'admin',
   });

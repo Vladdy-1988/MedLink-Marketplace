@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -117,6 +117,15 @@ interface SystemSetting {
   updatedAt: string;
 }
 
+interface AdminUser {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  userType: string;
+  createdAt: string;
+}
+
 export default function ComprehensiveAdminPortal() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -139,11 +148,19 @@ export default function ComprehensiveAdminPortal() {
   });
 
   const { data: transactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
-    queryKey: ['/api/admin/transactions', transactionFilter],
+    queryKey: ['/api/admin/transactions', transactionFilter.status, transactionFilter.type],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (transactionFilter.status) params.set("status", transactionFilter.status);
+      if (transactionFilter.type) params.set("type", transactionFilter.type);
+      const query = params.toString();
+      const endpoint = query ? `/api/admin/transactions?${query}` : "/api/admin/transactions";
+      return apiRequestJson<Transaction[]>("GET", endpoint);
+    },
     enabled: user?.userType === 'admin',
   });
 
-  const { data: allUsers, isLoading: usersLoading } = useQuery({
+  const { data: allUsers, isLoading: usersLoading } = useQuery<AdminUser[]>({
     queryKey: ['/api/admin/users'],
     enabled: user?.userType === 'admin',
   });

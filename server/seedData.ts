@@ -117,7 +117,8 @@ export async function seedSampleData() {
     let providerId1: number = 0;
     let providerId2: number = 0;
 
-    for (const [index, provider] of providers.entries()) {
+    for (let index = 0; index < providers.length; index++) {
+      const provider = providers[index];
       const createdProvider = await storage.createProvider(provider);
       if (index === 0) providerId1 = createdProvider.id;
       if (index === 1) providerId2 = createdProvider.id;
@@ -185,7 +186,14 @@ export async function seedSampleData() {
     ];
 
     for (const service of services) {
-      await storage.createService(service);
+      await storage.createService({
+        providerId: service.providerId,
+        name: service.name,
+        description: service.description,
+        category: service.category,
+        duration: service.estimatedDuration,
+        price: service.basePrice.toFixed(2),
+      });
       console.log(`✓ Created service: ${service.name}`);
     }
 

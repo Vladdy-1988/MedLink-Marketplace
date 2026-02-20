@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Phone, Plus, Edit, Trash2, Heart, Users } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,9 +55,9 @@ export function EmergencyContactManagement() {
   });
 
   // Fetch emergency contacts
-  const { data: contacts = [], isLoading } = useQuery({
+  const { data: contacts = [], isLoading } = useQuery<EmergencyContact[]>({
     queryKey: ['/api/user/emergency-contacts'],
-    queryFn: () => apiRequest('GET', '/api/user/emergency-contacts'),
+    queryFn: () => apiRequestJson<EmergencyContact[]>('GET', '/api/user/emergency-contacts'),
   });
 
   // Create contact mutation

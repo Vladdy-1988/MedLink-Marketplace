@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Users, Plus, Edit, Trash2, User, Baby, Heart } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,9 +57,9 @@ export function FamilyMemberManagement() {
   });
 
   // Fetch family members
-  const { data: members = [], isLoading } = useQuery({
+  const { data: members = [], isLoading } = useQuery<FamilyMember[]>({
     queryKey: ['/api/user/family-members'],
-    queryFn: () => apiRequest('GET', '/api/user/family-members'),
+    queryFn: () => apiRequestJson<FamilyMember[]>('GET', '/api/user/family-members'),
   });
 
   // Create member mutation

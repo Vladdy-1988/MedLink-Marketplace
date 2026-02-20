@@ -737,14 +737,18 @@ export class DatabaseStorage implements IStorage {
         totalAmount: bookings.totalAmount,
         paymentStatus: bookings.paymentStatus,
         paymentIntentId: bookings.paymentIntentId,
-        notes: bookings.notes,
+        notes: bookings.patientNotes,
         createdAt: bookings.createdAt,
         updatedAt: bookings.updatedAt,
         patientName: sql`CONCAT(${users.firstName}, ' ', ${users.lastName})`.as('patientName'),
         patientEmail: users.email,
-        providerName: providers.fullName,
+        providerName: sql<string>`(
+          SELECT ${users.firstName} || ' ' || ${users.lastName}
+          FROM ${users}
+          WHERE ${users.id} = ${providers.userId}
+        )`.as('providerName'),
         serviceName: services.name,
-        serviceType: services.type,
+        serviceType: services.category,
       })
       .from(bookings)
       .leftJoin(users, eq(bookings.patientId, users.id))
@@ -1288,7 +1292,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(providers, eq(transactions.providerId, providers.id))
       .leftJoin(users, eq(providers.userId, users.id));
 
-    let whereConditions = [];
+    const whereConditions: any[] = [];
     if (filters?.status) {
       whereConditions.push(eq(transactions.status, filters.status));
     }
@@ -1299,12 +1303,13 @@ export class DatabaseStorage implements IStorage {
       whereConditions.push(eq(transactions.providerId, filters.providerId));
     }
 
-    let query = baseQuery;
     if (whereConditions.length > 0) {
-      query = baseQuery.where(and(...whereConditions));
+      return await baseQuery
+        .where(and(...whereConditions))
+        .orderBy(desc(transactions.createdAt));
     }
 
-    return await query.orderBy(desc(transactions.createdAt));
+    return await baseQuery.orderBy(desc(transactions.createdAt));
   }
 
   async updateTransactionStatus(id: number, status: string): Promise<void> {

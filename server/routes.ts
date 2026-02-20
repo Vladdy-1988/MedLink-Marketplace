@@ -18,6 +18,43 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-07-30.basil",
 });
 
+function parseListValue(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item).trim())
+      .filter((item) => item.length > 0);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+  return [];
+}
+
+function listToDbText(value: unknown): string | null {
+  const list = parseListValue(value);
+  return list.length ? list.join(", ") : null;
+}
+
+function toDateInput(value: unknown): string {
+  if (!value) return "";
+  const date = new Date(value as string | Date);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
+function splitFullName(fullName: string): { firstName: string; lastName: string } {
+  const name = fullName.trim();
+  if (!name) return { firstName: "", lastName: "" };
+  const [firstName, ...rest] = name.split(/\s+/);
+  return {
+    firstName,
+    lastName: rest.join(" "),
+  };
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session middleware first
   app.use(getSession());
@@ -720,8 +757,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/addresses', checkAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const address = await storage.createUserAddress({ ...req.body, userId });
-      res.status(201).json(address);
+      const payload = {
+        userId,
+        type: req.body.type,
+        streetAddress: req.body.streetAddress,
+        city: req.body.city,
+        province: req.body.province,
+        postalCode: req.body.postalCode,
+        country: req.body.country || "Canada",
+        isDefault: Boolean(req.body.isDefault),
+      };
+      const address = await storage.createUserAddress(payload);
+      res.status(201).json({ ...address, label: null });
     } catch (error) {
       console.error('Error creating address:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -732,7 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const addresses = await storage.getUserAddresses(userId);
-      res.json(addresses);
+      res.json(addresses.map((address) => ({ ...address, label: null })));
     } catch (error) {
       console.error('Error fetching addresses:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -742,8 +789,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/addresses/:id', checkAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const address = await storage.updateUserAddress(id, req.body);
-      res.json(address);
+      const updates: Record<string, unknown> = {};
+      const fields = ["type", "streetAddress", "city", "province", "postalCode", "country", "isDefault"];
+      for (const field of fields) {
+        if (req.body[field] !== undefined) {
+          updates[field] = field === "isDefault" ? Boolean(req.body[field]) : req.body[field];
+        }
+      }
+      const address = await storage.updateUserAddress(id, updates);
+      res.json({ ...address, label: null });
     } catch (error) {
       console.error('Error updating address:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -777,8 +831,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/emergency-contacts', checkAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const contact = await storage.createEmergencyContact({ ...req.body, userId });
-      res.status(201).json(contact);
+      const payload = {
+        userId,
+        name: req.body.name,
+        relationship: req.body.relationship,
+        phoneNumber: req.body.phone ?? req.body.phoneNumber,
+        email: req.body.email || null,
+        isPrimary: Boolean(req.body.isEmergencyContact ?? req.body.isPrimary),
+      };
+      const contact = await storage.createEmergencyContact(payload);
+      res.status(201).json({
+        ...contact,
+        phone: contact.phoneNumber,
+        isEmergencyContact: contact.isPrimary,
+        canMakeMedicalDecisions: false,
+        address: "",
+        notes: "",
+      });
     } catch (error) {
       console.error('Error creating emergency contact:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -789,7 +858,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const contacts = await storage.getEmergencyContacts(userId);
-      res.json(contacts);
+      res.json(contacts.map((contact) => ({
+        ...contact,
+        phone: contact.phoneNumber,
+        isEmergencyContact: contact.isPrimary,
+        canMakeMedicalDecisions: false,
+        address: "",
+        notes: "",
+      })));
     } catch (error) {
       console.error('Error fetching emergency contacts:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -799,8 +875,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/emergency-contacts/:id', checkAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const contact = await storage.updateEmergencyContact(id, req.body);
-      res.json(contact);
+      const updates: Record<string, unknown> = {};
+      if (req.body.name !== undefined) updates.name = req.body.name;
+      if (req.body.relationship !== undefined) updates.relationship = req.body.relationship;
+      if (req.body.phone !== undefined || req.body.phoneNumber !== undefined) {
+        updates.phoneNumber = req.body.phone ?? req.body.phoneNumber;
+      }
+      if (req.body.email !== undefined) updates.email = req.body.email || null;
+      if (req.body.isEmergencyContact !== undefined || req.body.isPrimary !== undefined) {
+        updates.isPrimary = Boolean(req.body.isEmergencyContact ?? req.body.isPrimary);
+      }
+      const contact = await storage.updateEmergencyContact(id, updates);
+      res.json({
+        ...contact,
+        phone: contact.phoneNumber,
+        isEmergencyContact: contact.isPrimary,
+        canMakeMedicalDecisions: false,
+        address: "",
+        notes: "",
+      });
     } catch (error) {
       console.error('Error updating emergency contact:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -822,8 +915,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/health-profile', checkAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const profile = await storage.createHealthProfile({ ...req.body, userId });
-      res.status(201).json(profile);
+      const metadata = {
+        dietaryRestrictions: parseListValue(req.body.dietaryRestrictions),
+        exerciseLevel: req.body.exerciseLevel || "",
+        smokingStatus: req.body.smokingStatus || "",
+        alcoholConsumption: req.body.alcoholConsumption || "",
+      };
+      const profile = await storage.createHealthProfile({
+        userId,
+        height: req.body.height || null,
+        weight: req.body.weight || null,
+        bloodType: req.body.bloodType || null,
+        allergies: listToDbText(req.body.allergies),
+        medications: listToDbText(req.body.medications),
+        chronicConditions: listToDbText(req.body.medicalConditions),
+        emergencyMedicalInfo: req.body.emergencyMedicalInfo || null,
+        medicalHistory: JSON.stringify(metadata),
+        surgicalHistory: null,
+        familyHistory: null,
+      });
+      res.status(201).json({
+        ...profile,
+        allergies: parseListValue(profile.allergies),
+        medications: parseListValue(profile.medications),
+        medicalConditions: parseListValue(profile.chronicConditions),
+        emergencyMedicalInfo: profile.emergencyMedicalInfo || "",
+        dietaryRestrictions: metadata.dietaryRestrictions,
+        exerciseLevel: metadata.exerciseLevel,
+        smokingStatus: metadata.smokingStatus,
+        alcoholConsumption: metadata.alcoholConsumption,
+      });
     } catch (error) {
       console.error('Error creating health profile:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -834,7 +955,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const profile = await storage.getHealthProfile(userId);
-      res.json(profile);
+      if (!profile) {
+        return res.json(null);
+      }
+
+      let metadata: any = {};
+      if (profile.medicalHistory) {
+        try {
+          metadata = JSON.parse(profile.medicalHistory);
+        } catch {
+          metadata = {};
+        }
+      }
+
+      res.json({
+        ...profile,
+        allergies: parseListValue(profile.allergies),
+        medications: parseListValue(profile.medications),
+        medicalConditions: parseListValue(profile.chronicConditions),
+        emergencyMedicalInfo: profile.emergencyMedicalInfo || "",
+        dietaryRestrictions: parseListValue(metadata.dietaryRestrictions),
+        exerciseLevel: metadata.exerciseLevel || "",
+        smokingStatus: metadata.smokingStatus || "",
+        alcoholConsumption: metadata.alcoholConsumption || "",
+      });
     } catch (error) {
       console.error('Error fetching health profile:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -844,8 +988,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/health-profile/:id', checkAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const profile = await storage.updateHealthProfile(id, req.body);
-      res.json(profile);
+      const metadata = {
+        dietaryRestrictions: parseListValue(req.body.dietaryRestrictions),
+        exerciseLevel: req.body.exerciseLevel || "",
+        smokingStatus: req.body.smokingStatus || "",
+        alcoholConsumption: req.body.alcoholConsumption || "",
+      };
+      const profile = await storage.updateHealthProfile(id, {
+        height: req.body.height || null,
+        weight: req.body.weight || null,
+        bloodType: req.body.bloodType || null,
+        allergies: listToDbText(req.body.allergies),
+        medications: listToDbText(req.body.medications),
+        chronicConditions: listToDbText(req.body.medicalConditions),
+        emergencyMedicalInfo: req.body.emergencyMedicalInfo || null,
+        medicalHistory: JSON.stringify(metadata),
+      });
+      res.json({
+        ...profile,
+        allergies: parseListValue(profile.allergies),
+        medications: parseListValue(profile.medications),
+        medicalConditions: parseListValue(profile.chronicConditions),
+        emergencyMedicalInfo: profile.emergencyMedicalInfo || "",
+        dietaryRestrictions: metadata.dietaryRestrictions,
+        exerciseLevel: metadata.exerciseLevel,
+        smokingStatus: metadata.smokingStatus,
+        alcoholConsumption: metadata.alcoholConsumption,
+      });
     } catch (error) {
       console.error('Error updating health profile:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -856,8 +1025,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/family-members', checkAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const member = await storage.createFamilyMember({ ...req.body, userId });
-      res.status(201).json(member);
+      const { firstName, lastName } = splitFullName(req.body.name || "");
+      const member = await storage.createFamilyMember({
+        userId,
+        firstName,
+        lastName,
+        relationship: req.body.relationship,
+        dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null,
+        gender: null,
+        healthProfileId: null,
+      });
+      res.status(201).json({
+        ...member,
+        name: `${member.firstName} ${member.lastName}`.trim(),
+        dateOfBirth: toDateInput(member.dateOfBirth),
+        phone: "",
+        email: "",
+        address: "",
+        emergencyContact: false,
+        medicalInfo: "",
+        notes: "",
+      });
     } catch (error) {
       console.error('Error creating family member:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -868,7 +1056,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const members = await storage.getFamilyMembers(userId);
-      res.json(members);
+      res.json(members.map((member) => ({
+        ...member,
+        name: `${member.firstName} ${member.lastName}`.trim(),
+        dateOfBirth: toDateInput(member.dateOfBirth),
+        phone: "",
+        email: "",
+        address: "",
+        emergencyContact: false,
+        medicalInfo: "",
+        notes: "",
+      })));
     } catch (error) {
       console.error('Error fetching family members:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -878,8 +1076,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/family-members/:id', checkAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const member = await storage.updateFamilyMember(id, req.body);
-      res.json(member);
+      const updates: Record<string, unknown> = {};
+      if (req.body.name !== undefined) {
+        const { firstName, lastName } = splitFullName(req.body.name);
+        updates.firstName = firstName;
+        updates.lastName = lastName;
+      }
+      if (req.body.relationship !== undefined) updates.relationship = req.body.relationship;
+      if (req.body.dateOfBirth !== undefined) {
+        updates.dateOfBirth = req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null;
+      }
+      const member = await storage.updateFamilyMember(id, updates);
+      res.json({
+        ...member,
+        name: `${member.firstName} ${member.lastName}`.trim(),
+        dateOfBirth: toDateInput(member.dateOfBirth),
+        phone: "",
+        email: "",
+        address: "",
+        emergencyContact: false,
+        medicalInfo: "",
+        notes: "",
+      });
     } catch (error) {
       console.error('Error updating family member:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -901,8 +1119,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/insurance', checkAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const insurance = await storage.createInsuranceInfo({ ...req.body, userId });
-      res.status(201).json(insurance);
+      const insurance = await storage.createInsuranceInfo({
+        userId,
+        provider: req.body.providerName ?? req.body.provider,
+        policyNumber: req.body.policyNumber,
+        groupNumber: req.body.groupNumber || null,
+        memberNumber: req.body.subscriberName ?? req.body.memberNumber ?? null,
+        planType: req.body.relationship ?? req.body.planType ?? null,
+        copayAmount: req.body.copay ? String(req.body.copay).replace(/[^\d.-]/g, "") : null,
+        deductibleAmount: req.body.deductible ? String(req.body.deductible).replace(/[^\d.-]/g, "") : null,
+        effectiveDate: req.body.effectiveDate ? new Date(req.body.effectiveDate) : null,
+        expiryDate: (req.body.expirationDate || req.body.expiryDate)
+          ? new Date(req.body.expirationDate || req.body.expiryDate)
+          : null,
+        isPrimary: Boolean(req.body.isPrimary),
+      });
+      res.status(201).json({
+        ...insurance,
+        providerName: insurance.provider,
+        subscriberName: insurance.memberNumber || "",
+        relationship: insurance.planType || "self",
+        effectiveDate: toDateInput(insurance.effectiveDate),
+        expirationDate: toDateInput(insurance.expiryDate),
+        copay: insurance.copayAmount || "",
+        deductible: insurance.deductibleAmount || "",
+        notes: "",
+      });
     } catch (error) {
       console.error('Error creating insurance info:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -913,7 +1155,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const insurance = await storage.getInsuranceInfo(userId);
-      res.json(insurance);
+      res.json(insurance.map((item) => ({
+        ...item,
+        providerName: item.provider,
+        subscriberName: item.memberNumber || "",
+        relationship: item.planType || "self",
+        effectiveDate: toDateInput(item.effectiveDate),
+        expirationDate: toDateInput(item.expiryDate),
+        copay: item.copayAmount || "",
+        deductible: item.deductibleAmount || "",
+        notes: "",
+      })));
     } catch (error) {
       console.error('Error fetching insurance info:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -923,8 +1175,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/insurance/:id', checkAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const insurance = await storage.updateInsuranceInfo(id, req.body);
-      res.json(insurance);
+      const updates: Record<string, unknown> = {};
+      if (req.body.providerName !== undefined || req.body.provider !== undefined) {
+        updates.provider = req.body.providerName ?? req.body.provider;
+      }
+      if (req.body.policyNumber !== undefined) updates.policyNumber = req.body.policyNumber;
+      if (req.body.groupNumber !== undefined) updates.groupNumber = req.body.groupNumber || null;
+      if (req.body.subscriberName !== undefined || req.body.memberNumber !== undefined) {
+        updates.memberNumber = req.body.subscriberName ?? req.body.memberNumber ?? null;
+      }
+      if (req.body.relationship !== undefined || req.body.planType !== undefined) {
+        updates.planType = req.body.relationship ?? req.body.planType ?? null;
+      }
+      if (req.body.copay !== undefined || req.body.copayAmount !== undefined) {
+        const rawCopay = req.body.copay ?? req.body.copayAmount;
+        updates.copayAmount = rawCopay ? String(rawCopay).replace(/[^\d.-]/g, "") : null;
+      }
+      if (req.body.deductible !== undefined || req.body.deductibleAmount !== undefined) {
+        const rawDeductible = req.body.deductible ?? req.body.deductibleAmount;
+        updates.deductibleAmount = rawDeductible ? String(rawDeductible).replace(/[^\d.-]/g, "") : null;
+      }
+      if (req.body.effectiveDate !== undefined) {
+        updates.effectiveDate = req.body.effectiveDate ? new Date(req.body.effectiveDate) : null;
+      }
+      if (req.body.expirationDate !== undefined || req.body.expiryDate !== undefined) {
+        const rawExpiry = req.body.expirationDate ?? req.body.expiryDate;
+        updates.expiryDate = rawExpiry ? new Date(rawExpiry) : null;
+      }
+      if (req.body.isPrimary !== undefined) updates.isPrimary = Boolean(req.body.isPrimary);
+
+      const insurance = await storage.updateInsuranceInfo(id, updates);
+      res.json({
+        ...insurance,
+        providerName: insurance.provider,
+        subscriberName: insurance.memberNumber || "",
+        relationship: insurance.planType || "self",
+        effectiveDate: toDateInput(insurance.effectiveDate),
+        expirationDate: toDateInput(insurance.expiryDate),
+        copay: insurance.copayAmount || "",
+        deductible: insurance.deductibleAmount || "",
+        notes: "",
+      });
     } catch (error) {
       console.error('Error updating insurance info:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -946,8 +1237,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/payment-methods', checkAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const method = await storage.createPaymentMethod({ ...req.body, userId });
-      res.status(201).json(method);
+      const cardNumber = String(req.body.cardNumber || "");
+      const method = await storage.createPaymentMethod({
+        userId,
+        stripePaymentMethodId: req.body.stripePaymentMethodId || `manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        type: req.body.type || "credit",
+        last4: cardNumber ? cardNumber.slice(-4) : (req.body.last4 || null),
+        brand: req.body.type || req.body.brand || "card",
+        expiryMonth: req.body.expiryMonth ? Number(req.body.expiryMonth) : null,
+        expiryYear: req.body.expiryYear ? Number(req.body.expiryYear) : null,
+        isDefault: Boolean(req.body.isDefault),
+        billingAddressId: null,
+      });
+      res.status(201).json({
+        ...method,
+        maskedCardNumber: method.last4 || "0000",
+        holderName: "Card Holder",
+        billingAddress: "",
+        nickname: "",
+        cardNumber: "",
+        expiryMonth: method.expiryMonth ? String(method.expiryMonth).padStart(2, "0") : "",
+        expiryYear: method.expiryYear ? String(method.expiryYear) : "",
+      });
     } catch (error) {
       console.error('Error creating payment method:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -958,7 +1269,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const methods = await storage.getPaymentMethods(userId);
-      res.json(methods);
+      res.json(methods.map((method) => ({
+        ...method,
+        maskedCardNumber: method.last4 || "0000",
+        holderName: "Card Holder",
+        billingAddress: "",
+        nickname: "",
+        cardNumber: "",
+        expiryMonth: method.expiryMonth ? String(method.expiryMonth).padStart(2, "0") : "",
+        expiryYear: method.expiryYear ? String(method.expiryYear) : "",
+      })));
     } catch (error) {
       console.error('Error fetching payment methods:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -968,8 +1288,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/payment-methods/:id', checkAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const method = await storage.updatePaymentMethod(id, req.body);
-      res.json(method);
+      const updates: Record<string, unknown> = {};
+      if (req.body.type !== undefined) updates.type = req.body.type;
+      if (req.body.cardNumber !== undefined) {
+        const cardNumber = String(req.body.cardNumber || "");
+        if (cardNumber) updates.last4 = cardNumber.slice(-4);
+      }
+      if (req.body.expiryMonth !== undefined) {
+        updates.expiryMonth = req.body.expiryMonth ? Number(req.body.expiryMonth) : null;
+      }
+      if (req.body.expiryYear !== undefined) {
+        updates.expiryYear = req.body.expiryYear ? Number(req.body.expiryYear) : null;
+      }
+      if (req.body.isDefault !== undefined) updates.isDefault = Boolean(req.body.isDefault);
+
+      const method = await storage.updatePaymentMethod(id, updates);
+      res.json({
+        ...method,
+        maskedCardNumber: method.last4 || "0000",
+        holderName: "Card Holder",
+        billingAddress: "",
+        nickname: "",
+        cardNumber: "",
+        expiryMonth: method.expiryMonth ? String(method.expiryMonth).padStart(2, "0") : "",
+        expiryYear: method.expiryYear ? String(method.expiryYear) : "",
+      });
     } catch (error) {
       console.error('Error updating payment method:', error);
       res.status(500).json({ error: 'Internal server error' });

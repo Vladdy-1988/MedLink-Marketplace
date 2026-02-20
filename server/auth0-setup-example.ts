@@ -1,7 +1,7 @@
 // Example Auth0 integration for healthcare application
 // This would replace the current Replit Auth setup
 
-import { Strategy as Auth0Strategy } from 'passport-auth0';
+import { Strategy as Auth0Strategy, type Auth0Profile } from 'passport-auth0';
 import passport from 'passport';
 import session from 'express-session';
 import type { Express } from 'express';
@@ -30,7 +30,13 @@ export function setupAuth0(app: Express) {
     clientID: process.env.AUTH0_CLIENT_ID!,
     clientSecret: process.env.AUTH0_CLIENT_SECRET!,
     callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:5000/callback'
-  }, async (accessToken, refreshToken, extraParams, profile, done) => {
+  }, async (
+    accessToken: string,
+    refreshToken: string,
+    extraParams: Record<string, unknown>,
+    profile: Auth0Profile,
+    done: (error: unknown, user?: unknown) => void,
+  ) => {
     // Upsert user in database
     try {
       const user = await storage.upsertUser({

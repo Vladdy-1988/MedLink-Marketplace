@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Shield, Plus, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,9 +61,9 @@ export function InsuranceManagement() {
   });
 
   // Fetch insurance information
-  const { data: insuranceList = [], isLoading } = useQuery({
+  const { data: insuranceList = [], isLoading } = useQuery<Insurance[]>({
     queryKey: ['/api/user/insurance'],
-    queryFn: () => apiRequest('GET', '/api/user/insurance'),
+    queryFn: () => apiRequestJson<Insurance[]>('GET', '/api/user/insurance'),
   });
 
   // Create insurance mutation

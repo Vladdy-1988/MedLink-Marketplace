@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Plus, Edit, Trash2, Home, Building, Star } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,9 +56,9 @@ export function AddressManagement() {
   });
 
   // Fetch addresses
-  const { data: addresses = [], isLoading } = useQuery({
+  const { data: addresses = [], isLoading } = useQuery<Address[]>({
     queryKey: ['/api/user/addresses'],
-    queryFn: () => apiRequest('GET', '/api/user/addresses'),
+    queryFn: () => apiRequestJson<Address[]>('GET', '/api/user/addresses'),
   });
 
   // Create address mutation

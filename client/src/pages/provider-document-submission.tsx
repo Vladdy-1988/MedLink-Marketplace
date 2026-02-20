@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, apiRequestJson, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,8 +38,9 @@ export default function ProviderDocumentSubmission() {
   const [expiryDate, setExpiryDate] = useState("");
   const [uploadedDocumentUrl, setUploadedDocumentUrl] = useState("");
 
-  const { data: credentials, isLoading } = useQuery({
+  const { data: credentials, isLoading } = useQuery<ProviderCredential[]>({
     queryKey: ['/api/providers/credentials', user?.id],
+    queryFn: () => apiRequestJson<ProviderCredential[]>('GET', `/api/providers/credentials/${user?.id}`),
     enabled: !!user?.id,
   });
 
