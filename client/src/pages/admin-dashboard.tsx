@@ -30,6 +30,7 @@ export default function AdminDashboard() {
 
   // Redirect to home if not authenticated or not an admin
   useEffect(() => {
+    // UI-only role check for dashboard routing. Server/API enforce real authorization.
     if (!authLoading && (!isAuthenticated || user?.userType !== 'admin')) {
       toast({
         title: "Unauthorized",
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
 
   const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ["/api/admin/stats"],
+    // UI-only role check for query gating. Server/API enforce real authorization.
     enabled: !!user?.id && user?.userType === 'admin' && isAuthenticated,
   });
 
@@ -64,6 +66,7 @@ export default function AdminDashboard() {
 
   const { data: pendingProviders, isLoading: pendingLoading, error: pendingError } = useQuery({
     queryKey: ["/api/admin/pending-providers"],
+    // UI-only role check for query gating. Server/API enforce real authorization.
     enabled: !!user?.id && user?.userType === 'admin' && isAuthenticated,
   });
 
@@ -140,6 +143,7 @@ export default function AdminDashboard() {
     );
   }
 
+  // UI-only role check for rendering. Server/API enforce real authorization.
   if (!isAuthenticated || user?.userType !== 'admin') {
     return null;
   }

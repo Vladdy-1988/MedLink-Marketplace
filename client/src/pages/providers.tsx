@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { serviceCategories } from "@/lib/mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { serviceCategories } from "@/lib/serviceCatalog";
 import { Search, Filter, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -22,7 +23,7 @@ export default function Providers() {
   const [showRapidOnly, setShowRapidOnly] = useState(false);
 
   // Fetch real providers from API
-  const { data: providersData = [], isLoading: providersLoading } = useQuery({
+  const { data: providersData = [], isLoading: providersLoading, error: providersError } = useQuery({
     queryKey: ["/api/providers"],
     queryFn: async () => {
       const response = await apiRequest("GET", "/api/providers");
@@ -40,6 +41,7 @@ export default function Providers() {
 
   // Convert API data to provider format
   const allProviders = providersData.map((provider: any) => ({
+    services: Array.isArray(provider.services) ? provider.services : [],
     id: provider.id,
     userId: provider.userId,
     name: `${provider.firstName} ${provider.lastName}`,
@@ -47,14 +49,23 @@ export default function Providers() {
     experience: `${provider.yearsExperience} years exp.`,
     rating: parseFloat(provider.rating) || 4.5,
     reviewCount: provider.reviewCount || 0,
-    location: "Calgary, AB",
+    location:
+      Array.isArray(provider.serviceAreas) && provider.serviceAreas.length > 0
+        ? String(provider.serviceAreas[0])
+        : "Calgary, AB",
     price: "Message Provider",
     description: provider.bio || "Experienced healthcare provider offering quality in-home services.",
     image: provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
     verified: provider.isVerified || false,
     tags: [provider.specialization],
     category: provider.specialization.toLowerCase().replace(/\s+/g, '-'),
-    rapidService: false
+    rapidService: Array.isArray(provider.services)
+      ? provider.services.some((service: any) => {
+          const category = String(service?.category || "").toLowerCase();
+          const name = String(service?.name || "").toLowerCase();
+          return category.includes("rapid") || name.includes("rapid");
+        })
+      : false,
   }));
 
   if (providersLoading) {
@@ -62,10 +73,31 @@ export default function Providers() {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading providers...</p>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1">
+              <Skeleton className="h-[720px] w-full rounded-xl" />
+            </div>
+            <div className="lg:col-span-3 space-y-6">
+              <Skeleton className="h-10 w-64" />
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-[420px] w-full rounded-3xl" />
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (providersError) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Unable to Load Providers</h1>
+          <p className="text-gray-600">Please refresh and try again.</p>
         </div>
       </div>
     );
@@ -78,10 +110,18 @@ export default function Providers() {
                          provider.specialty.toLowerCase().includes(searchQuery.toLowerCase());
     
     // More flexible service matching - check against specialty and category
-    const matchesService = selectedServiceType === "all" || 
-                          provider.category === selectedServiceType ||
-                          provider.specialty.toLowerCase().replace(/\s+/g, '-') === selectedServiceType ||
-                          provider.specialty.toLowerCase().includes(selectedServiceType.replace(/-/g, ' '));
+    const serviceSlug = selectedServiceType.replace(/-/g, " ");
+    const matchesProviderSpecialty =
+      provider.category === selectedServiceType ||
+      provider.specialty.toLowerCase().replace(/\s+/g, "-") === selectedServiceType ||
+      provider.specialty.toLowerCase().includes(serviceSlug);
+    const matchesProviderServices = provider.services.some((service: any) => {
+      const category = String(service?.category || "").toLowerCase().replace(/\s+/g, "-");
+      const name = String(service?.name || "").toLowerCase().replace(/\s+/g, "-");
+      return category === selectedServiceType || name.includes(selectedServiceType);
+    });
+    const matchesService =
+      selectedServiceType === "all" || matchesProviderSpecialty || matchesProviderServices;
     
     const matchesLocation = selectedLocation === "all" || provider.location.includes(selectedLocation);
     
@@ -103,6 +143,11 @@ export default function Providers() {
         return b.reviewCount - a.reviewCount;
     }
   });
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    selectedServiceType !== "all" ||
+    selectedLocation !== "all" ||
+    showRapidOnly;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -287,7 +332,11 @@ export default function Providers() {
             
             {sortedProviders.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-600 text-lg">No providers found matching your criteria.</p>
+                <p className="text-gray-600 text-lg">
+                  {hasActiveFilters
+                    ? "No providers found matching your criteria."
+                    : "No providers found in your area yet."}
+                </p>
                 <Button 
                   onClick={() => {
                     setSearchQuery("");

@@ -3,8 +3,8 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Star, MapPin, Clock, Users, Award, Heart, MessageCircle, Link as LinkIcon, Calendar, Shield, Phone, CheckCircle, ArrowRight } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Star, MapPin, Clock, Heart, MessageCircle, Calendar, Shield, CheckCircle, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,7 @@ export default function ProviderProfile() {
   const [isMessaging, setIsMessaging] = useState(false);
   
   // Fetch provider data from API
-  const { data: provider, isLoading } = useQuery({
+  const { data: provider, isLoading, isError } = useQuery({
     queryKey: ["/api/providers", providerId],
     queryFn: async () => {
       const response = await apiRequest("GET", `/api/providers/${providerId}`);
@@ -30,12 +30,48 @@ export default function ProviderProfile() {
     },
   });
 
+  const { data: servicesData = [], isLoading: servicesLoading } = useQuery({
+    queryKey: ["/api/providers", providerId, "services"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/providers/${providerId}/services`);
+      return response.json();
+    },
+    enabled: !!provider,
+  });
+
+  const { data: reviewsData = [], isLoading: reviewsLoading } = useQuery({
+    queryKey: ["/api/providers", providerId, "reviews"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/providers/${providerId}/reviews`);
+      return response.json();
+    },
+    enabled: !!provider,
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
         <Navigation />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+          <Skeleton className="h-[420px] w-full rounded-3xl" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Skeleton className="h-[320px] w-full rounded-3xl" />
+            <Skeleton className="h-[320px] w-full rounded-3xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+        <Navigation />
         <div className="flex justify-center items-center py-20">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Unable to Load Provider</h1>
+            <p className="text-gray-600">Please refresh and try again.</p>
+          </div>
         </div>
       </div>
     );
@@ -57,37 +93,59 @@ export default function ProviderProfile() {
     );
   }
 
-  const services = [
-    {
-      id: 1,
-      name: "Wound Care",
-      description: "Professional wound assessment and dressing changes",
-      duration: 60
-    },
-    {
-      id: 2,
-      name: "Medication Management",
-      description: "Medication reviews and administration support",
-      duration: 45
-    }
-  ];
+  const fullName = `${provider.firstName || ""} ${provider.lastName || ""}`.trim();
+  const services = (servicesData as any[]).map((service) => ({
+    ...service,
+    duration: Number(service.duration),
+    price: Number(service.price),
+  }));
+  const defaultServiceId = services[0]?.id || 1;
+  const reviews = (reviewsData as any[]).map((review) => ({
+    ...review,
+    patientName: review.patientName || "Verified Patient",
+    date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
+  }));
 
-  const reviews = [
-    {
-      id: 1,
-      patientName: "Margaret R.",
-      rating: 5,
-      comment: "Sarah was incredibly professional and caring. Her wound care expertise helped my father heal much faster than expected.",
-      date: "2 days ago"
-    },
-    {
-      id: 2,
-      patientName: "John D.",
-      rating: 5,
-      comment: "Excellent service and very knowledgeable. Would definitely recommend to others.",
-      date: "1 week ago"
+  const sendProviderMessage = async (serviceName?: string) => {
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to message this healthcare provider and get a personalized quote",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1500);
+      return;
     }
-  ];
+
+    setIsMessaging(true);
+    try {
+      const subject = serviceName ? ` regarding ${serviceName}` : "";
+      const messageData = {
+        receiverId: provider.userId,
+        content: `Hi ${fullName}, I'm interested in your healthcare services${subject} and would like to get a personalized quote. Could you please share your availability and next steps? Thank you!`,
+      };
+
+      await apiRequest("POST", "/api/messages", messageData);
+
+      toast({
+        title: "Message Sent",
+        description: `Your message has been sent to ${fullName}`,
+      });
+
+      setLocation("/dashboard/patient?tab=messages");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsMessaging(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
@@ -218,47 +276,7 @@ export default function ProviderProfile() {
                 </div>
                 
                 <Button 
-                  onClick={async () => {
-                    if (!user) {
-                      toast({
-                        title: "Sign In Required",
-                        description: "Please sign in to message this healthcare provider and get a personalized quote",
-                        variant: "destructive",
-                      });
-                      setTimeout(() => {
-                        window.location.href = "/api/login";
-                      }, 1500);
-                      return;
-                    }
-
-                    setIsMessaging(true);
-                    try {
-                      // Send an initial message using provider data we already have
-                      const messageData = {
-                        receiverId: provider.userId,
-                        content: `Hi ${provider.firstName} ${provider.lastName}, I'm interested in your healthcare services and would like to get a personalized quote. Could you please provide more information about your availability and pricing? Thank you!`,
-                      };
-
-                      await apiRequest("POST", "/api/messages", messageData);
-                      
-                      toast({
-                        title: "Message Sent",
-                        description: `Your message has been sent to ${provider.firstName} ${provider.lastName}`,
-                      });
-
-                      // Navigate to messages page
-                      setLocation("/dashboard/patient?tab=messages");
-                    } catch (error) {
-                      console.error("Error sending message:", error);
-                      toast({
-                        title: "Error",
-                        description: "Failed to send message. Please try again.",
-                        variant: "destructive",
-                      });
-                    } finally {
-                      setIsMessaging(false);
-                    }
-                  }}
+                  onClick={() => sendProviderMessage()}
                   disabled={isMessaging}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
                 >
@@ -267,7 +285,7 @@ export default function ProviderProfile() {
                 </Button>
                 
                 {user ? (
-                  <Link href={`/booking/${provider.id}/1`}>
+                  <Link href={`/booking/${provider.id}/${defaultServiceId}`}>
                     <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl">
                       Schedule Consultation
                       <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -337,7 +355,7 @@ export default function ProviderProfile() {
           transition={{ duration: 0.8 }}
         >
           <div className="text-center mb-12">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">About {provider.name}</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">About {fullName}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
           </div>
           
@@ -345,7 +363,8 @@ export default function ProviderProfile() {
             <Card className="border-0 shadow-2xl bg-gradient-to-br from-white to-gray-50 rounded-3xl overflow-hidden">
               <CardContent className="p-12">
                 <p className="text-lg text-gray-700 leading-relaxed text-center">
-                  I am a dedicated {provider.specialty} with over 12 years of experience providing compassionate healthcare services. I specialize in wound care, medication management, and post-operative care, bringing professional medical services directly to patients' homes. My approach focuses on patient comfort, safety, and comprehensive care that promotes healing and wellness.
+                  {provider.bio ||
+                    `${fullName} is a dedicated ${provider.specialization} with ${provider.yearsExperience} years of experience providing compassionate, high-quality care in patients' homes.`}
                 </p>
               </CardContent>
             </Card>
@@ -365,8 +384,15 @@ export default function ProviderProfile() {
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {services.map((service, index) => (
+          {servicesLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <Skeleton key={index} className="h-[260px] w-full rounded-3xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {services.map((service, index) => (
               <motion.div
                 key={service.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -380,15 +406,12 @@ export default function ProviderProfile() {
                     <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
                     <div className="flex justify-between items-center mb-4">
                       <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        Message Provider
+                        ${service.price.toFixed(2)}
                       </div>
                       <div className="text-sm text-gray-500 font-medium">{service.duration} minutes</div>
                     </div>
                     <Button 
-                      onClick={() => {
-                        // TODO: Implement messaging functionality
-                        alert(`Requesting quote for ${service.name} with ${provider.name}...`);
-                      }}
+                      onClick={() => sendProviderMessage(service.name)}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       Message Provider
@@ -397,7 +420,13 @@ export default function ProviderProfile() {
                 </Card>
               </motion.div>
             ))}
-          </div>
+            </div>
+          )}
+          {!servicesLoading && services.length === 0 && (
+            <div className="text-center text-gray-600 mt-6">
+              This provider has not listed services yet.
+            </div>
+          )}
         </motion.section>
         
         {/* Certifications Section */}
@@ -447,8 +476,15 @@ export default function ProviderProfile() {
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {reviews.map((review, index) => (
+          {reviewsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <Skeleton key={index} className="h-[240px] w-full rounded-3xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {reviews.map((review, index) => (
               <motion.div
                 key={review.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -460,7 +496,7 @@ export default function ProviderProfile() {
                   <CardContent className="p-8">
                     <div className="flex items-center mb-6">
                       <div className="flex text-yellow-400">
-                        {[...Array(review.rating)].map((_, i) => (
+                        {[...Array(Number(review.rating) || 0)].map((_, i) => (
                           <Star key={i} className="h-5 w-5 fill-current" />
                         ))}
                       </div>
@@ -472,7 +508,13 @@ export default function ProviderProfile() {
                 </Card>
               </motion.div>
             ))}
-          </div>
+            </div>
+          )}
+          {!reviewsLoading && reviews.length === 0 && (
+            <div className="text-center text-gray-600 mt-6">
+              No reviews yet for this provider.
+            </div>
+          )}
         </motion.section>
       </div>
     </div>

@@ -15,24 +15,29 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const paymentMethodSchema = z.object({
-  type: z.enum(['credit', 'debit', 'bank']),
-  cardNumber: z.string().min(1, "Card number is required"),
-  expiryMonth: z.string().min(1, "Expiry month is required"),
-  expiryYear: z.string().min(1, "Expiry year is required"),
-  holderName: z.string().min(1, "Cardholder name is required"),
-  billingAddress: z.string().min(1, "Billing address is required"),
+  type: z.enum(["card", "bank_account"]),
+  brand: z.string().min(1, "Brand is required"),
+  last4: z.string().regex(/^\d{4}$/, "Last 4 digits are required"),
+  expiryMonth: z.string().optional(),
+  expiryYear: z.string().optional(),
   isDefault: z.boolean().default(false),
-  nickname: z.string().optional(),
 });
 
 type PaymentMethodFormData = z.infer<typeof paymentMethodSchema>;
 
-interface PaymentMethod extends PaymentMethodFormData {
+interface PaymentMethod {
   id: number;
   userId: string;
-  maskedCardNumber: string;
-  createdAt: Date;
-  updatedAt: Date;
+  stripePaymentMethodId: string;
+  type: string;
+  last4: string | null;
+  brand: string | null;
+  expiryMonth: number | null;
+  expiryYear: number | null;
+  isDefault: boolean;
+  billingAddressId: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function PaymentMethodManagement() {
@@ -44,32 +49,38 @@ export function PaymentMethodManagement() {
   const form = useForm<PaymentMethodFormData>({
     resolver: zodResolver(paymentMethodSchema),
     defaultValues: {
-      type: 'credit',
-      cardNumber: "",
+      type: "card",
+      brand: "",
+      last4: "",
       expiryMonth: "",
       expiryYear: "",
-      holderName: "",
-      billingAddress: "",
       isDefault: false,
-      nickname: "",
     },
   });
 
-  // Fetch payment methods
   const { data: paymentMethods = [], isLoading } = useQuery<PaymentMethod[]>({
-    queryKey: ['/api/user/payment-methods'],
-    queryFn: () => apiRequestJson<PaymentMethod[]>('GET', '/api/user/payment-methods'),
+    queryKey: ["/api/user/payment-methods"],
+    queryFn: () => apiRequestJson<PaymentMethod[]>("GET", "/api/user/payment-methods"),
   });
 
-  // Create payment method mutation
   const createMethodMutation = useMutation({
-    mutationFn: (data: PaymentMethodFormData) => apiRequest('POST', '/api/user/payment-methods', data),
+    mutationFn: (data: PaymentMethodFormData) =>
+      apiRequest("POST", "/api/user/payment-methods", {
+        stripePaymentMethodId: `manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        type: data.type,
+        brand: data.brand,
+        last4: data.last4,
+        expiryMonth: data.expiryMonth ? Number(data.expiryMonth) : null,
+        expiryYear: data.expiryYear ? Number(data.expiryYear) : null,
+        isDefault: data.isDefault,
+        billingAddressId: null,
+      }),
     onSuccess: () => {
       toast({
         title: "Payment Method Added",
         description: "Your payment method has been successfully added.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/payment-methods'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/payment-methods"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -82,16 +93,19 @@ export function PaymentMethodManagement() {
     },
   });
 
-  // Update payment method mutation
   const updateMethodMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<PaymentMethodFormData> }) =>
-      apiRequest('PUT', `/api/user/payment-methods/${id}`, data),
+      apiRequest("PUT", `/api/user/payment-methods/${id}`, {
+        ...data,
+        expiryMonth: data.expiryMonth === undefined ? undefined : (data.expiryMonth ? Number(data.expiryMonth) : null),
+        expiryYear: data.expiryYear === undefined ? undefined : (data.expiryYear ? Number(data.expiryYear) : null),
+      }),
     onSuccess: () => {
       toast({
         title: "Payment Method Updated",
         description: "Your payment method has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/payment-methods'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/payment-methods"] });
       setIsDialogOpen(false);
       setEditingMethod(null);
       form.reset();
@@ -105,15 +119,14 @@ export function PaymentMethodManagement() {
     },
   });
 
-  // Delete payment method mutation
   const deleteMethodMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/user/payment-methods/${id}`),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/user/payment-methods/${id}`),
     onSuccess: () => {
       toast({
         title: "Payment Method Deleted",
         description: "Your payment method has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/payment-methods'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/payment-methods"] });
     },
     onError: (error: any) => {
       toast({
@@ -124,15 +137,14 @@ export function PaymentMethodManagement() {
     },
   });
 
-  // Set default payment method mutation
   const setDefaultMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('PUT', `/api/user/payment-methods/${id}/default`),
+    mutationFn: (id: number) => apiRequest("PUT", `/api/user/payment-methods/${id}/default`),
     onSuccess: () => {
       toast({
         title: "Default Payment Method Updated",
         description: "Your default payment method has been updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/payment-methods'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/payment-methods"] });
     },
     onError: (error: any) => {
       toast({
@@ -154,14 +166,12 @@ export function PaymentMethodManagement() {
   const handleEdit = (method: PaymentMethod) => {
     setEditingMethod(method);
     form.reset({
-      type: method.type,
-      cardNumber: "", // Don't populate card number for security
-      expiryMonth: method.expiryMonth,
-      expiryYear: method.expiryYear,
-      holderName: method.holderName,
-      billingAddress: method.billingAddress,
+      type: (method.type as "card" | "bank_account") ?? "card",
+      brand: method.brand || "",
+      last4: method.last4 || "",
+      expiryMonth: method.expiryMonth ? String(method.expiryMonth).padStart(2, "0") : "",
+      expiryYear: method.expiryYear ? String(method.expiryYear) : "",
       isDefault: method.isDefault,
-      nickname: method.nickname || "",
     });
     setIsDialogOpen(true);
   };
@@ -172,16 +182,13 @@ export function PaymentMethodManagement() {
     }
   };
 
-  const getCardIcon = (type: string) => {
-    return <CreditCard className="h-5 w-5" />;
+  const formatCardNumber = (last4: string | null) => {
+    return `**** **** **** ${last4 || "0000"}`;
   };
 
-  const formatCardNumber = (number: string) => {
-    return `**** **** **** ${number.slice(-4)}`;
-  };
-
-  const isExpiring = (month: string, year: string) => {
-    const expiry = new Date(parseInt(year), parseInt(month) - 1);
+  const isExpiring = (month: number | null, year: number | null) => {
+    if (!month || !year) return false;
+    const expiry = new Date(year, month - 1);
     const now = new Date();
     const threeMonthsFromNow = new Date(now.getFullYear(), now.getMonth() + 3, 1);
     return expiry <= threeMonthsFromNow;
@@ -205,12 +212,12 @@ export function PaymentMethodManagement() {
               Payment Methods
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Manage your payment methods for healthcare services
+              Manage saved payment methods for charges and payouts
             </CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={() => {
                   setEditingMethod(null);
@@ -224,17 +231,12 @@ export function PaymentMethodManagement() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  {editingMethod ? "Edit Payment Method" : "Add Payment Method"}
-                </DialogTitle>
+                <DialogTitle>{editingMethod ? "Edit Payment Method" : "Add Payment Method"}</DialogTitle>
                 <DialogDescription>
-                  {editingMethod 
-                    ? "Update your payment method information below"
-                    : "Add a new payment method for healthcare services"
-                  }
+                  {editingMethod ? "Update payment method information" : "Add a payment method to your account"}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -243,7 +245,7 @@ export function PaymentMethodManagement() {
                       name="type"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Payment Type</FormLabel>
+                          <FormLabel>Method Type</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger data-testid="select-payment-type">
@@ -251,9 +253,8 @@ export function PaymentMethodManagement() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="credit">Credit Card</SelectItem>
-                              <SelectItem value="debit">Debit Card</SelectItem>
-                              <SelectItem value="bank">Bank Account</SelectItem>
+                              <SelectItem value="card">Card</SelectItem>
+                              <SelectItem value="bank_account">Bank Account</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -262,16 +263,12 @@ export function PaymentMethodManagement() {
                     />
                     <FormField
                       control={form.control}
-                      name="nickname"
+                      name="brand"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nickname (Optional)</FormLabel>
+                          <FormLabel>Brand</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Personal Card, Business Card..."
-                              data-testid="input-nickname"
-                            />
+                            <Input {...field} placeholder="Visa, Mastercard, RBC" data-testid="input-brand" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -279,45 +276,20 @@ export function PaymentMethodManagement() {
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="cardNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          {editingMethod ? "New Card Number (leave empty to keep current)" : "Card Number"}
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder={editingMethod ? "Leave empty to keep current card" : "1234 5678 9012 3456"}
-                            data-testid="input-card-number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="holderName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cardholder Name</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="John Doe"
-                            data-testid="input-holder-name"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="last4"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last 4 Digits</FormLabel>
+                          <FormControl>
+                            <Input {...field} maxLength={4} placeholder="1234" data-testid="input-last4" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="expiryMonth"
@@ -332,8 +304,8 @@ export function PaymentMethodManagement() {
                             </FormControl>
                             <SelectContent>
                               {Array.from({ length: 12 }, (_, i) => (
-                                <SelectItem key={i + 1} value={(i + 1).toString().padStart(2, '0')}>
-                                  {(i + 1).toString().padStart(2, '0')}
+                                <SelectItem key={i + 1} value={(i + 1).toString().padStart(2, "0")}>
+                                  {(i + 1).toString().padStart(2, "0")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -355,7 +327,7 @@ export function PaymentMethodManagement() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {Array.from({ length: 10 }, (_, i) => {
+                              {Array.from({ length: 12 }, (_, i) => {
                                 const year = new Date().getFullYear() + i;
                                 return (
                                   <SelectItem key={year} value={year.toString()}>
@@ -373,32 +345,12 @@ export function PaymentMethodManagement() {
 
                   <FormField
                     control={form.control}
-                    name="billingAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Billing Address</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="123 Main Street, Calgary, AB T2P 1J9"
-                            data-testid="input-billing-address"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
                     name="isDefault"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-base">Set as Default</FormLabel>
-                          <div className="text-sm text-muted-foreground">
-                            Use this payment method as your default for charges
-                          </div>
+                          <div className="text-sm text-muted-foreground">Use this as your default payment method</div>
                         </div>
                         <FormControl>
                           <input
@@ -414,16 +366,11 @@ export function PaymentMethodManagement() {
                   />
 
                   <div className="flex justify-end gap-3 pt-4">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-cancel-payment"
-                    >
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} data-testid="button-cancel-payment">
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={createMethodMutation.isPending || updateMethodMutation.isPending}
                       data-testid="button-save-payment"
                     >
@@ -439,29 +386,23 @@ export function PaymentMethodManagement() {
           </Dialog>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-8">
         {paymentMethods.length === 0 ? (
           <div className="text-center py-12">
             <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Payment Methods</h3>
-            <p className="text-muted-foreground mb-6">
-              Add a payment method to enable seamless payments for healthcare services
-            </p>
-            <Button 
-              onClick={() => setIsDialogOpen(true)}
-              className="px-6 py-3 rounded-xl"
-              data-testid="button-add-first-payment"
-            >
+            <p className="text-muted-foreground mb-6">Add a payment method for booking payments</p>
+            <Button onClick={() => setIsDialogOpen(true)} className="px-6 py-3 rounded-xl" data-testid="button-add-first-payment">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Payment Method
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {paymentMethods.map((method: PaymentMethod) => (
-              <div 
-                key={method.id} 
+            {paymentMethods.map((method) => (
+              <div
+                key={method.id}
                 className="relative group p-6 rounded-2xl border-2 border-muted hover:border-primary/30 transition-all duration-200 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm"
                 data-testid={`payment-card-${method.id}`}
               >
@@ -471,16 +412,14 @@ export function PaymentMethodManagement() {
                     Default
                   </Badge>
                 )}
-                
+
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-50 text-indigo-600">
-                    {getCardIcon(method.type)}
+                    <CreditCard className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg capitalize">
-                        {method.nickname || `${method.type} Card`}
-                      </h3>
+                      <h3 className="font-semibold text-lg capitalize">{method.brand || method.type}</h3>
                       {isExpiring(method.expiryMonth, method.expiryYear) && (
                         <Badge variant="outline" className="text-xs text-orange-700 border-orange-300 flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -489,22 +428,17 @@ export function PaymentMethodManagement() {
                       )}
                     </div>
                     <div className="space-y-2 text-sm">
-                      <p className="font-mono text-lg tracking-wider">
-                        {formatCardNumber(method.maskedCardNumber)}
-                      </p>
-                      <p>
-                        <span className="font-medium">Holder:</span> {method.holderName}
-                      </p>
-                      <p>
-                        <span className="font-medium">Expires:</span> {method.expiryMonth}/{method.expiryYear}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {method.billingAddress}
-                      </p>
+                      <p className="font-mono text-lg tracking-wider">{formatCardNumber(method.last4)}</p>
+                      <p><span className="font-medium">Type:</span> {method.type}</p>
+                      {method.expiryMonth && method.expiryYear && (
+                        <p>
+                          <span className="font-medium">Expires:</span> {String(method.expiryMonth).padStart(2, "0")}/{method.expiryYear}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-muted/30">
                   {!method.isDefault && (
                     <Button

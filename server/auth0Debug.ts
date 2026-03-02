@@ -27,9 +27,8 @@ export function setupAuth0Debug(app: Express) {
   app.get('/api/auth/session', (req, res) => {
     res.json({
       sessionId: req.sessionID,
-      session: req.session,
       isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
-      user: (req as any).user || null
+      userId: (req as any).user?.id || (req as any).user?.claims?.sub || null,
     });
   });
 }

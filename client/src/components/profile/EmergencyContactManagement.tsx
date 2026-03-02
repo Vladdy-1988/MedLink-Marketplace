@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Plus, Edit, Trash2, Heart, Users } from "lucide-react";
+import { Phone, Plus, Edit, Trash2, Star } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -17,12 +18,9 @@ import { z } from "zod";
 const emergencyContactSchema = z.object({
   name: z.string().min(1, "Name is required"),
   relationship: z.string().min(1, "Relationship is required"),
-  phone: z.string().min(1, "Phone number is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
   email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
-  address: z.string().optional(),
-  isEmergencyContact: z.boolean().default(true),
-  canMakeMedicalDecisions: z.boolean().default(false),
-  notes: z.string().optional(),
+  isPrimary: z.boolean().default(false),
 });
 
 type EmergencyContactFormData = z.infer<typeof emergencyContactSchema>;
@@ -30,8 +28,8 @@ type EmergencyContactFormData = z.infer<typeof emergencyContactSchema>;
 interface EmergencyContact extends EmergencyContactFormData {
   id: number;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function EmergencyContactManagement() {
@@ -45,30 +43,29 @@ export function EmergencyContactManagement() {
     defaultValues: {
       name: "",
       relationship: "",
-      phone: "",
+      phoneNumber: "",
       email: "",
-      address: "",
-      isEmergencyContact: true,
-      canMakeMedicalDecisions: false,
-      notes: "",
+      isPrimary: false,
     },
   });
 
-  // Fetch emergency contacts
   const { data: contacts = [], isLoading } = useQuery<EmergencyContact[]>({
-    queryKey: ['/api/user/emergency-contacts'],
-    queryFn: () => apiRequestJson<EmergencyContact[]>('GET', '/api/user/emergency-contacts'),
+    queryKey: ["/api/user/emergency-contacts"],
+    queryFn: () => apiRequestJson<EmergencyContact[]>("GET", "/api/user/emergency-contacts"),
   });
 
-  // Create contact mutation
   const createContactMutation = useMutation({
-    mutationFn: (data: EmergencyContactFormData) => apiRequest('POST', '/api/user/emergency-contacts', data),
+    mutationFn: (data: EmergencyContactFormData) =>
+      apiRequest("POST", "/api/user/emergency-contacts", {
+        ...data,
+        email: data.email || null,
+      }),
     onSuccess: () => {
       toast({
         title: "Emergency Contact Added",
         description: "Your emergency contact has been successfully added.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/emergency-contacts'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/emergency-contacts"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -81,16 +78,18 @@ export function EmergencyContactManagement() {
     },
   });
 
-  // Update contact mutation
   const updateContactMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<EmergencyContactFormData> }) =>
-      apiRequest('PUT', `/api/user/emergency-contacts/${id}`, data),
+      apiRequest("PUT", `/api/user/emergency-contacts/${id}`, {
+        ...data,
+        email: data.email === "" ? null : data.email,
+      }),
     onSuccess: () => {
       toast({
         title: "Emergency Contact Updated",
         description: "Your emergency contact has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/emergency-contacts'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/emergency-contacts"] });
       setIsDialogOpen(false);
       setEditingContact(null);
       form.reset();
@@ -104,15 +103,14 @@ export function EmergencyContactManagement() {
     },
   });
 
-  // Delete contact mutation
   const deleteContactMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/user/emergency-contacts/${id}`),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/user/emergency-contacts/${id}`),
     onSuccess: () => {
       toast({
         title: "Emergency Contact Deleted",
         description: "Your emergency contact has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/emergency-contacts'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/emergency-contacts"] });
     },
     onError: (error: any) => {
       toast({
@@ -136,12 +134,9 @@ export function EmergencyContactManagement() {
     form.reset({
       name: contact.name,
       relationship: contact.relationship,
-      phone: contact.phone,
+      phoneNumber: contact.phoneNumber,
       email: contact.email || "",
-      address: contact.address || "",
-      isEmergencyContact: contact.isEmergencyContact,
-      canMakeMedicalDecisions: contact.canMakeMedicalDecisions,
-      notes: contact.notes || "",
+      isPrimary: contact.isPrimary,
     });
     setIsDialogOpen(true);
   };
@@ -170,12 +165,12 @@ export function EmergencyContactManagement() {
               Emergency Contacts
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Manage your emergency contacts and medical decision makers
+              Manage who should be contacted first in case of emergency
             </CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={() => {
                   setEditingContact(null);
@@ -189,17 +184,12 @@ export function EmergencyContactManagement() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  {editingContact ? "Edit Emergency Contact" : "Add Emergency Contact"}
-                </DialogTitle>
+                <DialogTitle>{editingContact ? "Edit Emergency Contact" : "Add Emergency Contact"}</DialogTitle>
                 <DialogDescription>
-                  {editingContact 
-                    ? "Update your emergency contact information below"
-                    : "Add someone who can be contacted in case of emergency"
-                  }
+                  {editingContact ? "Update your emergency contact information" : "Add someone to contact in emergencies"}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -210,11 +200,7 @@ export function EmergencyContactManagement() {
                         <FormItem>
                           <FormLabel>Full Name</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="John Doe"
-                              data-testid="input-contact-name"
-                            />
+                            <Input {...field} placeholder="John Doe" data-testid="input-contact-name" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -251,17 +237,12 @@ export function EmergencyContactManagement() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="phone"
+                      name="phoneNumber"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              type="tel"
-                              placeholder="+1 (555) 123-4567"
-                              data-testid="input-contact-phone"
-                            />
+                            <Input {...field} type="tel" placeholder="+1 (555) 123-4567" data-testid="input-contact-phone" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -274,12 +255,7 @@ export function EmergencyContactManagement() {
                         <FormItem>
                           <FormLabel>Email (Optional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              type="email"
-                              placeholder="john@example.com"
-                              data-testid="input-contact-email"
-                            />
+                            <Input {...field} type="email" placeholder="john@example.com" data-testid="input-contact-email" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -289,101 +265,26 @@ export function EmergencyContactManagement() {
 
                   <FormField
                     control={form.control}
-                    name="address"
+                    name="isPrimary"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address (Optional)</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Primary Emergency Contact</FormLabel>
+                          <div className="text-sm text-muted-foreground">Set this contact as the first person to call</div>
+                        </div>
                         <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="123 Main Street, Calgary, AB"
-                            data-testid="input-contact-address"
-                          />
+                          <Switch checked={field.value} onCheckedChange={field.onChange} data-testid="switch-primary-contact" />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Notes (Optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="Additional information..."
-                            data-testid="input-contact-notes"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
-                    <FormField
-                      control={form.control}
-                      name="isEmergencyContact"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Emergency Contact</FormLabel>
-                            <div className="text-sm text-muted-foreground">
-                              This person can be contacted in emergencies
-                            </div>
-                          </div>
-                          <FormControl>
-                            <input
-                              type="checkbox"
-                              checked={field.value}
-                              onChange={field.onChange}
-                              className="form-checkbox h-4 w-4 text-primary"
-                              data-testid="checkbox-emergency-contact"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="canMakeMedicalDecisions"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Medical Decisions</FormLabel>
-                            <div className="text-sm text-muted-foreground">
-                              This person can make medical decisions on your behalf
-                            </div>
-                          </div>
-                          <FormControl>
-                            <input
-                              type="checkbox"
-                              checked={field.value}
-                              onChange={field.onChange}
-                              className="form-checkbox h-4 w-4 text-primary"
-                              data-testid="checkbox-medical-decisions"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
 
                   <div className="flex justify-end gap-3 pt-4">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-cancel-contact"
-                    >
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} data-testid="button-cancel-contact">
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={createContactMutation.isPending || updateContactMutation.isPending}
                       data-testid="button-save-contact"
                     >
@@ -399,70 +300,40 @@ export function EmergencyContactManagement() {
           </Dialog>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-8">
         {contacts.length === 0 ? (
           <div className="text-center py-12">
             <Phone className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Emergency Contacts</h3>
-            <p className="text-muted-foreground mb-6">
-              Add emergency contacts who can be reached in case of medical emergencies
-            </p>
-            <Button 
-              onClick={() => setIsDialogOpen(true)}
-              className="px-6 py-3 rounded-xl"
-              data-testid="button-add-first-contact"
-            >
+            <p className="text-muted-foreground mb-6">Add emergency contacts who can be reached if needed</p>
+            <Button onClick={() => setIsDialogOpen(true)} className="px-6 py-3 rounded-xl" data-testid="button-add-first-contact">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Contact
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {contacts.map((contact: EmergencyContact) => (
-              <div 
-                key={contact.id} 
+            {contacts.map((contact) => (
+              <div
+                key={contact.id}
                 className="relative group p-6 rounded-2xl border-2 border-muted hover:border-primary/30 transition-all duration-200 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm"
                 data-testid={`contact-card-${contact.id}`}
               >
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-50 text-red-600">
-                    {contact.canMakeMedicalDecisions ? <Heart className="h-5 w-5" /> : <Users className="h-5 w-5" />}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">{contact.name}</h3>
-                      <div className="flex gap-1">
-                        {contact.canMakeMedicalDecisions && (
-                          <Badge variant="secondary" className="text-xs">
-                            Medical Decisions
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2 capitalize">
-                      {contact.relationship}
-                    </p>
-                    <div className="space-y-1 text-sm">
-                      <p className="flex items-center gap-2">
-                        <Phone className="h-3 w-3" />
-                        {contact.phone}
-                      </p>
-                      {contact.email && (
-                        <p className="text-muted-foreground">{contact.email}</p>
-                      )}
-                      {contact.address && (
-                        <p className="text-muted-foreground">{contact.address}</p>
-                      )}
-                    </div>
-                    {contact.notes && (
-                      <p className="text-xs text-muted-foreground mt-2 italic">
-                        {contact.notes}
-                      </p>
-                    )}
-                  </div>
+                {contact.isPrimary && (
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-yellow-300 text-yellow-900">
+                    <Star className="h-3 w-3 mr-1" />
+                    Primary
+                  </Badge>
+                )}
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-lg">{contact.name}</h3>
+                  <p className="text-sm text-muted-foreground capitalize">{contact.relationship}</p>
+                  <p className="text-sm">{contact.phoneNumber}</p>
+                  {contact.email && <p className="text-sm text-muted-foreground">{contact.email}</p>}
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-muted/30">
                   <Button
                     size="sm"

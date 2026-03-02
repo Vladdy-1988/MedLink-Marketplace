@@ -15,15 +15,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const familyMemberSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   relationship: z.string().min(1, "Relationship is required"),
   dateOfBirth: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
-  address: z.string().optional(),
-  emergencyContact: z.boolean().default(false),
-  medicalInfo: z.string().optional(),
-  notes: z.string().optional(),
+  gender: z.string().optional(),
 });
 
 type FamilyMemberFormData = z.infer<typeof familyMemberSchema>;
@@ -31,8 +27,9 @@ type FamilyMemberFormData = z.infer<typeof familyMemberSchema>;
 interface FamilyMember extends FamilyMemberFormData {
   id: number;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  healthProfileId: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function FamilyMemberManagement() {
@@ -44,33 +41,33 @@ export function FamilyMemberManagement() {
   const form = useForm<FamilyMemberFormData>({
     resolver: zodResolver(familyMemberSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       relationship: "",
       dateOfBirth: "",
-      phone: "",
-      email: "",
-      address: "",
-      emergencyContact: false,
-      medicalInfo: "",
-      notes: "",
+      gender: "",
     },
   });
 
-  // Fetch family members
   const { data: members = [], isLoading } = useQuery<FamilyMember[]>({
-    queryKey: ['/api/user/family-members'],
-    queryFn: () => apiRequestJson<FamilyMember[]>('GET', '/api/user/family-members'),
+    queryKey: ["/api/user/family-members"],
+    queryFn: () => apiRequestJson<FamilyMember[]>("GET", "/api/user/family-members"),
   });
 
-  // Create member mutation
   const createMemberMutation = useMutation({
-    mutationFn: (data: FamilyMemberFormData) => apiRequest('POST', '/api/user/family-members', data),
+    mutationFn: (data: FamilyMemberFormData) =>
+      apiRequest("POST", "/api/user/family-members", {
+        ...data,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        gender: data.gender || null,
+        healthProfileId: null,
+      }),
     onSuccess: () => {
       toast({
         title: "Family Member Added",
         description: "The family member has been successfully added.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/family-members'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/family-members"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -83,16 +80,18 @@ export function FamilyMemberManagement() {
     },
   });
 
-  // Update member mutation
   const updateMemberMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<FamilyMemberFormData> }) =>
-      apiRequest('PUT', `/api/user/family-members/${id}`, data),
+      apiRequest("PUT", `/api/user/family-members/${id}`, {
+        ...data,
+        dateOfBirth: data.dateOfBirth === undefined ? undefined : (data.dateOfBirth ? new Date(data.dateOfBirth) : null),
+      }),
     onSuccess: () => {
       toast({
         title: "Family Member Updated",
         description: "The family member has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/family-members'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/family-members"] });
       setIsDialogOpen(false);
       setEditingMember(null);
       form.reset();
@@ -106,15 +105,14 @@ export function FamilyMemberManagement() {
     },
   });
 
-  // Delete member mutation
   const deleteMemberMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/user/family-members/${id}`),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/user/family-members/${id}`),
     onSuccess: () => {
       toast({
         title: "Family Member Deleted",
         description: "The family member has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/family-members'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/family-members"] });
     },
     onError: (error: any) => {
       toast({
@@ -136,15 +134,11 @@ export function FamilyMemberManagement() {
   const handleEdit = (member: FamilyMember) => {
     setEditingMember(member);
     form.reset({
-      name: member.name,
+      firstName: member.firstName,
+      lastName: member.lastName,
       relationship: member.relationship,
-      dateOfBirth: member.dateOfBirth || "",
-      phone: member.phone || "",
-      email: member.email || "",
-      address: member.address || "",
-      emergencyContact: member.emergencyContact,
-      medicalInfo: member.medicalInfo || "",
-      notes: member.notes || "",
+      dateOfBirth: member.dateOfBirth ? new Date(member.dateOfBirth).toISOString().slice(0, 10) : "",
+      gender: member.gender || "",
     });
     setIsDialogOpen(true);
   };
@@ -157,9 +151,10 @@ export function FamilyMemberManagement() {
 
   const getMemberIcon = (relationship: string) => {
     const rel = relationship.toLowerCase();
-    if (rel.includes('child') || rel.includes('son') || rel.includes('daughter')) {
+    if (rel.includes("child") || rel.includes("son") || rel.includes("daughter")) {
       return <Baby className="h-5 w-5" />;
-    } else if (rel.includes('spouse') || rel.includes('partner')) {
+    }
+    if (rel.includes("spouse") || rel.includes("partner")) {
       return <Heart className="h-5 w-5" />;
     }
     return <User className="h-5 w-5" />;
@@ -195,12 +190,12 @@ export function FamilyMemberManagement() {
               Family Members
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Manage your family members who may receive healthcare services
+              Manage family members who may need appointments
             </CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={() => {
                   setEditingMember(null);
@@ -214,37 +209,44 @@ export function FamilyMemberManagement() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  {editingMember ? "Edit Family Member" : "Add Family Member"}
-                </DialogTitle>
+                <DialogTitle>{editingMember ? "Edit Family Member" : "Add Family Member"}</DialogTitle>
                 <DialogDescription>
-                  {editingMember 
-                    ? "Update family member information below"
-                    : "Add a family member who may need healthcare services"
-                  }
+                  {editingMember ? "Update family member information" : "Add a family member to your account"}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name</FormLabel>
+                          <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Jane Doe"
-                              data-testid="input-member-name"
-                            />
+                            <Input {...field} placeholder="Jane" data-testid="input-member-first-name" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Doe" data-testid="input-member-last-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="relationship"
@@ -261,17 +263,45 @@ export function FamilyMemberManagement() {
                               <SelectItem value="spouse">Spouse</SelectItem>
                               <SelectItem value="partner">Partner</SelectItem>
                               <SelectItem value="child">Child</SelectItem>
-                              <SelectItem value="son">Son</SelectItem>
-                              <SelectItem value="daughter">Daughter</SelectItem>
                               <SelectItem value="parent">Parent</SelectItem>
-                              <SelectItem value="mother">Mother</SelectItem>
-                              <SelectItem value="father">Father</SelectItem>
                               <SelectItem value="sibling">Sibling</SelectItem>
-                              <SelectItem value="brother">Brother</SelectItem>
-                              <SelectItem value="sister">Sister</SelectItem>
-                              <SelectItem value="grandparent">Grandparent</SelectItem>
-                              <SelectItem value="grandchild">Grandchild</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dateOfBirth"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date of Birth (Optional)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="date" data-testid="input-member-dob" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Gender (Optional)</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-member-gender">
+                                <SelectValue placeholder="Select gender" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -280,151 +310,12 @@ export function FamilyMemberManagement() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="dateOfBirth"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Date of Birth (Optional)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              type="date"
-                              data-testid="input-member-dob"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone (Optional)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              type="tel"
-                              placeholder="+1 (555) 123-4567"
-                              data-testid="input-member-phone"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email (Optional)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              type="email"
-                              placeholder="jane@example.com"
-                              data-testid="input-member-email"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address (Optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="123 Main Street, Calgary, AB"
-                            data-testid="input-member-address"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="medicalInfo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Medical Information (Optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="Allergies, conditions, medications..."
-                            data-testid="input-member-medical"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Notes (Optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="Additional information..."
-                            data-testid="input-member-notes"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="emergencyContact"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Emergency Contact</FormLabel>
-                          <div className="text-sm text-muted-foreground">
-                            This family member can be contacted in emergencies
-                          </div>
-                        </div>
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="form-checkbox h-4 w-4 text-primary"
-                            data-testid="checkbox-emergency-contact"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
                   <div className="flex justify-end gap-3 pt-4">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-cancel-member"
-                    >
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} data-testid="button-cancel-member">
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={createMemberMutation.isPending || updateMemberMutation.isPending}
                       data-testid="button-save-member"
                     >
@@ -440,29 +331,23 @@ export function FamilyMemberManagement() {
           </Dialog>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-8">
         {members.length === 0 ? (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Family Members Added</h3>
-            <p className="text-muted-foreground mb-6">
-              Add family members who may need healthcare services or emergency contacts
-            </p>
-            <Button 
-              onClick={() => setIsDialogOpen(true)}
-              className="px-6 py-3 rounded-xl"
-              data-testid="button-add-first-member"
-            >
+            <p className="text-muted-foreground mb-6">Add family members who may need healthcare services</p>
+            <Button onClick={() => setIsDialogOpen(true)} className="px-6 py-3 rounded-xl" data-testid="button-add-first-member">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Family Member
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {members.map((member: FamilyMember) => (
-              <div 
-                key={member.id} 
+            {members.map((member) => (
+              <div
+                key={member.id}
                 className="relative group p-6 rounded-2xl border-2 border-muted hover:border-primary/30 transition-all duration-200 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm"
                 data-testid={`member-card-${member.id}`}
               >
@@ -472,44 +357,23 @@ export function FamilyMemberManagement() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">{member.name}</h3>
-                      {member.emergencyContact && (
-                        <Badge variant="secondary" className="text-xs">
-                          Emergency Contact
-                        </Badge>
+                      <h3 className="font-semibold text-lg">{member.firstName} {member.lastName}</h3>
+                      {member.gender && (
+                        <Badge variant="secondary" className="text-xs capitalize">{member.gender.replaceAll("_", " ")}</Badge>
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mb-2 capitalize">
                       {member.relationship}
-                      {member.dateOfBirth && calculateAge(member.dateOfBirth) && (
+                      {member.dateOfBirth && calculateAge(member.dateOfBirth) !== null && (
                         <span className="ml-2">• Age {calculateAge(member.dateOfBirth)}</span>
                       )}
                     </p>
-                    <div className="space-y-1 text-sm">
-                      {member.phone && (
-                        <p className="text-muted-foreground">{member.phone}</p>
-                      )}
-                      {member.email && (
-                        <p className="text-muted-foreground">{member.email}</p>
-                      )}
-                      {member.address && (
-                        <p className="text-muted-foreground">{member.address}</p>
-                      )}
-                    </div>
-                    {member.medicalInfo && (
-                      <div className="mt-3 p-2 bg-red-50 rounded-lg">
-                        <p className="text-xs text-red-700 font-medium">Medical Info:</p>
-                        <p className="text-xs text-red-600">{member.medicalInfo}</p>
-                      </div>
-                    )}
-                    {member.notes && (
-                      <p className="text-xs text-muted-foreground mt-2 italic">
-                        {member.notes}
-                      </p>
+                    {member.dateOfBirth && (
+                      <p className="text-xs text-muted-foreground">DOB: {new Date(member.dateOfBirth).toLocaleDateString()}</p>
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-muted/30">
                   <Button
                     size="sm"

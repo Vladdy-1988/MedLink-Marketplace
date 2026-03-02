@@ -45,6 +45,7 @@ export const users = pgTable("users", {
     booking_reminders: true,
     marketing: false
   }),
+  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -94,6 +95,8 @@ export const bookings = pgTable("bookings", {
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   paymentStatus: varchar("payment_status").default("pending"), // pending, paid, refunded
   paymentIntentId: varchar("payment_intent_id"), // Stripe payment intent
+  reminder24hSentAt: timestamp("reminder_24h_sent_at"),
+  reminder1hSentAt: timestamp("reminder_1h_sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -359,6 +362,47 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// HIPAA/HIA Consent records
+export const consentRecords = pgTable("consent_records", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  consentType: varchar("consent_type").notNull(), // 'hipaa_npp', 'terms', 'privacy', 'baa'
+  version: varchar("version").notNull().default("1.0"),
+  isGranted: boolean("is_granted").notNull().default(true),
+  grantedAt: timestamp("granted_at").defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Waitlist entries for patients waiting on provider slots
+export const waitlistEntries = pgTable("waitlist_entries", {
+  id: serial("id").primaryKey(),
+  patientId: varchar("patient_id").notNull().references(() => users.id),
+  providerId: integer("provider_id").notNull().references(() => providers.id),
+  serviceId: integer("service_id").references(() => services.id),
+  preferredDateRange: jsonb("preferred_date_range"), // { start: ISO, end: ISO }
+  notes: text("notes"),
+  status: varchar("status").notNull().default("waiting"), // waiting, notified, booked, expired
+  notifiedAt: timestamp("notified_at"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Patient reports about providers
+export const userReports = pgTable("user_reports", {
+  id: serial("id").primaryKey(),
+  patientId: varchar("patient_id").notNull().references(() => users.id),
+  providerId: integer("provider_id").notNull().references(() => providers.id),
+  bookingId: integer("booking_id").references(() => bookings.id),
+  reason: varchar("reason").notNull(), // no_show, unprofessional, fraud, other
+  details: text("details").notNull(),
+  status: varchar("status").notNull().default("pending"), // pending, reviewed, dismissed
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Reviews and ratings
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
@@ -386,6 +430,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   providerNotes: many(providerPatientNotes),
   auditLogs: many(auditLogs),
   userActivityLogs: many(userActivityLogs),
+  consentRecords: many(consentRecords),
 }));
 
 export const providersRelations = relations(providers, ({ one, many }) => ({
@@ -504,6 +549,23 @@ export const bookingStatusHistoryRelations = relations(bookingStatusHistory, ({ 
 
 export const messageAttachmentsRelations = relations(messageAttachments, ({ one }) => ({
   message: one(messages, { fields: [messageAttachments.messageId], references: [messages.id] }),
+}));
+
+export const consentRecordsRelations = relations(consentRecords, ({ one }) => ({
+  user: one(users, { fields: [consentRecords.userId], references: [users.id] }),
+}));
+
+export const waitlistEntriesRelations = relations(waitlistEntries, ({ one }) => ({
+  patient: one(users, { fields: [waitlistEntries.patientId], references: [users.id] }),
+  provider: one(providers, { fields: [waitlistEntries.providerId], references: [providers.id] }),
+  service: one(services, { fields: [waitlistEntries.serviceId], references: [services.id] }),
+}));
+
+export const userReportsRelations = relations(userReports, ({ one }) => ({
+  patient: one(users, { fields: [userReports.patientId], references: [users.id], relationName: "reportPatient" }),
+  provider: one(providers, { fields: [userReports.providerId], references: [providers.id] }),
+  booking: one(bookings, { fields: [userReports.bookingId], references: [bookings.id] }),
+  reviewer: one(users, { fields: [userReports.reviewedBy], references: [users.id], relationName: "reportReviewer" }),
 }));
 
 // Zod schemas for validation
@@ -638,6 +700,21 @@ export const insertMessageAttachmentSchema = createInsertSchema(messageAttachmen
   createdAt: true,
 });
 
+export const insertConsentRecordSchema = createInsertSchema(consentRecords).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserReportSchema = createInsertSchema(userReports).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertWaitlistEntrySchema = createInsertSchema(waitlistEntries).omit({
+  id: true,
+  createdAt: true,
+});
+
 // TypeScript types for all tables
 export type User = typeof users.$inferSelect;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
@@ -688,3 +765,9 @@ export type BookingStatusHistory = typeof bookingStatusHistory.$inferSelect;
 export type InsertBookingStatusHistory = z.infer<typeof insertBookingStatusHistorySchema>;
 export type MessageAttachment = typeof messageAttachments.$inferSelect;
 export type InsertMessageAttachment = z.infer<typeof insertMessageAttachmentSchema>;
+export type ConsentRecord = typeof consentRecords.$inferSelect;
+export type InsertConsentRecord = z.infer<typeof insertConsentRecordSchema>;
+export type UserReport = typeof userReports.$inferSelect;
+export type InsertUserReport = z.infer<typeof insertUserReportSchema>;
+export type WaitlistEntry = typeof waitlistEntries.$inferSelect;
+export type InsertWaitlistEntry = z.infer<typeof insertWaitlistEntrySchema>;

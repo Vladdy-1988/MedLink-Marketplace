@@ -16,14 +16,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const addressSchema = z.object({
-  type: z.enum(['home', 'work', 'other']),
+  type: z.enum(["home", "work", "other"]),
   streetAddress: z.string().min(1, "Street address is required"),
   city: z.string().min(1, "City is required"),
   province: z.string().min(1, "Province is required"),
   postalCode: z.string().min(1, "Postal code is required"),
   country: z.string().default("Canada"),
   isDefault: z.boolean().default(false),
-  label: z.string().optional(),
 });
 
 type AddressFormData = z.infer<typeof addressSchema>;
@@ -31,8 +30,8 @@ type AddressFormData = z.infer<typeof addressSchema>;
 interface Address extends AddressFormData {
   id: number;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function AddressManagement() {
@@ -44,32 +43,29 @@ export function AddressManagement() {
   const form = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      type: 'home',
+      type: "home",
       streetAddress: "",
       city: "",
       province: "Alberta",
       postalCode: "",
       country: "Canada",
       isDefault: false,
-      label: "",
     },
   });
 
-  // Fetch addresses
   const { data: addresses = [], isLoading } = useQuery<Address[]>({
-    queryKey: ['/api/user/addresses'],
-    queryFn: () => apiRequestJson<Address[]>('GET', '/api/user/addresses'),
+    queryKey: ["/api/user/addresses"],
+    queryFn: () => apiRequestJson<Address[]>("GET", "/api/user/addresses"),
   });
 
-  // Create address mutation
   const createAddressMutation = useMutation({
-    mutationFn: (data: AddressFormData) => apiRequest('POST', '/api/user/addresses', data),
+    mutationFn: (data: AddressFormData) => apiRequest("POST", "/api/user/addresses", data),
     onSuccess: () => {
       toast({
         title: "Address Added",
         description: "Your address has been successfully added.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/addresses'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/addresses"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -82,16 +78,15 @@ export function AddressManagement() {
     },
   });
 
-  // Update address mutation
   const updateAddressMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<AddressFormData> }) =>
-      apiRequest('PUT', `/api/user/addresses/${id}`, data),
+      apiRequest("PUT", `/api/user/addresses/${id}`, data),
     onSuccess: () => {
       toast({
         title: "Address Updated",
         description: "Your address has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/addresses'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/addresses"] });
       setIsDialogOpen(false);
       setEditingAddress(null);
       form.reset();
@@ -105,15 +100,14 @@ export function AddressManagement() {
     },
   });
 
-  // Delete address mutation
   const deleteAddressMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/user/addresses/${id}`),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/user/addresses/${id}`),
     onSuccess: () => {
       toast({
         title: "Address Deleted",
         description: "Your address has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/addresses'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/addresses"] });
     },
     onError: (error: any) => {
       toast({
@@ -124,15 +118,14 @@ export function AddressManagement() {
     },
   });
 
-  // Set default address mutation
   const setDefaultMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('PUT', `/api/user/addresses/${id}/default`),
+    mutationFn: (id: number) => apiRequest("PUT", `/api/user/addresses/${id}/default`),
     onSuccess: () => {
       toast({
         title: "Default Address Updated",
         description: "Your default address has been updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/addresses'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/addresses"] });
     },
     onError: (error: any) => {
       toast({
@@ -161,7 +154,6 @@ export function AddressManagement() {
       postalCode: address.postalCode,
       country: address.country,
       isDefault: address.isDefault,
-      label: address.label || "",
     });
     setIsDialogOpen(true);
   };
@@ -174,9 +166,12 @@ export function AddressManagement() {
 
   const getAddressIcon = (type: string) => {
     switch (type) {
-      case 'home': return <Home className="h-5 w-5" />;
-      case 'work': return <Building className="h-5 w-5" />;
-      default: return <MapPin className="h-5 w-5" />;
+      case "home":
+        return <Home className="h-5 w-5" />;
+      case "work":
+        return <Building className="h-5 w-5" />;
+      default:
+        return <MapPin className="h-5 w-5" />;
     }
   };
 
@@ -203,7 +198,7 @@ export function AddressManagement() {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={() => {
                   setEditingAddress(null);
@@ -217,17 +212,14 @@ export function AddressManagement() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  {editingAddress ? "Edit Address" : "Add New Address"}
-                </DialogTitle>
+                <DialogTitle>{editingAddress ? "Edit Address" : "Add New Address"}</DialogTitle>
                 <DialogDescription>
-                  {editingAddress 
+                  {editingAddress
                     ? "Update your address information below"
-                    : "Add a new address for healthcare service delivery"
-                  }
+                    : "Add a new address for healthcare service delivery"}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -253,23 +245,6 @@ export function AddressManagement() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="label"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Label (Optional)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="e.g., Summer Home, Office"
-                              data-testid="input-address-label"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </div>
 
                   <FormField
@@ -279,8 +254,8 @@ export function AddressManagement() {
                       <FormItem>
                         <FormLabel>Street Address</FormLabel>
                         <FormControl>
-                          <Input 
-                            {...field} 
+                          <Input
+                            {...field}
                             placeholder="123 Main Street, Apt 4B"
                             data-testid="input-street-address"
                           />
@@ -298,11 +273,7 @@ export function AddressManagement() {
                         <FormItem>
                           <FormLabel>City</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Calgary"
-                              data-testid="input-city"
-                            />
+                            <Input {...field} placeholder="Calgary" data-testid="input-city" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -347,8 +318,8 @@ export function AddressManagement() {
                         <FormItem>
                           <FormLabel>Postal Code</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
+                            <Input
+                              {...field}
                               placeholder="T2P 1J9"
                               data-testid="input-postal-code"
                             />
@@ -365,9 +336,7 @@ export function AddressManagement() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Set as Default Address
-                          </FormLabel>
+                          <FormLabel className="text-base">Set as Default Address</FormLabel>
                           <div className="text-sm text-muted-foreground">
                             Use this address as your primary delivery location
                           </div>
@@ -384,16 +353,16 @@ export function AddressManagement() {
                   />
 
                   <div className="flex justify-end gap-3 pt-4">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                       data-testid="button-cancel-address"
                     >
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={createAddressMutation.isPending || updateAddressMutation.isPending}
                       data-testid="button-save-address"
                     >
@@ -409,7 +378,7 @@ export function AddressManagement() {
           </Dialog>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-8">
         {addresses.length === 0 ? (
           <div className="text-center py-12">
@@ -418,7 +387,7 @@ export function AddressManagement() {
             <p className="text-muted-foreground mb-6">
               Add your first address to enable healthcare service delivery
             </p>
-            <Button 
+            <Button
               onClick={() => setIsDialogOpen(true)}
               className="px-6 py-3 rounded-xl"
               data-testid="button-add-first-address"
@@ -429,9 +398,9 @@ export function AddressManagement() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {addresses.map((address: Address) => (
-              <div 
-                key={address.id} 
+            {addresses.map((address) => (
+              <div
+                key={address.id}
                 className="relative group p-6 rounded-2xl border-2 border-muted hover:border-primary/30 transition-all duration-200 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm"
                 data-testid={`address-card-${address.id}`}
               >
@@ -441,25 +410,25 @@ export function AddressManagement() {
                     Default
                   </Badge>
                 )}
-                
+
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600">
                     {getAddressIcon(address.type)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg capitalize">
-                        {address.label || address.type}
-                      </h3>
+                      <h3 className="font-semibold text-lg capitalize">{address.type}</h3>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
-                      {address.streetAddress}<br />
-                      {address.city}, {address.province}<br />
+                      {address.streetAddress}
+                      <br />
+                      {address.city}, {address.province}
+                      <br />
                       {address.postalCode}, {address.country}
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-muted/30">
                   {!address.isDefault && (
                     <Button

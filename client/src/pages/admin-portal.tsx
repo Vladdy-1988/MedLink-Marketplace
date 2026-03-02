@@ -543,7 +543,7 @@ function PatientFeedback() {
 export default function AdminPortal() {
   const { user } = useAuth();
 
-  // Check if user is admin
+  // UI-only role check for rendering. Server/API enforce real authorization.
   if (!user || user.userType !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50">

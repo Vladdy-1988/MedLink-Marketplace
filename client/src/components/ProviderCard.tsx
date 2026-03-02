@@ -51,17 +51,20 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
 
     setIsMessaging(true);
     try {
-      // First, find the provider's user ID
-      const providerResponse = await apiRequest("GET", `/api/providers/${provider.id}`);
-      const providerData = await providerResponse.json();
-      
-      if (!providerData.userId) {
+      let receiverId = provider.userId;
+      if (!receiverId) {
+        const providerResponse = await apiRequest("GET", `/api/providers/${provider.id}`);
+        const providerData = await providerResponse.json();
+        receiverId = providerData.userId;
+      }
+
+      if (!receiverId) {
         throw new Error("Provider user ID not found");
       }
 
       // Send an initial message
       const messageData = {
-        receiverId: providerData.userId,
+        receiverId,
         content: `Hi ${provider.name}, I'm interested in your healthcare services and would like to get a personalized quote. Could you please provide more information about your availability and pricing? Thank you!`,
       };
 

@@ -5,8 +5,58 @@ import type { Express, RequestHandler } from 'express';
 import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 
+function getBaseUrlFromRequest(req: any): string {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const proto =
+    typeof forwardedProto === "string"
+      ? forwardedProto.split(",")[0].trim()
+      : req.secure
+        ? "https"
+        : req.protocol || "http";
+
+  const forwardedHost = req.headers["x-forwarded-host"];
+  const host =
+    (typeof forwardedHost === "string" && forwardedHost.split(",")[0].trim()) ||
+    req.get("host");
+
+  return `${proto}://${host}`;
+}
+
+function resolveCallbackUrl(req?: any): string {
+  if (process.env.AUTH0_CALLBACK_URL) {
+    return process.env.AUTH0_CALLBACK_URL;
+  }
+  if (req) {
+    return `${getBaseUrlFromRequest(req)}/api/callback`;
+  }
+  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+    return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/callback`;
+  }
+  return "http://localhost:5000/api/callback";
+}
+
+function resolveLogoutReturnUrl(req?: any): string {
+  if (process.env.AUTH0_LOGOUT_URL) {
+    return process.env.AUTH0_LOGOUT_URL;
+  }
+  if (req) {
+    return getBaseUrlFromRequest(req);
+  }
+  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+    return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+  }
+  return "http://localhost:5000";
+}
+
 // Auth0 Configuration for Healthcare Application
 export function getSession() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("Missing required environment variable: DATABASE_URL");
+  }
+  if (!process.env.SESSION_SECRET) {
+    throw new Error("Missing required environment variable: SESSION_SECRET");
+  }
+
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -15,28 +65,32 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
-  
-  // Check if we're in production - using multiple environment variables to ensure detection
-  const isProduction = process.env.REPLIT_DEPLOYMENT === '1' || 
-                       process.env.NODE_ENV === 'production' ||
-                       process.env.REPLIT_DEV_DOMAIN?.includes('mymedlink.ca') ||
-                       process.env.AUTH0_CALLBACK_URL?.includes('mymedlink.ca');
+
+  // Check if we're in production
+  const isProduction =
+    process.env.REPLIT_DEPLOYMENT === '1' ||
+    process.env.NODE_ENV === 'production';
   const isHttps = isProduction;
-  
+  const cookieDomain =
+    process.env.SESSION_COOKIE_DOMAIN ||
+    (isProduction ? ".mymedlink.ca" : undefined);
+
   console.log("Session configuration:", { isProduction, isHttps });
-  
+
   return session({
-    secret: process.env.SESSION_SECRET || 'fallback-secret-for-development',
+    secret: process.env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     name: 'medlink.session',
     cookie: {
       httpOnly: true,
       secure: isHttps,
       maxAge: sessionTtl,
-      sameSite: isProduction ? 'none' : 'lax',
-      domain: isProduction ? '.mymedlink.ca' : undefined,
+      // Use None in production so OAuth callbacks work even if POST mode is enabled.
+      sameSite: isProduction ? "none" : "lax",
+      domain: cookieDomain,
     },
   });
 }
@@ -58,166 +112,151 @@ export async function setupAuth(app: Express) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    // Auth0 Strategy - only if Auth0 credentials are available
-    if (process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID && process.env.AUTH0_CLIENT_SECRET) {
-      // Determine callback URL based on environment
-      let callbackURL;
-      
-      // If we're deployed to production (mymedlink.ca)
-      if (process.env.REPLIT_DEPLOYMENT === '1' && process.env.AUTH0_CALLBACK_URL?.includes('mymedlink.ca')) {
-        callbackURL = process.env.AUTH0_CALLBACK_URL;
-      } 
-      // If we're in Replit development environment
-      else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-        callbackURL = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/callback`;
-      }
-      // Local development
-      else {
-        callbackURL = 'http://localhost:5000/api/callback';
-      }
-      
-      console.log('Auth0 configuration:', { 
-        deployment: process.env.REPLIT_DEPLOYMENT,
-        isProduction: process.env.AUTH0_CALLBACK_URL?.includes('mymedlink.ca'),
-        callbackURL,
-        domain: process.env.AUTH0_DOMAIN 
-      });
-        
-      passport.use(new Auth0Strategy({
-        domain: process.env.AUTH0_DOMAIN,
-        clientID: process.env.AUTH0_CLIENT_ID,
-        clientSecret: process.env.AUTH0_CLIENT_SECRET,
-        callbackURL: callbackURL,
-        state: true  // Enable state parameter for security
-      }, async (accessToken: string, refreshToken: string, extraParams: any, profile: any, done: any) => {
-        try {
-          console.log("Auth0 callback - creating/updating user:", profile.id);
-          
-          const userData = {
-            id: profile.id,
-            email: profile.emails?.[0]?.value || profile.email || '',
-            firstName: profile.given_name || profile.name?.givenName || '',
-            lastName: profile.family_name || profile.name?.familyName || '',
-            profileImageUrl: profile.picture || '',
-          };
-          
-          console.log("Creating/updating user with data:", userData);
-          const user = await storage.upsertUser(userData);
-          
-          console.log("User created/updated successfully:", user.id);
-          return done(null, user);
-        } catch (error) {
-          console.error("Error in Auth0 strategy:", error);
-          return done(error);
-        }
-      }));
-
-      // Serialize user for session
-      passport.serializeUser((user: any, done) => {
-        done(null, user.id);
-      });
-
-      passport.deserializeUser(async (id: string, done) => {
-        try {
-          console.log("Attempting to deserialize user with ID:", id);
-          const user = await storage.getUser(id);
-          if (!user) {
-            console.log("User not found for ID:", id);
-            return done(null, false);
-          }
-          console.log("User deserialized successfully:", user.email);
-          done(null, user);
-        } catch (error) {
-          console.error("Error deserializing user:", error);
-          // Don't pass the error, just return null user to avoid breaking the session
-          done(null, false);
-        }
-      });
-
-      // Auth0 routes
-      app.get('/api/login', passport.authenticate('auth0', {
-        scope: 'openid email profile'
-      }));
-
-      app.get('/api/callback', 
-        (req, res, next) => {
-          console.log('Auth0 callback received:', {
-            query: req.query,
-            headers: req.headers.host,
-            url: req.url
-          });
-          next();
-        },
-        passport.authenticate('auth0', {
-          failureRedirect: '/login-failed',
-          failureMessage: true
-        }), 
-        (req, res) => {
-          console.log("Auth0 callback successful, redirecting to home");
-          res.redirect('/');
-        }
-      );
-
-      app.get('/api/logout', (req, res) => {
-        let returnUrl;
-        
-        // If we're deployed to production
-        if (process.env.REPLIT_DEPLOYMENT === '1' && process.env.AUTH0_LOGOUT_URL?.includes('mymedlink.ca')) {
-          returnUrl = process.env.AUTH0_LOGOUT_URL;
-        }
-        // If we're in Replit development environment
-        else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-          returnUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-        }
-        // Local development
-        else {
-          returnUrl = 'http://localhost:5000';
-        }
-        
-        const returnTo = encodeURIComponent(returnUrl);
-        
-        req.logout((err) => {
-          if (err) {
-            console.error("Logout error:", err);
-            return res.status(500).send('Logout failed');
-          }
-          
-          // Auth0 logout URL
-          const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${returnTo}&client_id=${process.env.AUTH0_CLIENT_ID}`;
-          res.redirect(logoutURL);
-        });
-      });
-
-      console.log("Auth0 authentication setup completed successfully");
-    } else {
-      console.log("Auth0 credentials not provided, using fallback session-only auth");
-      
-      // Fallback: simple session-based auth for testing
-      app.post('/api/login', async (req, res) => {
-        const { email } = req.body;
-        if (!email) {
-          return res.status(400).json({ error: 'Email required' });
-        }
-        
-        try {
-          // Create a test user
-          const user = await storage.upsertUser({
-            id: `test-${Date.now()}`,
-            email,
-            firstName: email.split('@')[0],
-            lastName: 'User',
-            profileImageUrl: '',
-          });
-          
-          (req as any).login(user, (err: any) => {
-            if (err) return res.status(500).json({ error: 'Login failed' });
-            res.json(user);
-          });
-        } catch (error) {
-          res.status(500).json({ error: 'Login failed' });
-        }
-      });
+    if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_CLIENT_ID || !process.env.AUTH0_CLIENT_SECRET) {
+      throw new Error("Missing required Auth0 environment variables");
     }
+
+    const callbackURL = resolveCallbackUrl();
+    const isProduction =
+      process.env.REPLIT_DEPLOYMENT === '1' ||
+      process.env.NODE_ENV === 'production';
+
+    console.log('Auth0 configuration:', {
+      deployment: process.env.REPLIT_DEPLOYMENT,
+      nodeEnv: process.env.NODE_ENV,
+      isProduction,
+      callbackURL,
+      domain: process.env.AUTH0_DOMAIN,
+      hasCallbackEnvVar: !!process.env.AUTH0_CALLBACK_URL,
+    });
+
+    passport.use(new Auth0Strategy({
+      domain: process.env.AUTH0_DOMAIN,
+      clientID: process.env.AUTH0_CLIENT_ID,
+      clientSecret: process.env.AUTH0_CLIENT_SECRET,
+      callbackURL: callbackURL,
+      state: true // Enable state parameter for security
+    }, async (_accessToken: string, _refreshToken: string, _extraParams: any, profile: any, done: any) => {
+      try {
+        const userData = {
+          id: profile.id,
+          email: profile.emails?.[0]?.value || profile.email || '',
+          firstName: profile.given_name || profile.name?.givenName || '',
+          lastName: profile.family_name || profile.name?.familyName || '',
+          profileImageUrl: profile.picture || '',
+        };
+
+        const user = await storage.upsertUser(userData);
+
+        // Track new signups (fire-and-forget)
+        // createdAt ≈ updatedAt only on first insert (no conflict)
+        const isNewUser =
+          user.createdAt &&
+          user.updatedAt &&
+          Math.abs(user.createdAt.getTime() - user.updatedAt.getTime()) < 2000;
+        if (isNewUser) {
+          void storage.recordAnalytics({
+            date: new Date(),
+            metric: "daily_signups",
+            value: "1",
+            category: "users",
+            metadata: null,
+          }).catch((err) => console.error("Analytics error:", err));
+        }
+
+        return done(null, user);
+      } catch (error) {
+        console.error("Error in Auth0 strategy:", error);
+        return done(error);
+      }
+    }));
+
+    // Serialize user for session
+    passport.serializeUser((user: any, done) => {
+      done(null, user.id);
+    });
+
+    passport.deserializeUser(async (id: string, done) => {
+      try {
+        const user = await storage.getUser(id);
+        if (!user) {
+          return done(null, false);
+        }
+        done(null, user);
+      } catch (error) {
+        console.error("Error deserializing user:", error);
+        done(null, false);
+      }
+    });
+
+    // Auth0 routes
+    // NOTE: Do NOT pass a per-request callbackURL here. The strategy was
+    // initialised with the correct AUTH0_CALLBACK_URL (or a derived fallback)
+    // at startup. Overriding it per-request can cause a mismatch between the
+    // URL used to generate the `state` param and the URL used to verify it,
+    // which manifests as "user = false" and a redirect to /login-failed.
+    app.get('/api/login', (req, res, next) => {
+      console.log('[auth] /api/login initiated', {
+        host: req.headers.host,
+        proto: req.headers['x-forwarded-proto'] || req.protocol,
+      });
+      passport.authenticate('auth0', {
+        scope: 'openid email profile',
+      })(req, res, next);
+    });
+
+    app.get('/api/callback', (req, res, next) => {
+      passport.authenticate('auth0', {}, (err: any, user: any, info: any) => {
+        if (err) {
+          console.error("[auth] /api/callback — passport error:", {
+            message: err?.message,
+            stack: err?.stack,
+            sessionId: req.sessionID,
+          });
+          return res.redirect('/login-failed');
+        }
+
+        if (!user) {
+          // `info` from passport-auth0 contains the specific failure reason
+          // (e.g. state mismatch, token exchange failure, user lookup failure).
+          console.error("[auth] /api/callback — authentication failed (no user):", {
+            info: JSON.stringify(info),
+            sessionId: req.sessionID,
+            hasSession: !!req.session,
+            query: { code: req.query.code ? '[present]' : '[missing]', state: req.query.state, error: req.query.error, error_description: req.query.error_description },
+          });
+          return res.redirect('/login-failed');
+        }
+
+        console.log('[auth] /api/callback — user authenticated, starting session', { userId: user.id });
+        req.logIn(user, (loginErr) => {
+          if (loginErr) {
+            console.error("[auth] /api/callback — req.logIn failed:", loginErr);
+            return res.redirect('/login-failed');
+          }
+          return res.redirect('/');
+        });
+      })(req, res, next);
+    });
+
+    app.get('/api/logout', (req, res) => {
+      const returnUrl = resolveLogoutReturnUrl(req);
+
+      const returnTo = encodeURIComponent(returnUrl);
+
+      req.logout((err) => {
+        if (err) {
+          console.error("Logout error:", err);
+          return res.status(500).send('Logout failed');
+        }
+
+        // Auth0 logout URL
+        const logoutURL = `https://${process.env.AUTH0_DOMAIN}/v2/logout?returnTo=${returnTo}&client_id=${process.env.AUTH0_CLIENT_ID}`;
+        res.redirect(logoutURL);
+      });
+    });
+
+    console.log("Auth0 authentication setup completed successfully");
 
     // Common auth routes - removed since it's handled in routes.ts
 

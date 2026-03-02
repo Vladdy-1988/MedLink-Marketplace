@@ -15,17 +15,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const insuranceSchema = z.object({
-  providerName: z.string().min(1, "Provider name is required"),
+  provider: z.string().min(1, "Provider is required"),
   policyNumber: z.string().min(1, "Policy number is required"),
   groupNumber: z.string().optional(),
-  subscriberName: z.string().min(1, "Subscriber name is required"),
-  relationship: z.string().min(1, "Relationship is required"),
-  effectiveDate: z.string().min(1, "Effective date is required"),
-  expirationDate: z.string().optional(),
-  copay: z.string().optional(),
-  deductible: z.string().optional(),
+  memberNumber: z.string().optional(),
+  planType: z.string().optional(),
+  effectiveDate: z.string().optional(),
+  expiryDate: z.string().optional(),
+  copayAmount: z.string().optional(),
+  deductibleAmount: z.string().optional(),
   isPrimary: z.boolean().default(true),
-  notes: z.string().optional(),
 });
 
 type InsuranceFormData = z.infer<typeof insuranceSchema>;
@@ -33,8 +32,8 @@ type InsuranceFormData = z.infer<typeof insuranceSchema>;
 interface Insurance extends InsuranceFormData {
   id: number;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function InsuranceManagement() {
@@ -46,35 +45,42 @@ export function InsuranceManagement() {
   const form = useForm<InsuranceFormData>({
     resolver: zodResolver(insuranceSchema),
     defaultValues: {
-      providerName: "",
+      provider: "",
       policyNumber: "",
       groupNumber: "",
-      subscriberName: "",
-      relationship: "self",
+      memberNumber: "",
+      planType: "",
       effectiveDate: "",
-      expirationDate: "",
-      copay: "",
-      deductible: "",
+      expiryDate: "",
+      copayAmount: "",
+      deductibleAmount: "",
       isPrimary: true,
-      notes: "",
     },
   });
 
-  // Fetch insurance information
   const { data: insuranceList = [], isLoading } = useQuery<Insurance[]>({
-    queryKey: ['/api/user/insurance'],
-    queryFn: () => apiRequestJson<Insurance[]>('GET', '/api/user/insurance'),
+    queryKey: ["/api/user/insurance"],
+    queryFn: () => apiRequestJson<Insurance[]>("GET", "/api/user/insurance"),
   });
 
-  // Create insurance mutation
   const createInsuranceMutation = useMutation({
-    mutationFn: (data: InsuranceFormData) => apiRequest('POST', '/api/user/insurance', data),
+    mutationFn: (data: InsuranceFormData) =>
+      apiRequest("POST", "/api/user/insurance", {
+        ...data,
+        groupNumber: data.groupNumber || null,
+        memberNumber: data.memberNumber || null,
+        planType: data.planType || null,
+        copayAmount: data.copayAmount || null,
+        deductibleAmount: data.deductibleAmount || null,
+        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
+        expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
+      }),
     onSuccess: () => {
       toast({
         title: "Insurance Added",
         description: "Your insurance information has been successfully added.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/insurance'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/insurance"] });
       setIsDialogOpen(false);
       form.reset();
     },
@@ -87,16 +93,25 @@ export function InsuranceManagement() {
     },
   });
 
-  // Update insurance mutation
   const updateInsuranceMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<InsuranceFormData> }) =>
-      apiRequest('PUT', `/api/user/insurance/${id}`, data),
+      apiRequest("PUT", `/api/user/insurance/${id}`, {
+        ...data,
+        groupNumber: data.groupNumber === "" ? null : data.groupNumber,
+        memberNumber: data.memberNumber === "" ? null : data.memberNumber,
+        planType: data.planType === "" ? null : data.planType,
+        copayAmount: data.copayAmount === "" ? null : data.copayAmount,
+        deductibleAmount: data.deductibleAmount === "" ? null : data.deductibleAmount,
+        effectiveDate:
+          data.effectiveDate === undefined ? undefined : data.effectiveDate ? new Date(data.effectiveDate) : null,
+        expiryDate: data.expiryDate === undefined ? undefined : data.expiryDate ? new Date(data.expiryDate) : null,
+      }),
     onSuccess: () => {
       toast({
         title: "Insurance Updated",
         description: "Your insurance information has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/insurance'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/insurance"] });
       setIsDialogOpen(false);
       setEditingInsurance(null);
       form.reset();
@@ -110,15 +125,14 @@ export function InsuranceManagement() {
     },
   });
 
-  // Delete insurance mutation
   const deleteInsuranceMutation = useMutation({
-    mutationFn: (id: number) => apiRequest('DELETE', `/api/user/insurance/${id}`),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/user/insurance/${id}`),
     onSuccess: () => {
       toast({
         title: "Insurance Deleted",
         description: "Your insurance information has been successfully deleted.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/user/insurance'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user/insurance"] });
     },
     onError: (error: any) => {
       toast({
@@ -140,17 +154,16 @@ export function InsuranceManagement() {
   const handleEdit = (insurance: Insurance) => {
     setEditingInsurance(insurance);
     form.reset({
-      providerName: insurance.providerName,
+      provider: insurance.provider,
       policyNumber: insurance.policyNumber,
       groupNumber: insurance.groupNumber || "",
-      subscriberName: insurance.subscriberName,
-      relationship: insurance.relationship,
-      effectiveDate: insurance.effectiveDate,
-      expirationDate: insurance.expirationDate || "",
-      copay: insurance.copay || "",
-      deductible: insurance.deductible || "",
+      memberNumber: insurance.memberNumber || "",
+      planType: insurance.planType || "",
+      effectiveDate: insurance.effectiveDate ? new Date(insurance.effectiveDate).toISOString().slice(0, 10) : "",
+      expiryDate: insurance.expiryDate ? new Date(insurance.expiryDate).toISOString().slice(0, 10) : "",
+      copayAmount: insurance.copayAmount || "",
+      deductibleAmount: insurance.deductibleAmount || "",
       isPrimary: insurance.isPrimary,
-      notes: insurance.notes || "",
     });
     setIsDialogOpen(true);
   };
@@ -170,7 +183,7 @@ export function InsuranceManagement() {
     if (!expirationDate) return false;
     const expDate = new Date(expirationDate);
     const today = new Date();
-    const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
     return expDate >= today && expDate <= thirtyDaysFromNow;
   };
 
@@ -192,12 +205,12 @@ export function InsuranceManagement() {
               Insurance Information
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Manage your health insurance policies and coverage details
+              Manage your insurance policies and coverage details
             </CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl"
                 onClick={() => {
                   setEditingInsurance(null);
@@ -211,32 +224,23 @@ export function InsuranceManagement() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  {editingInsurance ? "Edit Insurance Information" : "Add Insurance Information"}
-                </DialogTitle>
+                <DialogTitle>{editingInsurance ? "Edit Insurance Information" : "Add Insurance Information"}</DialogTitle>
                 <DialogDescription>
-                  {editingInsurance 
-                    ? "Update your insurance policy information below"
-                    : "Add your health insurance policy details"
-                  }
+                  {editingInsurance ? "Update your insurance policy" : "Add your insurance policy details"}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="providerName"
+                      name="provider"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Insurance Provider</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Blue Cross Blue Shield"
-                              data-testid="input-provider-name"
-                            />
+                            <Input {...field} placeholder="Blue Cross" data-testid="input-provider" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -249,11 +253,7 @@ export function InsuranceManagement() {
                         <FormItem>
                           <FormLabel>Policy Number</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="ABC123456789"
-                              data-testid="input-policy-number"
-                            />
+                            <Input {...field} placeholder="ABC123456789" data-testid="input-policy-number" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -269,11 +269,7 @@ export function InsuranceManagement() {
                         <FormItem>
                           <FormLabel>Group Number (Optional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="GRP001"
-                              data-testid="input-group-number"
-                            />
+                            <Input {...field} placeholder="GRP001" data-testid="input-group-number" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -281,16 +277,12 @@ export function InsuranceManagement() {
                     />
                     <FormField
                       control={form.control}
-                      name="subscriberName"
+                      name="memberNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Subscriber Name</FormLabel>
+                          <FormLabel>Member Number (Optional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="John Doe"
-                              data-testid="input-subscriber-name"
-                            />
+                            <Input {...field} placeholder="MEM001" data-testid="input-member-number" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -298,61 +290,39 @@ export function InsuranceManagement() {
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="relationship"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Relationship to Subscriber</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger data-testid="select-relationship">
-                              <SelectValue placeholder="Select relationship" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="self">Self</SelectItem>
-                            <SelectItem value="spouse">Spouse</SelectItem>
-                            <SelectItem value="child">Child</SelectItem>
-                            <SelectItem value="dependent">Dependent</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="planType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Plan Type (Optional)</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-plan-type">
+                                <SelectValue placeholder="Select plan type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="individual">Individual</SelectItem>
+                              <SelectItem value="family">Family</SelectItem>
+                              <SelectItem value="group">Group</SelectItem>
+                              <SelectItem value="self">Self</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="effectiveDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Effective Date</FormLabel>
+                          <FormLabel>Effective Date (Optional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              type="date"
-                              data-testid="input-effective-date"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="expirationDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Expiration Date (Optional)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              type="date"
-                              data-testid="input-expiration-date"
-                            />
+                            <Input {...field} type="date" data-testid="input-effective-date" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -363,16 +333,12 @@ export function InsuranceManagement() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="copay"
+                      name="expiryDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Copay (Optional)</FormLabel>
+                          <FormLabel>Expiry Date (Optional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="$25"
-                              data-testid="input-copay"
-                            />
+                            <Input {...field} type="date" data-testid="input-expiry-date" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -380,16 +346,12 @@ export function InsuranceManagement() {
                     />
                     <FormField
                       control={form.control}
-                      name="deductible"
+                      name="copayAmount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Deductible (Optional)</FormLabel>
+                          <FormLabel>Copay Amount (Optional)</FormLabel>
                           <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="$500"
-                              data-testid="input-deductible"
-                            />
+                            <Input {...field} placeholder="25.00" data-testid="input-copay" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -399,16 +361,12 @@ export function InsuranceManagement() {
 
                   <FormField
                     control={form.control}
-                    name="notes"
+                    name="deductibleAmount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Notes (Optional)</FormLabel>
+                        <FormLabel>Deductible Amount (Optional)</FormLabel>
                         <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="Additional information about coverage..."
-                            data-testid="input-insurance-notes"
-                          />
+                          <Input {...field} placeholder="500.00" data-testid="input-deductible" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -422,9 +380,7 @@ export function InsuranceManagement() {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-base">Primary Insurance</FormLabel>
-                          <div className="text-sm text-muted-foreground">
-                            This is your primary insurance policy
-                          </div>
+                          <div className="text-sm text-muted-foreground">Mark this as your main insurance policy</div>
                         </div>
                         <FormControl>
                           <input
@@ -440,16 +396,11 @@ export function InsuranceManagement() {
                   />
 
                   <div className="flex justify-end gap-3 pt-4">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setIsDialogOpen(false)}
-                      data-testid="button-cancel-insurance"
-                    >
+                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} data-testid="button-cancel-insurance">
                       Cancel
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={createInsuranceMutation.isPending || updateInsuranceMutation.isPending}
                       data-testid="button-save-insurance"
                     >
@@ -465,29 +416,23 @@ export function InsuranceManagement() {
           </Dialog>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-8">
         {insuranceList.length === 0 ? (
           <div className="text-center py-12">
             <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Insurance Information</h3>
-            <p className="text-muted-foreground mb-6">
-              Add your health insurance information to streamline billing and coverage verification
-            </p>
-            <Button 
-              onClick={() => setIsDialogOpen(true)}
-              className="px-6 py-3 rounded-xl"
-              data-testid="button-add-first-insurance"
-            >
+            <p className="text-muted-foreground mb-6">Add insurance information to streamline billing and verification</p>
+            <Button onClick={() => setIsDialogOpen(true)} className="px-6 py-3 rounded-xl" data-testid="button-add-first-insurance">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Insurance
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {insuranceList.map((insurance: Insurance) => (
-              <div 
-                key={insurance.id} 
+            {insuranceList.map((insurance) => (
+              <div
+                key={insurance.id}
                 className="relative group p-6 rounded-2xl border-2 border-muted hover:border-primary/30 transition-all duration-200 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm"
                 data-testid={`insurance-card-${insurance.id}`}
               >
@@ -497,25 +442,21 @@ export function InsuranceManagement() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">{insurance.providerName}</h3>
+                      <h3 className="font-semibold text-lg">{insurance.provider}</h3>
                       <div className="flex gap-1">
                         {insurance.isPrimary && (
-                          <Badge variant="default" className="text-xs">
-                            Primary
-                          </Badge>
+                          <Badge variant="default" className="text-xs">Primary</Badge>
                         )}
-                        {insurance.expirationDate && isExpired(insurance.expirationDate) && (
+                        {insurance.expiryDate && isExpired(insurance.expiryDate) && (
                           <Badge variant="destructive" className="text-xs flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
                             Expired
                           </Badge>
                         )}
-                        {insurance.expirationDate && isExpiringSoon(insurance.expirationDate) && !isExpired(insurance.expirationDate) && (
-                          <Badge variant="outline" className="text-xs text-yellow-700 border-yellow-300">
-                            Expiring Soon
-                          </Badge>
+                        {insurance.expiryDate && isExpiringSoon(insurance.expiryDate) && !isExpired(insurance.expiryDate) && (
+                          <Badge variant="outline" className="text-xs text-yellow-700 border-yellow-300">Expiring Soon</Badge>
                         )}
-                        {insurance.expirationDate && !isExpired(insurance.expirationDate) && !isExpiringSoon(insurance.expirationDate) && (
+                        {insurance.expiryDate && !isExpired(insurance.expiryDate) && !isExpiringSoon(insurance.expiryDate) && (
                           <Badge variant="outline" className="text-xs text-green-700 border-green-300 flex items-center gap-1">
                             <CheckCircle className="h-3 w-3" />
                             Active
@@ -524,51 +465,22 @@ export function InsuranceManagement() {
                       </div>
                     </div>
                     <div className="space-y-2 text-sm">
-                      <p>
-                        <span className="font-medium">Policy:</span> {insurance.policyNumber}
-                      </p>
-                      {insurance.groupNumber && (
-                        <p>
-                          <span className="font-medium">Group:</span> {insurance.groupNumber}
-                        </p>
-                      )}
-                      <p>
-                        <span className="font-medium">Subscriber:</span> {insurance.subscriberName}
-                      </p>
-                      <p className="capitalize">
-                        <span className="font-medium">Relationship:</span> {insurance.relationship}
-                      </p>
-                      <p>
-                        <span className="font-medium">Effective:</span> {new Date(insurance.effectiveDate).toLocaleDateString()}
-                      </p>
-                      {insurance.expirationDate && (
-                        <p>
-                          <span className="font-medium">Expires:</span> {new Date(insurance.expirationDate).toLocaleDateString()}
-                        </p>
-                      )}
-                      {(insurance.copay || insurance.deductible) && (
+                      <p><span className="font-medium">Policy:</span> {insurance.policyNumber}</p>
+                      {insurance.groupNumber && <p><span className="font-medium">Group:</span> {insurance.groupNumber}</p>}
+                      {insurance.memberNumber && <p><span className="font-medium">Member:</span> {insurance.memberNumber}</p>}
+                      {insurance.planType && <p className="capitalize"><span className="font-medium">Plan:</span> {insurance.planType}</p>}
+                      {insurance.effectiveDate && <p><span className="font-medium">Effective:</span> {new Date(insurance.effectiveDate).toLocaleDateString()}</p>}
+                      {insurance.expiryDate && <p><span className="font-medium">Expires:</span> {new Date(insurance.expiryDate).toLocaleDateString()}</p>}
+                      {(insurance.copayAmount || insurance.deductibleAmount) && (
                         <div className="flex gap-4">
-                          {insurance.copay && (
-                            <p>
-                              <span className="font-medium">Copay:</span> {insurance.copay}
-                            </p>
-                          )}
-                          {insurance.deductible && (
-                            <p>
-                              <span className="font-medium">Deductible:</span> {insurance.deductible}
-                            </p>
-                          )}
+                          {insurance.copayAmount && <p><span className="font-medium">Copay:</span> ${insurance.copayAmount}</p>}
+                          {insurance.deductibleAmount && <p><span className="font-medium">Deductible:</span> ${insurance.deductibleAmount}</p>}
                         </div>
                       )}
                     </div>
-                    {insurance.notes && (
-                      <p className="text-xs text-muted-foreground mt-3 italic">
-                        {insurance.notes}
-                      </p>
-                    )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-muted/30">
                   <Button
                     size="sm"

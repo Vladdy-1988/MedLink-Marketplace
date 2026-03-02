@@ -164,6 +164,7 @@ export default function Home() {
       </section>
 
       {/* Quick Stats */}
+      {/* UI-only role check for display personalization. Server/API enforce real authorization. */}
       {user?.userType === 'patient' && (
         <section className="py-8 -mt-8 relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

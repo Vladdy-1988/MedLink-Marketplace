@@ -27,6 +27,7 @@ export default function ProviderDashboard() {
 
   // Redirect to home if not authenticated or not a provider
   useEffect(() => {
+    // UI-only role check for dashboard routing. Server/API enforce real authorization.
     if (!authLoading && (!isAuthenticated || user?.userType !== 'provider')) {
       toast({
         title: "Unauthorized",
@@ -42,6 +43,7 @@ export default function ProviderDashboard() {
 
   const { data: provider, isLoading: providerLoading, error: providerError } = useQuery({
     queryKey: ["/api/providers/user", user?.id],
+    // UI-only role check for query gating. Server/API enforce real authorization.
     enabled: !!user?.id && user?.userType === 'provider' && isAuthenticated,
   });
 
@@ -103,6 +105,7 @@ export default function ProviderDashboard() {
     );
   }
 
+  // UI-only role check for rendering. Server/API enforce real authorization.
   if (!isAuthenticated || user?.userType !== 'provider' || !provider) {
     return null;
   }

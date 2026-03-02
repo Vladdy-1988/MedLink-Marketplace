@@ -23,6 +23,9 @@ import {
   bookingDocuments,
   bookingStatusHistory,
   messageAttachments,
+  consentRecords,
+  userReports,
+  waitlistEntries,
   type User,
   type UpsertUser,
   type Provider,
@@ -42,7 +45,6 @@ import {
   type Transaction,
   type InsertTransaction,
   type SystemSetting,
-  type InsertSystemSetting,
   type UserActivityLog,
   type InsertUserActivityLog,
   type PlatformAnalytics,
@@ -70,9 +72,15 @@ import {
   type InsertBookingStatusHistory,
   type MessageAttachment,
   type InsertMessageAttachment,
+  type ConsentRecord,
+  type InsertConsentRecord,
+  type UserReport,
+  type InsertUserReport,
+  type WaitlistEntry,
+  type InsertWaitlistEntry,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, sql, like, gte, lte } from "drizzle-orm";
+import { eq, desc, and, or, sql, gte, lte, ilike } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -83,51 +91,54 @@ export interface IStorage {
   // User address operations
   createUserAddress(address: InsertUserAddress): Promise<UserAddress>;
   getUserAddresses(userId: string): Promise<UserAddress[]>;
-  updateUserAddress(id: number, updates: Partial<UserAddress>): Promise<UserAddress>;
-  deleteUserAddress(id: number): Promise<void>;
-  setDefaultAddress(userId: string, addressId: number): Promise<void>;
+  updateUserAddress(id: number, userId: string, updates: Partial<UserAddress>): Promise<UserAddress | undefined>;
+  deleteUserAddress(id: number, userId: string): Promise<boolean>;
+  setDefaultAddress(userId: string, addressId: number): Promise<boolean>;
 
   // Emergency contact operations
   createEmergencyContact(contact: InsertEmergencyContact): Promise<EmergencyContact>;
   getEmergencyContacts(userId: string): Promise<EmergencyContact[]>;
-  updateEmergencyContact(id: number, updates: Partial<EmergencyContact>): Promise<EmergencyContact>;
-  deleteEmergencyContact(id: number): Promise<void>;
+  updateEmergencyContact(id: number, userId: string, updates: Partial<EmergencyContact>): Promise<EmergencyContact | undefined>;
+  deleteEmergencyContact(id: number, userId: string): Promise<boolean>;
 
   // Patient health profile operations
   createHealthProfile(profile: InsertPatientHealthProfile): Promise<PatientHealthProfile>;
   getHealthProfile(userId: string): Promise<PatientHealthProfile | undefined>;
-  updateHealthProfile(id: number, updates: Partial<PatientHealthProfile>): Promise<PatientHealthProfile>;
+  updateHealthProfile(id: number, userId: string, updates: Partial<PatientHealthProfile>): Promise<PatientHealthProfile | undefined>;
 
   // Family member operations
   createFamilyMember(member: InsertFamilyMember): Promise<FamilyMember>;
   getFamilyMembers(userId: string): Promise<FamilyMember[]>;
-  updateFamilyMember(id: number, updates: Partial<FamilyMember>): Promise<FamilyMember>;
-  deleteFamilyMember(id: number): Promise<void>;
+  updateFamilyMember(id: number, userId: string, updates: Partial<FamilyMember>): Promise<FamilyMember | undefined>;
+  deleteFamilyMember(id: number, userId: string): Promise<boolean>;
 
   // Insurance operations
   createInsuranceInfo(insurance: InsertInsuranceInfo): Promise<InsuranceInfo>;
   getInsuranceInfo(userId: string): Promise<InsuranceInfo[]>;
-  updateInsuranceInfo(id: number, updates: Partial<InsuranceInfo>): Promise<InsuranceInfo>;
-  deleteInsuranceInfo(id: number): Promise<void>;
+  updateInsuranceInfo(id: number, userId: string, updates: Partial<InsuranceInfo>): Promise<InsuranceInfo | undefined>;
+  deleteInsuranceInfo(id: number, userId: string): Promise<boolean>;
 
   // Payment method operations
   createPaymentMethod(method: InsertPaymentMethod): Promise<PaymentMethod>;
   getPaymentMethods(userId: string): Promise<PaymentMethod[]>;
-  updatePaymentMethod(id: number, updates: Partial<PaymentMethod>): Promise<PaymentMethod>;
-  deletePaymentMethod(id: number): Promise<void>;
-  setDefaultPaymentMethod(userId: string, methodId: number): Promise<void>;
+  updatePaymentMethod(id: number, userId: string, updates: Partial<PaymentMethod>): Promise<PaymentMethod | undefined>;
+  deletePaymentMethod(id: number, userId: string): Promise<boolean>;
+  setDefaultPaymentMethod(userId: string, methodId: number): Promise<boolean>;
 
   // Provider operations
   createProvider(provider: InsertProvider): Promise<Provider>;
   getProvider(id: number): Promise<Provider | undefined>;
   getProviderByUserId(userId: string): Promise<Provider | undefined>;
+  getMarketplaceProviders(): Promise<any[]>;
+  getMarketplaceProviderById(id: number): Promise<any | undefined>;
   updateProviderApproval(id: number, isApproved: boolean): Promise<void>;
   searchProviders(filters: {
     serviceType?: string;
     location?: string;
     priceRange?: [number, number];
     rating?: number;
-  }): Promise<Provider[]>;
+  }): Promise<any[]>;
+  getNextAvailableSlot(providerId: number): Promise<Date | null>;
 
   // Service operations
   createService(service: InsertService): Promise<Service>;
@@ -163,6 +174,8 @@ export interface IStorage {
   getBookingWithDetails(id: number): Promise<any>;
   cancelBooking(id: number, cancelledBy: string, reason?: string): Promise<void>;
   rescheduleBooking(id: number, newDate: Date, rescheduleBy: string, reason?: string): Promise<void>;
+  getUpcomingBookingsNeedingReminder(window: "24h" | "1h"): Promise<Booking[]>;
+  markReminderSent(id: number, window: "24h" | "1h"): Promise<void>;
 
   // Booking document operations
   createBookingDocument(document: InsertBookingDocument): Promise<BookingDocument>;
@@ -174,6 +187,7 @@ export interface IStorage {
   getBookingStatusHistory(bookingId: number): Promise<BookingStatusHistory[]>;
 
   // Message operations
+  getMessage(id: number): Promise<Message | undefined>;
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBetweenUsers(userId1: string, userId2: string): Promise<Message[]>;
   getConversationsForUser(userId: string): Promise<any[]>;
@@ -187,7 +201,19 @@ export interface IStorage {
 
   // Review operations
   createReview(review: InsertReview): Promise<Review>;
-  getReviewsForProvider(providerId: number): Promise<Review[]>;
+  getReviewsForProvider(providerId: number): Promise<any[]>;
+  getReviewByBookingId(bookingId: number): Promise<Review | undefined>;
+
+  // User report operations
+  createUserReport(report: InsertUserReport): Promise<UserReport>;
+  getUserReports(filters?: { status?: string; providerId?: number }): Promise<any[]>;
+
+  // Waitlist operations
+  createWaitlistEntry(entry: InsertWaitlistEntry): Promise<WaitlistEntry>;
+  getWaitlistByPatient(patientId: string): Promise<WaitlistEntry[]>;
+  getWaitlistByProvider(providerId: number): Promise<WaitlistEntry[]>;
+  notifyWaitlistEntries(providerId: number, cancelledDate: Date): Promise<WaitlistEntry[]>;
+  deleteWaitlistEntry(id: number, patientId: string): Promise<boolean>;
 
   // Provider credential operations
   createProviderCredential(credential: InsertProviderCredential): Promise<ProviderCredential>;
@@ -251,6 +277,12 @@ export interface IStorage {
   suspendUser(userId: string, reason: string, suspendedBy: string): Promise<void>;
   reactivateUser(userId: string, reactivatedBy: string): Promise<void>;
   deleteUser(userId: string, deletedBy: string): Promise<void>;
+
+  // Consent record operations (HIPAA/HIA compliance)
+  createConsentRecord(record: InsertConsentRecord): Promise<ConsentRecord>;
+  getConsentRecords(userId: string): Promise<ConsentRecord[]>;
+  hasRequiredConsents(userId: string): Promise<boolean>;
+  markOnboardingComplete(userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -301,32 +333,47 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(userAddresses.isDefault));
   }
 
-  async updateUserAddress(id: number, updates: Partial<UserAddress>): Promise<UserAddress> {
+  async updateUserAddress(id: number, userId: string, updates: Partial<UserAddress>): Promise<UserAddress | undefined> {
     const [address] = await db
       .update(userAddresses)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(userAddresses.id, id))
+      .where(and(eq(userAddresses.id, id), eq(userAddresses.userId, userId)))
       .returning();
     return address;
   }
 
-  async deleteUserAddress(id: number): Promise<void> {
-    await db.delete(userAddresses).where(eq(userAddresses.id, id));
+  async deleteUserAddress(id: number, userId: string): Promise<boolean> {
+    const [deleted] = await db
+      .delete(userAddresses)
+      .where(and(eq(userAddresses.id, id), eq(userAddresses.userId, userId)))
+      .returning({ id: userAddresses.id });
+    return Boolean(deleted);
   }
 
-  async setDefaultAddress(userId: string, addressId: number): Promise<void> {
-    await db.transaction(async (tx) => {
+  async setDefaultAddress(userId: string, addressId: number): Promise<boolean> {
+    return db.transaction(async (tx) => {
+      const [exists] = await tx
+        .select({ id: userAddresses.id })
+        .from(userAddresses)
+        .where(and(eq(userAddresses.id, addressId), eq(userAddresses.userId, userId)));
+
+      if (!exists) {
+        return false;
+      }
+
       // Unset all default addresses for user
       await tx
         .update(userAddresses)
         .set({ isDefault: false })
         .where(eq(userAddresses.userId, userId));
-      
-      // Set new default
-      await tx
+
+      const [updated] = await tx
         .update(userAddresses)
-        .set({ isDefault: true })
-        .where(eq(userAddresses.id, addressId));
+        .set({ isDefault: true, updatedAt: new Date() })
+        .where(and(eq(userAddresses.id, addressId), eq(userAddresses.userId, userId)))
+        .returning({ id: userAddresses.id });
+
+      return Boolean(updated);
     });
   }
 
@@ -347,17 +394,21 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(emergencyContacts.isPrimary));
   }
 
-  async updateEmergencyContact(id: number, updates: Partial<EmergencyContact>): Promise<EmergencyContact> {
+  async updateEmergencyContact(id: number, userId: string, updates: Partial<EmergencyContact>): Promise<EmergencyContact | undefined> {
     const [contact] = await db
       .update(emergencyContacts)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(emergencyContacts.id, id))
+      .where(and(eq(emergencyContacts.id, id), eq(emergencyContacts.userId, userId)))
       .returning();
     return contact;
   }
 
-  async deleteEmergencyContact(id: number): Promise<void> {
-    await db.delete(emergencyContacts).where(eq(emergencyContacts.id, id));
+  async deleteEmergencyContact(id: number, userId: string): Promise<boolean> {
+    const [deleted] = await db
+      .delete(emergencyContacts)
+      .where(and(eq(emergencyContacts.id, id), eq(emergencyContacts.userId, userId)))
+      .returning({ id: emergencyContacts.id });
+    return Boolean(deleted);
   }
 
   // Patient health profile operations
@@ -377,11 +428,11 @@ export class DatabaseStorage implements IStorage {
     return profile;
   }
 
-  async updateHealthProfile(id: number, updates: Partial<PatientHealthProfile>): Promise<PatientHealthProfile> {
+  async updateHealthProfile(id: number, userId: string, updates: Partial<PatientHealthProfile>): Promise<PatientHealthProfile | undefined> {
     const [profile] = await db
       .update(patientHealthProfiles)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(patientHealthProfiles.id, id))
+      .where(and(eq(patientHealthProfiles.id, id), eq(patientHealthProfiles.userId, userId)))
       .returning();
     return profile;
   }
@@ -403,17 +454,21 @@ export class DatabaseStorage implements IStorage {
       .orderBy(familyMembers.firstName);
   }
 
-  async updateFamilyMember(id: number, updates: Partial<FamilyMember>): Promise<FamilyMember> {
+  async updateFamilyMember(id: number, userId: string, updates: Partial<FamilyMember>): Promise<FamilyMember | undefined> {
     const [member] = await db
       .update(familyMembers)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(familyMembers.id, id))
+      .where(and(eq(familyMembers.id, id), eq(familyMembers.userId, userId)))
       .returning();
     return member;
   }
 
-  async deleteFamilyMember(id: number): Promise<void> {
-    await db.delete(familyMembers).where(eq(familyMembers.id, id));
+  async deleteFamilyMember(id: number, userId: string): Promise<boolean> {
+    const [deleted] = await db
+      .delete(familyMembers)
+      .where(and(eq(familyMembers.id, id), eq(familyMembers.userId, userId)))
+      .returning({ id: familyMembers.id });
+    return Boolean(deleted);
   }
 
   // Insurance operations
@@ -433,17 +488,21 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(insuranceInfo.isPrimary));
   }
 
-  async updateInsuranceInfo(id: number, updates: Partial<InsuranceInfo>): Promise<InsuranceInfo> {
+  async updateInsuranceInfo(id: number, userId: string, updates: Partial<InsuranceInfo>): Promise<InsuranceInfo | undefined> {
     const [insurance] = await db
       .update(insuranceInfo)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(insuranceInfo.id, id))
+      .where(and(eq(insuranceInfo.id, id), eq(insuranceInfo.userId, userId)))
       .returning();
     return insurance;
   }
 
-  async deleteInsuranceInfo(id: number): Promise<void> {
-    await db.delete(insuranceInfo).where(eq(insuranceInfo.id, id));
+  async deleteInsuranceInfo(id: number, userId: string): Promise<boolean> {
+    const [deleted] = await db
+      .delete(insuranceInfo)
+      .where(and(eq(insuranceInfo.id, id), eq(insuranceInfo.userId, userId)))
+      .returning({ id: insuranceInfo.id });
+    return Boolean(deleted);
   }
 
   // Payment method operations
@@ -463,32 +522,47 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(paymentMethods.isDefault));
   }
 
-  async updatePaymentMethod(id: number, updates: Partial<PaymentMethod>): Promise<PaymentMethod> {
+  async updatePaymentMethod(id: number, userId: string, updates: Partial<PaymentMethod>): Promise<PaymentMethod | undefined> {
     const [method] = await db
       .update(paymentMethods)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(paymentMethods.id, id))
+      .where(and(eq(paymentMethods.id, id), eq(paymentMethods.userId, userId)))
       .returning();
     return method;
   }
 
-  async deletePaymentMethod(id: number): Promise<void> {
-    await db.delete(paymentMethods).where(eq(paymentMethods.id, id));
+  async deletePaymentMethod(id: number, userId: string): Promise<boolean> {
+    const [deleted] = await db
+      .delete(paymentMethods)
+      .where(and(eq(paymentMethods.id, id), eq(paymentMethods.userId, userId)))
+      .returning({ id: paymentMethods.id });
+    return Boolean(deleted);
   }
 
-  async setDefaultPaymentMethod(userId: string, methodId: number): Promise<void> {
-    await db.transaction(async (tx) => {
+  async setDefaultPaymentMethod(userId: string, methodId: number): Promise<boolean> {
+    return db.transaction(async (tx) => {
+      const [exists] = await tx
+        .select({ id: paymentMethods.id })
+        .from(paymentMethods)
+        .where(and(eq(paymentMethods.id, methodId), eq(paymentMethods.userId, userId)));
+
+      if (!exists) {
+        return false;
+      }
+
       // Unset all default payment methods for user
       await tx
         .update(paymentMethods)
         .set({ isDefault: false })
         .where(eq(paymentMethods.userId, userId));
-      
-      // Set new default
-      await tx
+
+      const [updated] = await tx
         .update(paymentMethods)
-        .set({ isDefault: true })
-        .where(eq(paymentMethods.id, methodId));
+        .set({ isDefault: true, updatedAt: new Date() })
+        .where(and(eq(paymentMethods.id, methodId), eq(paymentMethods.userId, userId)))
+        .returning({ id: paymentMethods.id });
+
+      return Boolean(updated);
     });
   }
 
@@ -517,6 +591,65 @@ export class DatabaseStorage implements IStorage {
     return provider;
   }
 
+  async getMarketplaceProviders(): Promise<any[]> {
+    return db
+      .select({
+        id: providers.id,
+        userId: providers.userId,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
+        specialization: providers.specialization,
+        yearsExperience: providers.yearsExperience,
+        bio: providers.bio,
+        serviceAreas: providers.serviceAreas,
+        basePricing: providers.basePricing,
+        isVerified: providers.isVerified,
+        isApproved: providers.isApproved,
+        rating: providers.rating,
+        reviewCount: providers.reviewCount,
+        availability: providers.availability,
+        createdAt: providers.createdAt,
+      })
+      .from(providers)
+      .innerJoin(users, eq(providers.userId, users.id))
+      .where(and(eq(providers.isApproved, true), eq(providers.isVerified, true)))
+      .orderBy(desc(providers.rating), desc(providers.reviewCount), desc(providers.createdAt));
+  }
+
+  async getMarketplaceProviderById(id: number): Promise<any | undefined> {
+    const [provider] = await db
+      .select({
+        id: providers.id,
+        userId: providers.userId,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
+        specialization: providers.specialization,
+        yearsExperience: providers.yearsExperience,
+        bio: providers.bio,
+        serviceAreas: providers.serviceAreas,
+        basePricing: providers.basePricing,
+        isVerified: providers.isVerified,
+        isApproved: providers.isApproved,
+        rating: providers.rating,
+        reviewCount: providers.reviewCount,
+        availability: providers.availability,
+        createdAt: providers.createdAt,
+      })
+      .from(providers)
+      .innerJoin(users, eq(providers.userId, users.id))
+      .where(
+        and(
+          eq(providers.id, id),
+          eq(providers.isApproved, true),
+          eq(providers.isVerified, true),
+        ),
+      );
+
+    return provider;
+  }
+
   async updateProviderApproval(id: number, isApproved: boolean): Promise<void> {
     await db
       .update(providers)
@@ -529,11 +662,22 @@ export class DatabaseStorage implements IStorage {
     location?: string;
     priceRange?: [number, number];
     rating?: number;
-  }): Promise<Provider[]> {
+  }): Promise<any[]> {
     const conditions = [
       eq(providers.isApproved, true),
-      eq(providers.isVerified, true)
+      eq(providers.isVerified, true),
     ];
+
+    if (filters.serviceType) {
+      conditions.push(ilike(providers.specialization, `%${filters.serviceType}%`));
+    }
+
+    if (filters.location) {
+      // serviceAreas is a jsonb array — cast to text for a simple substring search
+      conditions.push(
+        sql`${providers.serviceAreas}::text ILIKE ${"%" + filters.location + "%"}`,
+      );
+    }
 
     if (filters.rating) {
       conditions.push(gte(providers.rating, filters.rating.toString()));
@@ -542,15 +686,91 @@ export class DatabaseStorage implements IStorage {
     if (filters.priceRange) {
       conditions.push(
         gte(providers.basePricing, filters.priceRange[0].toString()),
-        lte(providers.basePricing, filters.priceRange[1].toString())
+        lte(providers.basePricing, filters.priceRange[1].toString()),
       );
     }
 
-    return await db
+    const results = await db
       .select()
       .from(providers)
       .where(and(...conditions))
       .orderBy(desc(providers.rating));
+
+    // Append nextAvailableDate to each result (parallel lookups)
+    return Promise.all(
+      results.map(async (p) => ({
+        ...p,
+        nextAvailableDate: await this.getNextAvailableSlot(p.id),
+      })),
+    );
+  }
+
+  async getNextAvailableSlot(providerId: number): Promise<Date | null> {
+    const now = new Date();
+    const horizon = new Date(now);
+    horizon.setDate(horizon.getDate() + 30);
+
+    // Get availability schedule (days provider is available)
+    const availability = await db
+      .select()
+      .from(providerAvailability)
+      .where(and(eq(providerAvailability.providerId, providerId), eq(providerAvailability.isAvailable, true)));
+
+    if (availability.length === 0) return null;
+
+    const availableDays = new Set(availability.map((a) => a.dayOfWeek));
+
+    // Get blackout periods in next 30 days
+    const blackouts = await db
+      .select()
+      .from(providerBlackouts)
+      .where(
+        and(
+          eq(providerBlackouts.providerId, providerId),
+          lte(providerBlackouts.startDate, horizon),
+          gte(providerBlackouts.endDate, now),
+        ),
+      );
+
+    // Get confirmed bookings in next 30 days
+    const confirmedBookings = await db
+      .select({ scheduledDate: bookings.scheduledDate })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.providerId, providerId),
+          gte(bookings.scheduledDate, now),
+          lte(bookings.scheduledDate, horizon),
+          sql`${bookings.status} IN ('pending', 'confirmed')`,
+        ),
+      );
+
+    const bookedDates = new Set(
+      confirmedBookings.map((b) => new Date(b.scheduledDate).toDateString()),
+    );
+
+    // Walk day-by-day and find first available slot
+    const candidate = new Date(now);
+    candidate.setDate(candidate.getDate() + 1);
+    candidate.setHours(9, 0, 0, 0);
+
+    for (let i = 0; i < 30; i++) {
+      const dayOfWeek = candidate.getDay();
+
+      if (availableDays.has(dayOfWeek)) {
+        const inBlackout = blackouts.some(
+          (b) => candidate >= new Date(b.startDate) && candidate <= new Date(b.endDate),
+        );
+
+        if (!inBlackout && !bookedDates.has(candidate.toDateString())) {
+          return new Date(candidate);
+        }
+      }
+
+      candidate.setDate(candidate.getDate() + 1);
+    }
+
+    return null;
   }
 
   // Service operations
@@ -802,6 +1022,44 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
+  async getUpcomingBookingsNeedingReminder(window: "24h" | "1h"): Promise<Booking[]> {
+    const now = new Date();
+
+    let windowStart: Date;
+    let windowEnd: Date;
+
+    if (window === "24h") {
+      windowStart = new Date(now.getTime() + 23 * 60 * 60 * 1000);
+      windowEnd   = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+    } else {
+      windowStart = new Date(now.getTime() + 45 * 60 * 1000);
+      windowEnd   = new Date(now.getTime() + 75 * 60 * 1000);
+    }
+
+    const sentAtCol = window === "24h" ? bookings.reminder24hSentAt : bookings.reminder1hSentAt;
+
+    return db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          sql`${bookings.status} IN ('pending', 'confirmed')`,
+          gte(bookings.scheduledDate, windowStart),
+          lte(bookings.scheduledDate, windowEnd),
+          sql`${sentAtCol} IS NULL`,
+        ),
+      );
+  }
+
+  async markReminderSent(id: number, window: "24h" | "1h"): Promise<void> {
+    const update =
+      window === "24h"
+        ? { reminder24hSentAt: new Date() }
+        : { reminder1hSentAt: new Date() };
+
+    await db.update(bookings).set(update).where(eq(bookings.id, id));
+  }
+
   // Booking document operations
   async createBookingDocument(document: InsertBookingDocument): Promise<BookingDocument> {
     const [newDocument] = await db
@@ -841,6 +1099,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Message operations
+  async getMessage(id: number): Promise<Message | undefined> {
+    const [message] = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.id, id));
+    return message;
+  }
+
   async createMessage(message: InsertMessage): Promise<Message> {
     const [newMessage] = await db
       .insert(messages)
@@ -981,12 +1247,125 @@ export class DatabaseStorage implements IStorage {
     return newReview;
   }
 
-  async getReviewsForProvider(providerId: number): Promise<Review[]> {
-    return await db
-      .select()
+  async getReviewsForProvider(providerId: number): Promise<any[]> {
+    return db
+      .select({
+        id: reviews.id,
+        bookingId: reviews.bookingId,
+        patientId: reviews.patientId,
+        patientName: sql<string>`TRIM(COALESCE(${users.firstName}, '') || ' ' || COALESCE(${users.lastName}, ''))`.as(
+          "patientName",
+        ),
+        rating: reviews.rating,
+        comment: reviews.comment,
+        createdAt: reviews.createdAt,
+      })
       .from(reviews)
+      .leftJoin(users, eq(reviews.patientId, users.id))
       .where(eq(reviews.providerId, providerId))
       .orderBy(desc(reviews.createdAt));
+  }
+
+  async getReviewByBookingId(bookingId: number): Promise<Review | undefined> {
+    const [review] = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.bookingId, bookingId));
+    return review;
+  }
+
+  async createUserReport(report: InsertUserReport): Promise<UserReport> {
+    const [newReport] = await db
+      .insert(userReports)
+      .values(report)
+      .returning();
+    return newReport;
+  }
+
+  async getUserReports(filters?: { status?: string; providerId?: number }): Promise<any[]> {
+    const conditions = [];
+    if (filters?.status) conditions.push(eq(userReports.status, filters.status));
+    if (filters?.providerId) conditions.push(eq(userReports.providerId, filters.providerId));
+
+    return db
+      .select({
+        id: userReports.id,
+        patientId: userReports.patientId,
+        providerId: userReports.providerId,
+        bookingId: userReports.bookingId,
+        reason: userReports.reason,
+        details: userReports.details,
+        status: userReports.status,
+        reviewedBy: userReports.reviewedBy,
+        createdAt: userReports.createdAt,
+        patientName: sql<string>`TRIM(COALESCE(${users.firstName}, '') || ' ' || COALESCE(${users.lastName}, ''))`.as("patientName"),
+      })
+      .from(userReports)
+      .leftJoin(users, eq(userReports.patientId, users.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(userReports.createdAt));
+  }
+
+  // Waitlist operations
+  async createWaitlistEntry(entry: InsertWaitlistEntry): Promise<WaitlistEntry> {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+    const [newEntry] = await db
+      .insert(waitlistEntries)
+      .values({ ...entry, expiresAt })
+      .returning();
+    return newEntry;
+  }
+
+  async getWaitlistByPatient(patientId: string): Promise<WaitlistEntry[]> {
+    return db
+      .select()
+      .from(waitlistEntries)
+      .where(eq(waitlistEntries.patientId, patientId))
+      .orderBy(desc(waitlistEntries.createdAt));
+  }
+
+  async getWaitlistByProvider(providerId: number): Promise<WaitlistEntry[]> {
+    return db
+      .select()
+      .from(waitlistEntries)
+      .where(and(
+        eq(waitlistEntries.providerId, providerId),
+        eq(waitlistEntries.status, "waiting"),
+      ))
+      .orderBy(waitlistEntries.createdAt);
+  }
+
+  async notifyWaitlistEntries(providerId: number, _cancelledDate: Date): Promise<WaitlistEntry[]> {
+    const now = new Date();
+    const entries = await db
+      .select()
+      .from(waitlistEntries)
+      .where(and(
+        eq(waitlistEntries.providerId, providerId),
+        eq(waitlistEntries.status, "waiting"),
+        gte(waitlistEntries.expiresAt, now),
+      ))
+      .orderBy(waitlistEntries.createdAt)
+      .limit(10);
+
+    if (entries.length === 0) return [];
+
+    const ids = entries.map((e) => e.id);
+    await db
+      .update(waitlistEntries)
+      .set({ status: "notified", notifiedAt: now })
+      .where(sql`${waitlistEntries.id} = ANY(${sql.raw(`ARRAY[${ids.join(",")}]::integer[]`)})` );
+
+    return entries;
+  }
+
+  async deleteWaitlistEntry(id: number, patientId: string): Promise<boolean> {
+    const result = await db
+      .delete(waitlistEntries)
+      .where(and(eq(waitlistEntries.id, id), eq(waitlistEntries.patientId, patientId)))
+      .returning();
+    return result.length > 0;
   }
 
   private async updateProviderRating(providerId: number): Promise<void> {
@@ -1471,6 +1850,44 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(users)
       .set({ userType: 'deleted' })
+      .where(eq(users.id, userId));
+  }
+
+  // Consent record operations (HIPAA/HIA compliance)
+  async createConsentRecord(record: InsertConsentRecord): Promise<ConsentRecord> {
+    const [newRecord] = await db
+      .insert(consentRecords)
+      .values(record)
+      .returning();
+    return newRecord;
+  }
+
+  async getConsentRecords(userId: string): Promise<ConsentRecord[]> {
+    return db
+      .select()
+      .from(consentRecords)
+      .where(eq(consentRecords.userId, userId))
+      .orderBy(desc(consentRecords.createdAt));
+  }
+
+  async hasRequiredConsents(userId: string): Promise<boolean> {
+    const records = await db
+      .select()
+      .from(consentRecords)
+      .where(
+        and(
+          eq(consentRecords.userId, userId),
+          eq(consentRecords.isGranted, true)
+        )
+      );
+    const types = new Set(records.map(r => r.consentType));
+    return types.has('hipaa_npp') && types.has('terms');
+  }
+
+  async markOnboardingComplete(userId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ onboardingCompleted: true, updatedAt: new Date() })
       .where(eq(users.id, userId));
   }
 }

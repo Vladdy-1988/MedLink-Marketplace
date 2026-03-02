@@ -136,6 +136,7 @@ export default function ComprehensiveAdminPortal() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [suspendReason, setSuspendReason] = useState("");
 
+  // UI-only role checks for query gating. Server/API enforce real authorization.
   // Queries
   const { data: stats, isLoading: statsLoading } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
@@ -258,6 +259,7 @@ export default function ComprehensiveAdminPortal() {
     }).format(amount);
   };
 
+  // UI-only role check for rendering. Server/API enforce real authorization.
   if (user?.userType !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -718,9 +720,11 @@ export default function ComprehensiveAdminPortal() {
                           <TableCell>{user.email}</TableCell>
                           <TableCell className="capitalize">{user.userType}</TableCell>
                           <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                          {/* UI-only role check for display state. Server/API enforce real authorization. */}
                           <TableCell>{getStatusBadge(user.userType === 'suspended' ? 'suspended' : 'active')}</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
+                              {/* UI-only role check for display state. Server/API enforce real authorization. */}
                               {user.userType !== 'suspended' ? (
                                 <Dialog>
                                   <DialogTrigger asChild>

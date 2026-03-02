@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { serviceCategories } from "@/lib/mockData";
+import { serviceCategories } from "@/lib/serviceCatalog";
+import { rapidServiceTeasers } from "@/lib/rapidServicesCatalog";
 import { 
   Stethoscope, UserCheck, Activity, Home, Heart, TestTube, Brain, Syringe, 
   Smile, Ear, Eye, Footprints, MessageCircle, Apple, Pill, Droplets,
@@ -39,27 +40,6 @@ const organizedServices = {
   'Specialized Care': serviceCategories.filter(s => ['Dental Care', 'Vision Care', 'Hearing Services', 'Podiatry'].includes(s.name)),
   'Advanced Services': serviceCategories.filter(s => ['Palliative Care', 'IV Therapy', 'Nutrition', 'Pharmacy'].includes(s.name))
 };
-
-const rapidServices = [
-  {
-    title: "Rapid Nursing Care",
-    description: "ASAP nursing care for non-life-threatening medical situations",
-    pricing: "Contact provider for quote",
-    features: ["Priority response", "Rapid assessment", "Care coordination", "Extended hours available"]
-  },
-  {
-    title: "Rapid Lab Services",
-    description: "ASAP blood work and diagnostic testing with expedited results",
-    pricing: "Contact provider for quote",
-    features: ["Same-day results", "Priority scheduling", "Rapid sample collection", "Expedited processing"]
-  },
-  {
-    title: "Rapid Mental Health Support",
-    description: "ASAP mental health support and priority counseling",
-    pricing: "Contact provider for quote",
-    features: ["Priority scheduling", "Same-day appointments", "Rapid assessment", "Support coordination"]
-  }
-];
 
 export default function Services() {
   return (
@@ -214,7 +194,7 @@ export default function Services() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {rapidServices.map((service, index) => (
+            {rapidServiceTeasers.map((service, index) => (
               <Card key={index} className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl">
                 <CardHeader>
                   <div className="flex items-center mb-4">

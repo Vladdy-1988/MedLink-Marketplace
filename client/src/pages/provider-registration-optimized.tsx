@@ -10,11 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
-import { UserCheck, FileText, Star, CheckCircle } from "lucide-react";
+import { UserCheck, FileText, Star, CheckCircle, Shield, AlertCircle } from "lucide-react";
 
 // Optimized form schema with proper types
 const formSchema = z.object({
@@ -39,6 +40,9 @@ const ProviderRegistrationOptimized = React.memo(() => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [consentHipaa, setConsentHipaa] = useState(false);
+  const [consentBaa, setConsentBaa] = useState(false);
+  const [consentTerms, setConsentTerms] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -55,6 +59,11 @@ const ProviderRegistrationOptimized = React.memo(() => {
       serviceAreas: "Calgary, AB",
       availability: "",
     },
+  });
+
+  const grantConsentMutation = useMutation({
+    mutationFn: async (consentType: string) =>
+      apiRequest("POST", "/api/user/consent", { consentType, version: "1.0", isGranted: true }),
   });
 
   // Memoized mutation
@@ -104,9 +113,25 @@ const ProviderRegistrationOptimized = React.memo(() => {
   }, [isLoading, isAuthenticated, toast]);
 
   // Memoized form submit handler
-  const onSubmit = useCallback((data: FormData) => {
+  const onSubmit = useCallback(async (data: FormData) => {
+    if (!consentHipaa || !consentBaa || !consentTerms) {
+      toast({
+        title: "Consent Required",
+        description: "You must accept all agreements before submitting your application.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Record consents before submitting provider application
+    await Promise.all([
+      grantConsentMutation.mutateAsync("hipaa_npp"),
+      grantConsentMutation.mutateAsync("baa"),
+      grantConsentMutation.mutateAsync("terms"),
+    ]).catch(() => {
+      // non-fatal — proceed with provider creation
+    });
     createProviderMutation.mutate(data);
-  }, [createProviderMutation]);
+  }, [consentHipaa, consentBaa, consentTerms, createProviderMutation, grantConsentMutation, toast]);
 
   // Early returns for performance
   if (!isLoading && !isAuthenticated) {
@@ -374,17 +399,91 @@ const ProviderRegistrationOptimized = React.memo(() => {
                   />
                 </div>
 
+                {/* Consent & Legal Agreements */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Legal Agreements</h3>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm text-gray-700 space-y-2">
+                    <p className="font-semibold text-blue-800">HIPAA Business Associate Agreement (BAA)</p>
+                    <p>
+                      As a healthcare provider on MedLink, you will access Protected Health
+                      Information (PHI) belonging to patients. Under HIPAA and the Alberta Health
+                      Information Act, you agree to: safeguard all PHI, use it only to provide
+                      care, report any breaches within 72 hours, and comply with all applicable
+                      privacy laws.
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      This constitutes a legally binding Business Associate Agreement between you
+                      and MedLink House Calls Inc.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="flex items-start gap-3 rounded-lg border p-3 hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Checkbox
+                        checked={consentHipaa}
+                        onCheckedChange={(v) => setConsentHipaa(Boolean(v))}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <p className="font-medium text-sm">I acknowledge the Notice of Privacy Practices</p>
+                        <p className="text-xs text-gray-500">
+                          I understand how patient health information is collected, used, and protected.
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start gap-3 rounded-lg border p-3 hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Checkbox
+                        checked={consentBaa}
+                        onCheckedChange={(v) => setConsentBaa(Boolean(v))}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <p className="font-medium text-sm">I accept the Business Associate Agreement (BAA)</p>
+                        <p className="text-xs text-gray-500">
+                          I agree to safeguard patient PHI and comply with HIPAA and HIA obligations.
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start gap-3 rounded-lg border p-3 hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Checkbox
+                        checked={consentTerms}
+                        onCheckedChange={(v) => setConsentTerms(Boolean(v))}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <p className="font-medium text-sm">I accept the Provider Terms of Service</p>
+                        <p className="text-xs text-gray-500">
+                          I agree to MedLink's terms governing the provider relationship and conduct.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {(!consentHipaa || !consentBaa || !consentTerms) && (
+                    <div className="flex items-start gap-2 text-xs text-gray-500 bg-amber-50 border border-amber-100 rounded p-2">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <span>All three agreements must be accepted before you can submit your application.</span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex justify-end space-x-4 pt-6">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setLocation("/")}
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={createProviderMutation.isPending}
+                  <Button
+                    type="submit"
+                    disabled={createProviderMutation.isPending || !consentHipaa || !consentBaa || !consentTerms}
                     className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
                   >
                     {createProviderMutation.isPending ? "Submitting..." : "Submit Application"}

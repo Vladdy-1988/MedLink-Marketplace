@@ -231,6 +231,47 @@ export class EmailService {
       html,
     });
   }
+  async sendWaitlistNotification(
+    patientEmail: string,
+    providerName: string,
+    availableDate: Date,
+  ): Promise<boolean> {
+    const subject = `A slot opened up with ${providerName} — book now!`;
+    const dateStr = availableDate.toLocaleDateString("en-CA", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+          <h1 style="margin: 0; font-size: 28px;">MedLink House Calls</h1>
+          <p style="margin: 10px 0 0; font-size: 16px;">A waitlist slot is now available</p>
+        </div>
+        <div style="padding: 30px; background: #f8f9fa;">
+          <p style="color: #555; line-height: 1.6;">
+            Great news! A slot with <strong>${providerName}</strong> on <strong>${dateStr}</strong> has opened up.
+            Log in to MedLink to book before it fills up.
+          </p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://mymedlink.ca/" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+              Book Now
+            </a>
+          </div>
+          <p style="color: #888; font-size: 13px;">
+            If you no longer need this appointment, you can remove yourself from the waitlist in your account settings.
+          </p>
+        </div>
+        <div style="background: #333; color: white; padding: 20px; text-align: center;">
+          <p style="margin: 0; font-size: 14px;">© 2025 MedLink House Calls. Quality healthcare at your doorstep.</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({ to: patientEmail, subject, html });
+  }
 }
 
 export const emailService = new EmailService();

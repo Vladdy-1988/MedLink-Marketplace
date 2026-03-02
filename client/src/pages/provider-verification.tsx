@@ -40,6 +40,7 @@ export default function ProviderVerification() {
 
   const { data: pendingCredentials, isLoading } = useQuery<PendingCredential[]>({
     queryKey: ['/api/admin/pending-credentials'],
+    // UI-only role check for query gating. Server/API enforce real authorization.
     enabled: user?.userType === 'admin',
   });
 
@@ -104,6 +105,7 @@ export default function ProviderVerification() {
     }
   };
 
+  // UI-only role check for rendering. Server/API enforce real authorization.
   if (user?.userType !== 'admin') {
     return (
       <div className="min-h-screen bg-gray-50">

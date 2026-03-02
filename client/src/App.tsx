@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -6,38 +7,51 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Auth0Provider } from "@/components/Auth0Provider";
-import NotFound from "@/pages/not-found";
-import Landing from "@/pages/landing";
-import Home from "@/pages/home";
-import Providers from "@/pages/providers";
-import ProviderProfile from "@/pages/provider-profile";
-import Booking from "@/pages/booking";
-import PatientDashboard from "@/pages/patient-dashboard";
-import ProviderDashboard from "@/pages/provider-dashboard";
-import AdminDashboard from "@/pages/admin-dashboard";
-import ProviderRegistration from "@/pages/provider-registration-optimized";
-import Services from "@/pages/services";
-import HowItWorks from "@/pages/how-it-works";
-import RapidServices from "@/pages/rapid-services";
-import About from "@/pages/about";
-import Safety from "@/pages/safety";
-import Support from "@/pages/support";
-import Checkout from "@/pages/checkout";
-import BookingSuccess from "@/pages/booking-success";
-import Messages from "@/pages/messages";
-import ProviderVerification from "@/pages/provider-verification";
-import ProviderDocumentSubmission from "@/pages/provider-document-submission";
-import ComprehensiveAdminPortal from "@/pages/comprehensive-admin-portal";
-import AdminData from "@/pages/admin-data";
-import AdminPortal from "@/pages/admin-portal";
-import AuthTest from "@/pages/auth-test";
-import AuthLogin from "@/pages/auth-login";
-import LoginFailed from "@/pages/login-failed";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
+
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Landing = lazy(() => import("@/pages/landing"));
+const Home = lazy(() => import("@/pages/home"));
+const Providers = lazy(() => import("@/pages/providers"));
+const ProviderProfile = lazy(() => import("@/pages/provider-profile"));
+const Booking = lazy(() => import("@/pages/booking"));
+const PatientDashboard = lazy(() => import("@/pages/patient-dashboard"));
+const ProviderDashboard = lazy(() => import("@/pages/provider-dashboard"));
+const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
+const ProviderRegistration = lazy(() => import("@/pages/provider-registration-optimized"));
+const Services = lazy(() => import("@/pages/services"));
+const HowItWorks = lazy(() => import("@/pages/how-it-works"));
+const RapidServices = lazy(() => import("@/pages/rapid-services"));
+const About = lazy(() => import("@/pages/about"));
+const Safety = lazy(() => import("@/pages/safety"));
+const Support = lazy(() => import("@/pages/support"));
+const Checkout = lazy(() => import("@/pages/checkout"));
+const BookingSuccess = lazy(() => import("@/pages/booking-success"));
+const Messages = lazy(() => import("@/pages/messages"));
+const ProviderVerification = lazy(() => import("@/pages/provider-verification"));
+const ProviderDocumentSubmission = lazy(() => import("@/pages/provider-document-submission"));
+const ComprehensiveAdminPortal = lazy(() => import("@/pages/comprehensive-admin-portal"));
+const AdminData = lazy(() => import("@/pages/admin-data"));
+const AdminPortal = lazy(() => import("@/pages/admin-portal"));
+const AuthTest = lazy(() => import("@/pages/auth-test"));
+const AuthLogin = lazy(() => import("@/pages/auth-login"));
+const LoginFailed = lazy(() => import("@/pages/login-failed"));
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  const showOnboarding =
+    isAuthenticated &&
+    !isLoading &&
+    user &&
+    (user as any).onboardingCompleted === false &&
+    (user as any).userType === "patient";
 
   return (
+    <>
+      {showOnboarding && (
+        <OnboardingWizard userName={(user as any).firstName || undefined} />
+      )}
     <Switch>
       {/* Admin portals always accessible - handles auth internally */}
       <Route path="/admin-portal" component={AdminPortal} />
@@ -86,6 +100,7 @@ function Router() {
       )}
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 
@@ -96,7 +111,15 @@ function App() {
         <TooltipProvider>
           <ScrollToTop />
           <Toaster />
-          <Router />
+          <Suspense
+            fallback={
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            }
+          >
+            <Router />
+          </Suspense>
         </TooltipProvider>
       </QueryClientProvider>
     </Auth0Provider>

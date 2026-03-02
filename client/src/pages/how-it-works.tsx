@@ -87,17 +87,6 @@ const memberTestimonials = [
   }
 ];
 
-const providerImages = [
-  { alt: "Doctor consultation", bg: "from-blue-100 to-blue-200" },
-  { alt: "Physical therapy session", bg: "from-purple-100 to-purple-200" },
-  { alt: "Mental health counseling", bg: "from-green-100 to-green-200" },
-  { alt: "Home nursing care", bg: "from-pink-100 to-pink-200" },
-  { alt: "Lab test collection", bg: "from-yellow-100 to-yellow-200" },
-  { alt: "Vaccination service", bg: "from-indigo-100 to-indigo-200" },
-  { alt: "Dental care", bg: "from-red-100 to-red-200" },
-  { alt: "Specialized care", bg: "from-teal-100 to-teal-200" }
-];
-
 export default function HowItWorks() {
 
   return (

@@ -1,4 +1,4 @@
-import { coreServiceCategories, additionalServiceCategories } from "@/lib/mockData";
+import { coreServiceCategories, additionalServiceCategories } from "@/lib/serviceCatalog";
 import { 
   Stethoscope, UserCheck, Activity, Home, Heart, TestTube, Brain, Syringe, 
   Smile, Ear, Eye, Footprints, MessageCircle, Apple, Pill, Droplets, 

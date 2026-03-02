@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,12 +22,21 @@ interface BookingData {
 interface BookingStepsProps {
   providerId: number;
   services: any[];
+  initialServiceId?: number;
   onComplete: (bookingData: BookingData) => void;
 }
 
-export default function BookingSteps({ providerId, services, onComplete }: BookingStepsProps) {
+export default function BookingSteps({ providerId, services, initialServiceId, onComplete }: BookingStepsProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [bookingData, setBookingData] = useState<BookingData>({});
+  const [bookingData, setBookingData] = useState<BookingData>({
+    serviceId: initialServiceId,
+  });
+
+  useEffect(() => {
+    if (initialServiceId) {
+      setBookingData((previous) => ({ ...previous, serviceId: initialServiceId }));
+    }
+  }, [initialServiceId]);
 
   const steps = [
     { number: 1, title: "Service Selection" },

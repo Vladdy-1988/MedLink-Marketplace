@@ -1,10 +1,39 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import {
+  generalApiRateLimit,
+  authRateLimit,
+} from "./middleware/rateLimit";
+import { csrfProtection } from "./middleware/csrf";
+import { validateEnv } from "./validateEnv";
+import { startReminderJob } from "./reminderJob";
+
+// Fail fast if any required environment variable is absent.
+validateEnv();
 
 const app = express();
+// Required so secure cookies are honored behind TLS-terminating proxies.
+app.set("trust proxy", 1);
+
+// The Stripe webhook endpoint requires the raw request body for signature
+// verification. Register it with express.raw() BEFORE the json body-parser.
+app.use(
+  "/api/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Rate limiting — applied before all routes so they're in effect for every handler.
+// Auth routes get a tighter per-IP limit; the rest share the general limit.
+app.use("/api/login", authRateLimit);
+app.use("/api/callback", authRateLimit);
+app.use("/api", generalApiRateLimit);
+
+// CSRF protection — validates Origin/Referer on all state-changing API requests.
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -67,5 +96,6 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    startReminderJob();
   });
 })();

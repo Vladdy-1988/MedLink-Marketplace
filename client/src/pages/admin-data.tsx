@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { apiRequest } from "@/lib/queryClient";
 import { Calendar, MessageCircle, User, DollarSign } from "lucide-react";
 
 interface Booking {
@@ -140,33 +141,19 @@ export default function AdminData() {
         { id: "provider-demo-2", email: "dr.patel@demo.com", firstName: "Dr. Raj", lastName: "Patel", userType: "provider" }
       ];
 
-      const sampleProviders: Provider[] = [
-        {
-          id: 1,
-          userId: "provider-demo-1",
-          specialization: "Family Medicine",
-          licenseNumber: "AB-FM-12345",
-          yearsExperience: 8,
-          rating: "4.8",
-          isVerified: true,
-          isApproved: true
-        },
-        {
-          id: 2,
-          userId: "provider-demo-2",
-          specialization: "Internal Medicine",
-          licenseNumber: "AB-IM-67890",
-          yearsExperience: 12,
-          rating: "4.9",
-          isVerified: true,
-          isApproved: true
-        }
-      ];
+      let realProviders: Provider[] = [];
+      try {
+        const providersResponse = await apiRequest("GET", "/api/admin/providers");
+        const providerData = await providersResponse.json();
+        realProviders = Array.isArray(providerData) ? providerData : [];
+      } catch (providerError) {
+        console.error("Error loading admin providers:", providerError);
+      }
 
       setBookings(sampleBookings);
       setMessages(sampleMessages);
       setUsers(sampleUsers);
-      setProviders(sampleProviders);
+      setProviders(realProviders);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -348,6 +335,7 @@ export default function AdminData() {
                       <p className="font-semibold">{user.firstName} {user.lastName}</p>
                       <p className="text-sm text-gray-600">{user.email}</p>
                     </div>
+                    {/* UI-only role check for badge display. Server/API enforce real authorization. */}
                     <Badge variant={user.userType === 'provider' ? 'default' : 'secondary'}>
                       {user.userType}
                     </Badge>
