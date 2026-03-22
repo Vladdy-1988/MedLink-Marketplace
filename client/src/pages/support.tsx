@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
 import { 
   HelpCircle, 
   Phone, 
@@ -19,12 +18,7 @@ import {
   CreditCard,
   UserCheck,
   Shield,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin
 } from "lucide-react";
-import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
 
 const faqItems = [
@@ -82,6 +76,44 @@ const supportCategories = [
 ];
 
 export default function Support() {
+  const supportEmail = "support@mymedlink.ca";
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+
+  const handleInputChange = (
+    field: keyof typeof formData,
+    value: string,
+  ) => {
+    setFormData((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleContactSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const fullName = [formData.firstName, formData.lastName]
+      .filter(Boolean)
+      .join(" ");
+    const subject = formData.subject || "MedLink support request";
+    const body = [
+      fullName ? `Name: ${fullName}` : null,
+      `Email: ${formData.email}`,
+      formData.phone ? `Phone: ${formData.phone}` : null,
+      "",
+      "Message:",
+      formData.message,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    window.location.href = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
@@ -118,16 +150,16 @@ export default function Support() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="mailto:hello@medlink.ca">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button asChild size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+              <a href={`mailto:${supportEmail}`}>
                 Contact Support
-              </Button>
-            </Link>
-            <Link href="tel:1-844-633-5465">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
+              <a href="tel:1-844-633-5465">
                 Call Us
-              </Button>
-            </Link>
+              </a>
+            </Button>
           </div>
 
           {/* Scroll indicator */}
@@ -169,30 +201,34 @@ export default function Support() {
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Live Chat</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Booking Questions</h3>
               <p className="text-gray-600 mb-6">
-                Get instant help with booking and general questions
+                Email us for booking and general support questions
               </p>
-              <Button className="bg-purple-600 hover:bg-purple-700 w-full">
+              <Button asChild className="bg-purple-600 hover:bg-purple-700 w-full">
+                <a href={`mailto:${supportEmail}?subject=${encodeURIComponent("Booking support request")}`}>
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Start Live Chat
+                Email Support
+                </a>
               </Button>
-              <Badge className="mt-2 bg-purple-100 text-purple-800">Response in &lt; 2 min</Badge>
+              <Badge className="mt-2 bg-purple-100 text-purple-800">We typically respond within 1 business day.</Badge>
             </Card>
 
             <Card className="text-center p-8 hover:shadow-xl transition-all duration-300">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Email Support</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Detailed Support</h3>
               <p className="text-gray-600 mb-6">
-                For detailed questions and non-rapid matters
+                For billing, insurance, and other non-urgent matters
               </p>
-              <Button className="bg-green-600 hover:bg-green-700 w-full">
+              <Button asChild className="bg-green-600 hover:bg-green-700 w-full">
+                <a href={`mailto:${supportEmail}?subject=${encodeURIComponent("Detailed support request")}`}>
                 <Mail className="w-4 h-4 mr-2" />
                 Send Email
+                </a>
               </Button>
-              <Badge className="mt-2 bg-green-100 text-green-800">Response in &lt; 4 hours</Badge>
+              <Badge className="mt-2 bg-green-100 text-green-800">We typically respond within 1 business day.</Badge>
             </Card>
           </div>
         </div>
@@ -263,24 +299,34 @@ export default function Support() {
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Send Us a Message</h2>
             <p className="text-xl text-gray-600">
-              Can't find what you're looking for? Send us a detailed message and we'll get back to you.
+              Can't find what you're looking for? Fill this out and we'll open an email draft to our support inbox.
             </p>
           </div>
           
           <Card className="p-8 shadow-xl">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleContactSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
                     First Name *
                   </label>
-                  <Input placeholder="Enter your first name" />
+                  <Input
+                    placeholder="Enter your first name"
+                    required
+                    value={formData.firstName}
+                    onChange={(event) => handleInputChange("firstName", event.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
                     Last Name *
                   </label>
-                  <Input placeholder="Enter your last name" />
+                  <Input
+                    placeholder="Enter your last name"
+                    required
+                    value={formData.lastName}
+                    onChange={(event) => handleInputChange("lastName", event.target.value)}
+                  />
                 </div>
               </div>
               
@@ -289,13 +335,23 @@ export default function Support() {
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
                     Email Address *
                   </label>
-                  <Input type="email" placeholder="Enter your email" />
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    required
+                    value={formData.email}
+                    onChange={(event) => handleInputChange("email", event.target.value)}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">
                     Phone Number
                   </label>
-                  <Input placeholder="Enter your phone number" />
+                  <Input
+                    placeholder="Enter your phone number"
+                    value={formData.phone}
+                    onChange={(event) => handleInputChange("phone", event.target.value)}
+                  />
                 </div>
               </div>
               
@@ -303,7 +359,12 @@ export default function Support() {
                 <label className="text-sm font-semibold text-gray-700 mb-2 block">
                   Subject *
                 </label>
-                <Input placeholder="Brief description of your inquiry" />
+                <Input
+                  placeholder="Brief description of your inquiry"
+                  required
+                  value={formData.subject}
+                  onChange={(event) => handleInputChange("subject", event.target.value)}
+                />
               </div>
               
               <div>
@@ -313,12 +374,15 @@ export default function Support() {
                 <Textarea 
                   placeholder="Please provide as much detail as possible about your question or concern..."
                   rows={6}
+                  required
+                  value={formData.message}
+                  onChange={(event) => handleInputChange("message", event.target.value)}
                 />
               </div>
               
-              <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white font-semibold py-3 rounded-xl">
+              <Button type="submit" className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white font-semibold py-3 rounded-xl">
                 <Mail className="w-4 h-4 mr-2" />
-                Send Message
+                Open Email Draft
               </Button>
             </form>
           </Card>
@@ -332,7 +396,7 @@ export default function Support() {
             <Clock className="w-16 h-16 text-blue-400 mx-auto mb-4" />
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Support Hours</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Our support team is here to help during these hours. Rapid support line available during visits.
+              Our support team is here to help during these hours. Email responses typically arrive within 1 business day.
             </p>
           </div>
           
@@ -348,10 +412,10 @@ export default function Support() {
 
             <Card className="bg-gray-800 border-gray-700 p-6">
               <MessageCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-3">Live Chat</h3>
+              <h3 className="text-xl font-bold text-white mb-3">Email Support</h3>
               <div className="text-gray-300">
-                <p>Monday - Friday: 7:00 AM - 10:00 PM</p>
-                <p>Saturday - Sunday: 8:00 AM - 8:00 PM</p>
+                <p>Email us any time at {supportEmail}</p>
+                <p>We typically respond within 1 business day.</p>
               </div>
             </Card>
 

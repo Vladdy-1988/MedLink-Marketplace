@@ -37,24 +37,29 @@ export default function PatientDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'appointments' | 'providers' | 'messages' | 'billing' | 'settings'>('appointments');
 
-  // Redirect to home if not authenticated
+  // Redirect away if not authenticated or if the wrong role lands here.
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
+    if (!authLoading && (!isAuthenticated || (user && user.userType !== 'patient'))) {
+      if (!isAuthenticated) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+      }
+
+      window.location.href = user?.userType === 'provider'
+        ? '/dashboard/provider'
+        : user?.userType === 'admin'
+        ? '/dashboard/admin'
+        : '/api/login';
       return;
     }
-  }, [isAuthenticated, authLoading, toast]);
+  }, [isAuthenticated, authLoading, user, toast]);
 
   const { data: bookings, isLoading: bookingsLoading, error: bookingsError } = useQuery({
     queryKey: ["/api/bookings/patient", user?.id],
-    enabled: !!user?.id && isAuthenticated,
+    enabled: !!user?.id && isAuthenticated && user?.userType === 'patient',
   });
 
   // Handle booking errors
@@ -73,7 +78,7 @@ export default function PatientDashboard() {
 
   const { data: conversations, isLoading: conversationsLoading, error: conversationsError } = useQuery({
     queryKey: ["/api/conversations", user?.id],
-    enabled: !!user?.id && isAuthenticated,
+    enabled: !!user?.id && isAuthenticated && user?.userType === 'patient',
   });
 
   // Handle conversation errors
@@ -114,12 +119,40 @@ export default function PatientDashboard() {
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated || !user || user.userType !== 'patient') {
     return null;
   }
 
-  const upcomingBookings = (bookings as any[])?.filter((booking: any) => 
-    booking.status === 'confirmed' && new Date(booking.scheduledDate) > new Date()
+  const getBookingStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-amber-100 text-amber-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getPaymentStatusBadgeClass = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "paid":
+        return "bg-emerald-100 text-emerald-800";
+      case "failed":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-slate-100 text-slate-800";
+    }
+  };
+
+  const upcomingBookings = (bookings as any[])?.filter((booking: any) =>
+    booking.status !== 'cancelled' &&
+    booking.status !== 'completed' &&
+    new Date(booking.scheduledDate) > new Date()
   ) || [];
   
   const completedBookings = (bookings as any[])?.filter((booking: any) => 
@@ -327,8 +360,17 @@ export default function PatientDashboard() {
                                 </div>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                <Badge
+                                  variant="secondary"
+                                  className={getBookingStatusBadgeClass(booking.status)}
+                                >
                                   {booking.status}
+                                </Badge>
+                                <Badge
+                                  variant="secondary"
+                                  className={getPaymentStatusBadgeClass(booking.paymentStatus)}
+                                >
+                                  {booking.paymentStatus || "unpaid"}
                                 </Badge>
                                 <Button size="sm" variant="ghost">
                                   <MessageCircle className="h-4 w-4" />

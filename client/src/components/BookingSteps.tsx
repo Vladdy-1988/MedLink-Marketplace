@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { apiRequest } from "@/lib/queryClient";
 
 interface BookingData {
   serviceId?: number;
@@ -31,12 +32,58 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
   const [bookingData, setBookingData] = useState<BookingData>({
     serviceId: initialServiceId,
   });
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [slotLoadError, setSlotLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialServiceId) {
       setBookingData((previous) => ({ ...previous, serviceId: initialServiceId }));
     }
   }, [initialServiceId]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadAvailableSlots() {
+      if (!bookingData.date) {
+        setAvailableSlots([]);
+        setSlotLoadError(null);
+        setIsLoadingSlots(false);
+        return;
+      }
+
+      setIsLoadingSlots(true);
+      setSlotLoadError(null);
+
+      try {
+        const response = await apiRequest(
+          "GET",
+          `/api/providers/${providerId}/available-slots?date=${bookingData.date}`,
+        );
+        const slots = await response.json();
+
+        if (!ignore) {
+          setAvailableSlots(Array.isArray(slots) ? slots : []);
+        }
+      } catch (_error) {
+        if (!ignore) {
+          setAvailableSlots([]);
+          setSlotLoadError("Unable to load available times. Please try another day.");
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoadingSlots(false);
+        }
+      }
+    }
+
+    void loadAvailableSlots();
+
+    return () => {
+      ignore = true;
+    };
+  }, [bookingData.date, providerId]);
 
   const steps = [
     { number: 1, title: "Service Selection" },
@@ -60,11 +107,19 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
   };
 
   const handleServiceSelect = (serviceId: string) => {
-    setBookingData({ ...bookingData, serviceId: Number(serviceId) });
+    setBookingData((previous) => ({ ...previous, serviceId: Number(serviceId) }));
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setBookingData({ ...bookingData, [field]: value });
+    setBookingData((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleDateChange = (value: string) => {
+    setBookingData((previous) => ({
+      ...previous,
+      date: value,
+      time: undefined,
+    }));
   };
 
   const renderStep = () => {
@@ -119,24 +174,43 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                   id="date"
                   type="date"
                   value={bookingData.date || ""}
-                  onChange={(e) => handleInputChange("date", e.target.value)}
+                  onChange={(e) => handleDateChange(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
               <div>
                 <Label className="text-lg font-semibold text-gray-900 mb-4">Available Times</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {["9:00 AM", "11:00 AM", "2:00 PM", "4:00 PM"].map((time) => (
-                    <Button
-                      key={time}
-                      variant={bookingData.time === time ? "default" : "outline"}
-                      onClick={() => handleInputChange("time", time)}
-                      className="text-center"
-                    >
-                      {time}
-                    </Button>
-                  ))}
-                </div>
+                {!bookingData.date ? (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+                    Select a date to see available appointment times.
+                  </div>
+                ) : isLoadingSlots ? (
+                  <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+                    Loading available times...
+                  </div>
+                ) : slotLoadError ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    {slotLoadError}
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    No times are available for that date. Please pick another day.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {availableSlots.map((time) => (
+                      <Button
+                        key={time}
+                        type="button"
+                        variant={bookingData.time === time ? "default" : "outline"}
+                        onClick={() => handleInputChange("time", time)}
+                        className="text-center"
+                      >
+                        {time}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

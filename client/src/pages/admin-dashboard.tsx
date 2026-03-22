@@ -86,13 +86,17 @@ export default function AdminDashboard() {
 
   const approveProviderMutation = useMutation({
     mutationFn: async ({ providerId, isApproved }: { providerId: number; isApproved: boolean }) => {
-      await apiRequest("PATCH", `/api/admin/providers/${providerId}/approval`, { isApproved });
+      if (isApproved) {
+        await apiRequest("PUT", `/api/admin/providers/${providerId}/status`, { isApproved: true, isVerified: true });
+      } else {
+        await apiRequest("PATCH", `/api/admin/providers/${providerId}/approval`, { isApproved: false });
+      }
     },
     onSuccess: (_, { isApproved }) => {
       toast({
-        title: isApproved ? "Provider Approved" : "Provider Rejected",
-        description: isApproved 
-          ? "The provider has been approved and can now accept bookings."
+        title: isApproved ? "Provider Approved & Verified" : "Provider Rejected",
+        description: isApproved
+          ? "The provider has been approved, verified, and is now visible in the marketplace."
           : "The provider application has been rejected.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-providers"] });
@@ -340,7 +344,7 @@ export default function AdminDashboard() {
                               className="bg-[hsl(159,100%,34%)] hover:bg-[hsl(159,100%,24%)]"
                             >
                               <Check className="h-4 w-4 mr-1" />
-                              Approve
+                              Approve & Verify
                             </Button>
                             <Button
                               onClick={() => handleProviderAction(provider.id, false)}

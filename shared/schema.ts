@@ -578,6 +578,8 @@ export const insertProviderSchema = createInsertSchema(providers).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  isApproved: true,
+  isVerified: true,
   rating: true,
   reviewCount: true,
 });
@@ -591,6 +593,9 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  status: true,
+  paymentStatus: true,
+  totalAmount: true,
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({

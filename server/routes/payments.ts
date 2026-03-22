@@ -105,6 +105,14 @@ router.post(
         return res.status(403).json({ message: "Access denied" });
       }
 
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (
+        pi.status !== "succeeded" ||
+        pi.metadata?.bookingId !== String(bookingId)
+      ) {
+        return res.status(422).json({ message: "Payment has not been verified" });
+      }
+
       await storage.updateBookingPayment(
         Number(bookingId),
         paymentIntentId,

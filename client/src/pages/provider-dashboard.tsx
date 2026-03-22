@@ -1,13 +1,16 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Calendar,
   MessageCircle,
@@ -18,12 +21,17 @@ import {
   TrendingUp,
   Clock,
   MapPin,
-  BarChart3
+  BarChart3,
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 export default function ProviderDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Redirect to home if not authenticated or not a provider
   useEffect(() => {
@@ -79,6 +87,81 @@ export default function ProviderDashboard() {
       }, 500);
     }
   }, [bookingsError, toast]);
+
+  const providerId = (provider as any)?.id;
+
+  const { data: services } = useQuery<any[]>({
+    queryKey: ["/api/providers", providerId, "services"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/providers/${providerId}/services`);
+      return res.json();
+    },
+    enabled: !!providerId,
+  });
+
+  const { data: availability } = useQuery<any[]>({
+    queryKey: ["/api/providers", providerId, "availability"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/providers/${providerId}/availability`);
+      return res.json();
+    },
+    enabled: !!providerId,
+  });
+
+  const needsService = (provider as any)?.isApproved && Array.isArray(services) && services.length === 0;
+  const needsAvailability = (provider as any)?.isApproved && Array.isArray(availability) && availability.length === 0;
+  const showOnboarding = needsService || needsAvailability;
+
+  // Service form state
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const [serviceName, setServiceName] = useState("");
+  const [servicePrice, setServicePrice] = useState("");
+  const [serviceDuration, setServiceDuration] = useState("60");
+  const [serviceCategory, setServiceCategory] = useState("general");
+
+  // Availability form state
+  const [availOpen, setAvailOpen] = useState(false);
+  const [availDay, setAvailDay] = useState("1");
+  const [availStart, setAvailStart] = useState("09:00");
+  const [availEnd, setAvailEnd] = useState("17:00");
+
+  const addServiceMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/services", {
+        providerId,
+        name: serviceName,
+        price: servicePrice,
+        duration: Number(serviceDuration),
+        category: serviceCategory,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Service added", description: `"${serviceName}" is now listed on your profile.` });
+      setServiceOpen(false);
+      setServiceName(""); setServicePrice(""); setServiceDuration("60"); setServiceCategory("general");
+      queryClient.invalidateQueries({ queryKey: ["/api/providers", providerId, "services"] });
+    },
+    onError: () => toast({ title: "Failed to add service", variant: "destructive" }),
+  });
+
+  const addAvailabilityMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", `/api/providers/${providerId}/availability`, {
+        dayOfWeek: Number(availDay),
+        startTime: availStart,
+        endTime: availEnd,
+        isAvailable: true,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Availability set", description: "Patients can now see your open slots." });
+      setAvailOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/providers", providerId, "availability"] });
+    },
+    onError: () => toast({ title: "Failed to set availability", variant: "destructive" }),
+  });
 
   if (authLoading || providerLoading) {
     return (
@@ -138,6 +221,37 @@ export default function ProviderDashboard() {
     return bookingDate.toDateString() === today.toDateString();
   }) || [];
 
+  const upcomingBookings = (bookings as any[])?.filter((booking: any) =>
+    booking.status !== 'cancelled' &&
+    new Date(booking.scheduledDate) >= new Date()
+  ) || [];
+
+  const getBookingStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-amber-100 text-amber-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getPaymentStatusBadgeClass = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "paid":
+        return "bg-emerald-100 text-emerald-800";
+      case "failed":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-slate-100 text-slate-800";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -196,6 +310,133 @@ export default function ProviderDashboard() {
                       <p className="text-orange-700 text-sm">
                         Your provider application is being reviewed. You'll be notified once approved.
                       </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Setup Onboarding Banner */}
+            {showOnboarding && (
+              <Card className="mb-8 border-blue-200 bg-blue-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    <AlertCircle className="h-5 w-5 text-blue-600 mr-2 shrink-0" />
+                    <h3 className="font-semibold text-blue-900">Complete your setup to accept bookings</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {/* Step 1: Add a service */}
+                    <div className={`rounded-lg border p-4 bg-white ${!needsService ? "opacity-60" : ""}`}>
+                      <button
+                        className="flex items-center justify-between w-full text-left"
+                        onClick={() => needsService && setServiceOpen((v) => !v)}
+                        disabled={!needsService}
+                      >
+                        <div className="flex items-center gap-2">
+                          {needsService
+                            ? <div className="w-6 h-6 rounded-full border-2 border-blue-500 flex items-center justify-center text-xs font-bold text-blue-600">1</div>
+                            : <CheckCircle2 className="w-6 h-6 text-green-500" />}
+                          <span className="font-medium text-gray-900">Add your first service</span>
+                          {!needsService && <Badge className="bg-green-100 text-green-800 text-xs ml-2">Done</Badge>}
+                        </div>
+                        {needsService && (serviceOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />)}
+                      </button>
+                      {needsService && serviceOpen && (
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">Service Name</Label>
+                            <Input placeholder="e.g. Home Consultation" value={serviceName} onChange={(e) => setServiceName(e.target.value)} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">Price (CAD)</Label>
+                            <Input type="number" placeholder="120" value={servicePrice} onChange={(e) => setServicePrice(e.target.value)} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">Duration (minutes)</Label>
+                            <Input type="number" placeholder="60" value={serviceDuration} onChange={(e) => setServiceDuration(e.target.value)} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">Category</Label>
+                            <select
+                              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                              value={serviceCategory}
+                              onChange={(e) => setServiceCategory(e.target.value)}
+                            >
+                              <option value="general">General</option>
+                              <option value="preventive">Preventive</option>
+                              <option value="rapid">Rapid / Urgent</option>
+                              <option value="management">Chronic Management</option>
+                              <option value="specialist">Specialist</option>
+                            </select>
+                          </div>
+                          <div className="md:col-span-2 flex justify-end">
+                            <Button
+                              size="sm"
+                              onClick={() => addServiceMutation.mutate()}
+                              disabled={!serviceName || !servicePrice || addServiceMutation.isPending}
+                              className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
+                            >
+                              {addServiceMutation.isPending ? "Saving..." : "Add Service"}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Step 2: Set availability */}
+                    <div className={`rounded-lg border p-4 bg-white ${!needsAvailability ? "opacity-60" : ""}`}>
+                      <button
+                        className="flex items-center justify-between w-full text-left"
+                        onClick={() => needsAvailability && setAvailOpen((v) => !v)}
+                        disabled={!needsAvailability}
+                      >
+                        <div className="flex items-center gap-2">
+                          {needsAvailability
+                            ? <div className="w-6 h-6 rounded-full border-2 border-blue-500 flex items-center justify-center text-xs font-bold text-blue-600">2</div>
+                            : <CheckCircle2 className="w-6 h-6 text-green-500" />}
+                          <span className="font-medium text-gray-900">Set your availability</span>
+                          {!needsAvailability && <Badge className="bg-green-100 text-green-800 text-xs ml-2">Done</Badge>}
+                        </div>
+                        {needsAvailability && (availOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />)}
+                      </button>
+                      {needsAvailability && availOpen && (
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">Day of Week</Label>
+                            <select
+                              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                              value={availDay}
+                              onChange={(e) => setAvailDay(e.target.value)}
+                            >
+                              <option value="0">Sunday</option>
+                              <option value="1">Monday</option>
+                              <option value="2">Tuesday</option>
+                              <option value="3">Wednesday</option>
+                              <option value="4">Thursday</option>
+                              <option value="5">Friday</option>
+                              <option value="6">Saturday</option>
+                            </select>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">Start Time</Label>
+                            <Input type="time" value={availStart} onChange={(e) => setAvailStart(e.target.value)} />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1 block">End Time</Label>
+                            <Input type="time" value={availEnd} onChange={(e) => setAvailEnd(e.target.value)} />
+                          </div>
+                          <div className="md:col-span-3 flex justify-end">
+                            <Button
+                              size="sm"
+                              onClick={() => addAvailabilityMutation.mutate()}
+                              disabled={addAvailabilityMutation.isPending}
+                              className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
+                            >
+                              {addAvailabilityMutation.isPending ? "Saving..." : "Save Availability"}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -269,10 +510,10 @@ export default function ProviderDashboard() {
               </Card>
             </div>
             
-            {/* Today's Schedule */}
+            {/* Upcoming Appointments */}
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle>Today's Schedule</CardTitle>
+                <CardTitle>Upcoming Appointments</CardTitle>
               </CardHeader>
               <CardContent>
                 {bookingsLoading ? (
@@ -293,39 +534,50 @@ export default function ProviderDashboard() {
                       </div>
                     ))}
                   </div>
-                ) : todayBookings.length === 0 ? (
+                ) : upcomingBookings.length === 0 ? (
                   <div className="text-center py-8">
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">No appointments scheduled for today</p>
+                    <p className="text-gray-600">No upcoming appointments scheduled</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-200">
-                    {todayBookings.map((booking: any) => (
+                    {upcomingBookings.slice(0, 5).map((booking: any) => (
                       <div key={booking.id} className="p-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
                             <div className="w-4 h-4 bg-[hsl(207,90%,54%)] rounded-full mr-4"></div>
                             <div>
                               <h3 className="font-semibold text-gray-900">
-                                {booking.patient?.firstName} {booking.patient?.lastName}
+                                {booking.patient?.firstName && booking.patient?.lastName
+                                  ? `${booking.patient.firstName} ${booking.patient.lastName}`
+                                  : "Patient appointment"}
                               </h3>
                               <p className="text-gray-600">
-                                {booking.service?.name} • {booking.patientAddress}
+                                {booking.service?.name || "Healthcare Service"} • {booking.patientAddress}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
                             <div className="font-medium text-gray-900">
-                              {new Date(booking.scheduledDate).toLocaleTimeString([], { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })} - {new Date(new Date(booking.scheduledDate).getTime() + booking.duration * 60000).toLocaleTimeString([], { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                              {new Date(booking.scheduledDate).toLocaleDateString()} at{" "}
+                              {new Date(booking.scheduledDate).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
                               })}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {Math.floor((new Date(booking.scheduledDate).getTime() - new Date().getTime()) / (1000 * 60 * 60))} hours
+                            <div className="mt-2 flex justify-end gap-2">
+                              <Badge
+                                variant="secondary"
+                                className={getBookingStatusBadgeClass(booking.status)}
+                              >
+                                {booking.status}
+                              </Badge>
+                              <Badge
+                                variant="secondary"
+                                className={getPaymentStatusBadgeClass(booking.paymentStatus)}
+                              >
+                                {booking.paymentStatus || "unpaid"}
+                              </Badge>
                             </div>
                           </div>
                         </div>

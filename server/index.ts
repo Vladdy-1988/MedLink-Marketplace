@@ -14,7 +14,9 @@ validateEnv();
 
 const app = express();
 // Required so secure cookies are honored behind TLS-terminating proxies.
-app.set("trust proxy", 1);
+// `true` trusts the full X-Forwarded-* chain, which is safer on managed
+// platforms where hop count can vary between environments.
+app.set("trust proxy", true);
 
 // The Stripe webhook endpoint requires the raw request body for signature
 // verification. Register it with express.raw() BEFORE the json body-parser.

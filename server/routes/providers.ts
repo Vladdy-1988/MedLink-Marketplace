@@ -21,6 +21,50 @@ const reportSchema = z.object({
   bookingId: z.number().int().optional(),
 });
 
+const SLOT_DURATION_MS = 60 * 60 * 1000;
+
+function parseLocalDate(dateString: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(year, month - 1, day);
+
+  if (
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null;
+  }
+
+  parsed.setHours(0, 0, 0, 0);
+  return parsed;
+}
+
+function parseTimeToMinutes(value: string): number {
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function buildSlotDate(date: Date, minutes: number): Date {
+  const slot = new Date(date);
+  slot.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+  return slot;
+}
+
+function formatSlotTime(date: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+}
+
 const router = Router();
 const checkAuth = isAuthenticated;
 
@@ -28,13 +72,24 @@ const checkAuth = isAuthenticated;
 
 router.post("/providers", checkAuth, async (req: any, res) => {
   try {
-    const userId = req.user?.claims?.sub || req.user?.id;
+    const userId = getAuthUserId(req);
+    const existing = await storage.getProviderByUserId(userId);
+    if (existing) {
+      return res
+        .status(409)
+        .json({ message: "You already have a provider profile" });
+    }
     const providerData = insertProviderSchema.parse({ ...req.body, userId });
     const provider = await storage.createProvider(providerData);
     res.json(provider);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res
+        .status(400)
+        .json({ message: "Invalid provider data", details: error.issues });
+    }
     console.error("Error creating provider:", error);
-    res.status(400).json({ message: "Failed to create provider" });
+    res.status(500).json({ message: "Failed to create provider" });
   }
 });
 
@@ -71,9 +126,15 @@ router.get("/providers/search", async (req, res) => {
 });
 
 // NOTE: specific paths must be declared before the /:id catch-all
-router.get("/providers/credentials/:userId", checkAuth, async (_req, res) => {
+router.get("/providers/credentials/:userId", checkAuth, async (req, res) => {
   try {
-    res.json([]);
+    const requestUserId = getAuthUserId(req);
+    if (!(await canAccessUserScope(requestUserId, req.params.userId))) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const credentials = await storage.getCredentialsByProvider(req.params.userId);
+    res.json(credentials);
   } catch (error) {
     console.error("Error fetching credentials:", error);
     res.status(500).json({ message: "Failed to fetch credentials" });
@@ -154,6 +215,15 @@ router.get("/providers/:id", async (req, res) => {
 
 router.post("/services", checkAuth, async (req, res) => {
   try {
+    const requestUserId = getAuthUserId(req);
+    const provider = await storage.getProvider(Number(req.body.providerId));
+    const canManageServices =
+      provider?.userId === requestUserId || (await isAdmin(requestUserId));
+
+    if (!canManageServices) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     const serviceData = insertServiceSchema.parse(req.body);
     const service = await storage.createService(serviceData);
     res.json(service);
@@ -264,6 +334,95 @@ router.post("/providers/:id/report", checkAuth, async (req: any, res) => {
 });
 
 // --- Availability & Blackouts ---
+
+router.get("/providers/:id/available-slots", async (req, res) => {
+  try {
+    const providerId = parseInt(req.params.id, 10);
+    if (Number.isNaN(providerId)) {
+      return res.status(400).json({ message: "Invalid provider id" });
+    }
+
+    const requestedDate = parseLocalDate(String(req.query.date ?? ""));
+    if (!requestedDate) {
+      return res.status(400).json({ message: "Invalid date query parameter" });
+    }
+
+    const provider = await storage.getProvider(providerId);
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    const availability = await storage.getProviderAvailability(providerId);
+    const dayAvailability = availability.filter(
+      (entry) =>
+        entry.dayOfWeek === requestedDate.getDay() && entry.isAvailable !== false,
+    );
+    if (dayAvailability.length === 0) {
+      return res.json([]);
+    }
+
+    const dayStart = new Date(requestedDate);
+    const dayEnd = new Date(requestedDate);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const blackouts = await storage.getProviderBlackouts(providerId);
+    const hasBlackout = blackouts.some((blackout) => {
+      const blackoutStart = new Date(blackout.startDate);
+      const blackoutEnd = new Date(blackout.endDate);
+      return blackoutStart <= dayEnd && blackoutEnd >= dayStart;
+    });
+    if (hasBlackout) {
+      return res.json([]);
+    }
+
+    const existingBookings = await storage.getBookingsByProvider(providerId);
+    const dayBookings = existingBookings.filter((booking) => {
+      if (booking.status === "cancelled") {
+        return false;
+      }
+
+      const bookingDate = new Date(booking.scheduledDate);
+      return bookingDate >= dayStart && bookingDate <= dayEnd;
+    });
+
+    const availableSlotTimes = new Set<number>();
+    for (const entry of dayAvailability) {
+      const startMinutes = parseTimeToMinutes(entry.startTime);
+      const endMinutes = parseTimeToMinutes(entry.endTime);
+
+      for (
+        let slotMinutes = startMinutes;
+        slotMinutes + 60 <= endMinutes;
+        slotMinutes += 60
+      ) {
+        const slotDate = buildSlotDate(requestedDate, slotMinutes);
+        if (slotDate.getTime() <= Date.now()) {
+          continue;
+        }
+
+        const isBooked = dayBookings.some((booking) => {
+          const bookingDate = new Date(booking.scheduledDate);
+          return (
+            Math.abs(bookingDate.getTime() - slotDate.getTime()) < SLOT_DURATION_MS
+          );
+        });
+
+        if (!isBooked) {
+          availableSlotTimes.add(slotDate.getTime());
+        }
+      }
+    }
+
+    const availableSlots = Array.from(availableSlotTimes)
+      .sort((a, b) => a - b)
+      .map((slotTime) => formatSlotTime(new Date(slotTime)));
+
+    res.json(availableSlots);
+  } catch (error) {
+    console.error("Error fetching available slots:", error);
+    res.status(500).json({ message: "Failed to fetch available slots" });
+  }
+});
 
 router.post(
   "/providers/:id/availability",

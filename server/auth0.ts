@@ -5,6 +5,33 @@ import type { Express, RequestHandler } from 'express';
 import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 
+const SESSION_COOKIE_NAME = "medlink.session";
+
+function getHeaderValue(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+  return "";
+}
+
+function getAuthRequestContext(req: any) {
+  const cookieHeader = getHeaderValue(req.headers?.cookie);
+  return {
+    host: req.headers?.host,
+    forwardedHost: req.headers?.["x-forwarded-host"],
+    forwardedProto: req.headers?.["x-forwarded-proto"],
+    origin: req.headers?.origin,
+    referer: req.headers?.referer,
+    hasCookieHeader: cookieHeader.length > 0,
+    hasSessionCookie: cookieHeader.includes(`${SESSION_COOKIE_NAME}=`),
+    hasSessionObject: !!req.session,
+    sessionId: req.sessionID,
+  };
+}
+
 function getBaseUrlFromRequest(req: any): string {
   const forwardedProto = req.headers["x-forwarded-proto"];
   const proto =
@@ -74,8 +101,15 @@ export function getSession() {
   const cookieDomain =
     process.env.SESSION_COOKIE_DOMAIN ||
     (isProduction ? ".mymedlink.ca" : undefined);
+  const sameSite = isProduction ? "none" : "lax";
 
-  console.log("Session configuration:", { isProduction, isHttps });
+  console.log("Session configuration:", {
+    isProduction,
+    isHttps,
+    cookieDomain,
+    sameSite,
+    sessionCookieName: SESSION_COOKIE_NAME,
+  });
 
   return session({
     secret: process.env.SESSION_SECRET,
@@ -83,13 +117,13 @@ export function getSession() {
     resave: false,
     saveUninitialized: false,
     proxy: true,
-    name: 'medlink.session',
+    name: SESSION_COOKIE_NAME,
     cookie: {
       httpOnly: true,
       secure: isHttps,
       maxAge: sessionTtl,
       // Use None in production so OAuth callbacks work even if POST mode is enabled.
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: sameSite,
       domain: cookieDomain,
     },
   });
@@ -197,8 +231,8 @@ export async function setupAuth(app: Express) {
     // which manifests as "user = false" and a redirect to /login-failed.
     app.get('/api/login', (req, res, next) => {
       console.log('[auth] /api/login initiated', {
-        host: req.headers.host,
-        proto: req.headers['x-forwarded-proto'] || req.protocol,
+        ...getAuthRequestContext(req),
+        callbackURL,
       });
       passport.authenticate('auth0', {
         scope: 'openid email profile',
@@ -206,12 +240,23 @@ export async function setupAuth(app: Express) {
     });
 
     app.get('/api/callback', (req, res, next) => {
+      console.log("[auth] /api/callback received", {
+        ...getAuthRequestContext(req),
+        query: {
+          hasCode: !!req.query.code,
+          hasState: !!req.query.state,
+          error: req.query.error,
+          errorDescription: req.query.error_description,
+        },
+      });
+
       passport.authenticate('auth0', {}, (err: any, user: any, info: any) => {
         if (err) {
           console.error("[auth] /api/callback — passport error:", {
             message: err?.message,
             stack: err?.stack,
-            sessionId: req.sessionID,
+            info: JSON.stringify(info),
+            ...getAuthRequestContext(req),
           });
           return res.redirect('/login-failed');
         }
@@ -221,9 +266,13 @@ export async function setupAuth(app: Express) {
           // (e.g. state mismatch, token exchange failure, user lookup failure).
           console.error("[auth] /api/callback — authentication failed (no user):", {
             info: JSON.stringify(info),
-            sessionId: req.sessionID,
-            hasSession: !!req.session,
-            query: { code: req.query.code ? '[present]' : '[missing]', state: req.query.state, error: req.query.error, error_description: req.query.error_description },
+            ...getAuthRequestContext(req),
+            query: {
+              hasCode: !!req.query.code,
+              hasState: !!req.query.state,
+              error: req.query.error,
+              errorDescription: req.query.error_description,
+            },
           });
           return res.redirect('/login-failed');
         }
@@ -234,7 +283,23 @@ export async function setupAuth(app: Express) {
             console.error("[auth] /api/callback — req.logIn failed:", loginErr);
             return res.redirect('/login-failed');
           }
-          return res.redirect('/');
+
+          if (!req.session) {
+            console.error("[auth] /api/callback — req.session missing after req.logIn");
+            return res.redirect('/login-failed');
+          }
+
+          req.session.save((saveErr) => {
+            if (saveErr) {
+              console.error("[auth] /api/callback — session.save failed:", saveErr);
+              return res.redirect('/login-failed');
+            }
+            console.log("[auth] /api/callback — session persisted", {
+              ...getAuthRequestContext(req),
+              userId: user.id,
+            });
+            return res.redirect('/');
+          });
         });
       })(req, res, next);
     });

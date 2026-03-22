@@ -23,6 +23,11 @@ interface Provider {
   verified: boolean;
   tags: string[];
   rapidService?: boolean;
+  services?: Array<{
+    id: number;
+    name: string;
+    price?: string | number | null;
+  }>;
 }
 
 interface ProviderCardProps {
@@ -164,6 +169,25 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
           <p className="text-gray-700 text-sm leading-relaxed line-clamp-2 mb-4 font-medium">
             {provider.description}
           </p>
+
+          {provider.services && provider.services.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {provider.services.slice(0, 3).map((service) => (
+                <span
+                  key={service.id}
+                  className="text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5"
+                >
+                  {service.name}
+                  {service.price ? ` · $${service.price}` : ""}
+                </span>
+              ))}
+              {provider.services.length > 3 && (
+                <span className="text-xs text-gray-400">
+                  +{provider.services.length - 3} more
+                </span>
+              )}
+            </div>
+          )}
         </div>
         
         {/* Tags */}

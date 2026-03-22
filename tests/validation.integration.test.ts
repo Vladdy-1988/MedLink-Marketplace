@@ -4,7 +4,7 @@
  */
 import express from "express";
 import request from "supertest";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "sk_test_fake";
 process.env.STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "whsec_fake";
@@ -20,6 +20,11 @@ const { mockStorage } = vi.hoisted(() => ({
     getBooking: vi.fn(),
     getProvider: vi.fn(),
     getService: vi.fn(),
+    createBooking: vi.fn(),
+    getBookingsByProviderAndDate: vi.fn(),
+    getProviderAvailability: vi.fn(),
+    getProviderBlackouts: vi.fn(),
+    getBookingsByProvider: vi.fn(),
     updateBookingStatus: vi.fn(),
     cancelBooking: vi.fn(),
     rescheduleBooking: vi.fn(),
@@ -70,7 +75,24 @@ beforeAll(async () => {
   const { registerRoutes } = await import("../server/routes");
   await registerRoutes(app);
 
-  // Set up common mock returns
+});
+
+beforeEach(() => {
+  mockStorage.getBooking.mockReset();
+  mockStorage.getProvider.mockReset();
+  mockStorage.getService.mockReset();
+  mockStorage.createBooking.mockReset();
+  mockStorage.getBookingsByProviderAndDate.mockReset();
+  mockStorage.getProviderAvailability.mockReset();
+  mockStorage.getProviderBlackouts.mockReset();
+  mockStorage.getBookingsByProvider.mockReset();
+  mockStorage.updateBookingStatus.mockReset();
+  mockStorage.cancelBooking.mockReset();
+  mockStorage.rescheduleBooking.mockReset();
+  mockStorage.updateUser.mockReset();
+  mockStorage.createAuditLog.mockReset();
+  mockStorage.getUser.mockReset();
+
   mockStorage.getBooking.mockResolvedValue({
     id: 1,
     patientId: "user-1",
@@ -80,12 +102,58 @@ beforeAll(async () => {
     status: "pending",
   });
   mockStorage.getProvider.mockResolvedValue({ id: 1, userId: "user-1" });
+  mockStorage.getService.mockResolvedValue({
+    id: 1,
+    name: "Home Visit",
+  });
+  mockStorage.createBooking.mockResolvedValue({
+    id: 2,
+    patientId: "user-1",
+    providerId: 1,
+    serviceId: 1,
+    scheduledDate: new Date(),
+    duration: 60,
+    patientAddress: "123 Main St",
+    patientNotes: null,
+    totalAmount: "100.00",
+    status: "pending",
+    paymentStatus: "unpaid",
+  });
+  mockStorage.getBookingsByProviderAndDate.mockResolvedValue([]);
+  mockStorage.getProviderAvailability.mockResolvedValue([]);
+  mockStorage.getProviderBlackouts.mockResolvedValue([]);
+  mockStorage.getBookingsByProvider.mockResolvedValue([]);
   mockStorage.updateBookingStatus.mockResolvedValue(undefined);
   mockStorage.cancelBooking.mockResolvedValue(undefined);
   mockStorage.rescheduleBooking.mockResolvedValue(undefined);
   mockStorage.updateUser.mockResolvedValue({ id: "user-1" });
   mockStorage.createAuditLog.mockResolvedValue({});
+  mockStorage.getUser.mockResolvedValue({
+    id: "user-1",
+    userType: "patient",
+    email: "patient@example.com",
+    firstName: "Test",
+    lastName: "User",
+  });
 });
+
+function formatDateOnly(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function nextWeekday(dayOfWeek: number): Date {
+  const target = new Date();
+  target.setHours(0, 0, 0, 0);
+  let delta = (dayOfWeek - target.getDay() + 7) % 7;
+  if (delta === 0) {
+    delta = 7;
+  }
+  target.setDate(target.getDate() + delta);
+  return target;
+}
 
 // ---- PATCH /api/bookings/:id/status ----
 
@@ -154,6 +222,81 @@ describe("POST /api/bookings/:id/cancel — reason validation", () => {
   it("accepts a cancel request with no reason (optional)", async () => {
     const res = await request(app).post("/api/bookings/1/cancel").send({});
     expect(res.status).not.toBe(400);
+  });
+});
+
+describe("POST /api/bookings — slot enforcement", () => {
+  it("rejects bookings in the past with 422", async () => {
+    const pastDate = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    const res = await request(app).post("/api/bookings").send({
+      providerId: 1,
+      serviceId: 1,
+      scheduledDate: pastDate,
+      duration: 60,
+      patientAddress: "123 Main St",
+      totalAmount: "100.00",
+    });
+
+    expect(res.status).toBe(422);
+    expect(mockStorage.createBooking).not.toHaveBeenCalled();
+  });
+
+  it("rejects a booking when another non-cancelled booking is within 60 minutes", async () => {
+    const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    mockStorage.getBookingsByProviderAndDate.mockResolvedValue([
+      {
+        id: 9,
+        providerId: 1,
+        scheduledDate: new Date(futureDate),
+        status: "confirmed",
+      },
+    ]);
+
+    const res = await request(app).post("/api/bookings").send({
+      providerId: 1,
+      serviceId: 1,
+      scheduledDate: futureDate,
+      duration: 60,
+      patientAddress: "123 Main St",
+      totalAmount: "100.00",
+    });
+
+    expect(res.status).toBe(409);
+    expect(mockStorage.createBooking).not.toHaveBeenCalled();
+  });
+});
+
+describe("GET /api/providers/:id/available-slots", () => {
+  it("returns generated slots excluding already-booked times", async () => {
+    const requestedDate = nextWeekday(1);
+    const requestedDateString = formatDateOnly(requestedDate);
+
+    mockStorage.getProviderAvailability.mockResolvedValue([
+      {
+        dayOfWeek: 1,
+        startTime: "09:00",
+        endTime: "12:00",
+        isAvailable: true,
+      },
+    ]);
+    mockStorage.getBookingsByProvider.mockResolvedValue([
+      {
+        id: 7,
+        providerId: 1,
+        scheduledDate: new Date(
+          new Date(requestedDate).setHours(10, 0, 0, 0),
+        ),
+        status: "confirmed",
+      },
+    ]);
+
+    const res = await request(app).get(
+      `/api/providers/1/available-slots?date=${requestedDateString}`,
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(["9:00 AM", "11:00 AM"]);
   });
 });
 

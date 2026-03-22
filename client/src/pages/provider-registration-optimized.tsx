@@ -26,7 +26,7 @@ const formSchema = z.object({
   specialization: z.string().min(1, "Please select a specialization"),
   licenseNumber: z.string().min(1, "License number is required"),
   yearsExperience: z.coerce.number().min(0).max(50),
-  bio: z.string().min(50, "Bio must be at least 50 characters").optional(),
+  bio: z.string().min(50, "Bio must be at least 50 characters").optional().or(z.literal("").transform(() => undefined)),
   serviceAreas: z.string().min(1, "Service area is required"),
 
   availability: z.string().optional(),
@@ -54,7 +54,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
       specialization: "",
       licenseNumber: "",
       yearsExperience: 0,
-      bio: "",
+      bio: undefined,
 
       serviceAreas: "Calgary, AB",
       availability: "",
@@ -288,13 +288,24 @@ const ProviderRegistrationOptimized = React.memo(() => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="nursing">Registered Nurse</SelectItem>
-                              <SelectItem value="physiotherapy">Physiotherapist</SelectItem>
-                              <SelectItem value="dental">Dental Hygienist</SelectItem>
-                              <SelectItem value="lab-tech">Lab Technician</SelectItem>
-                              <SelectItem value="massage">Massage Therapist</SelectItem>
-                              <SelectItem value="nutrition">Nutritionist</SelectItem>
+                              <SelectItem value="registered-nurse">Registered Nurse</SelectItem>
+                              <SelectItem value="nurse-practitioner">Nurse Practitioner</SelectItem>
+                              <SelectItem value="physiotherapist">Physiotherapist</SelectItem>
+                              <SelectItem value="occupational">Occupational Therapist</SelectItem>
+                              <SelectItem value="dental-hygienist">Dental Hygienist</SelectItem>
+                              <SelectItem value="denturist">Denturist</SelectItem>
+                              <SelectItem value="audiologist">Audiologist / Hearing Care</SelectItem>
+                              <SelectItem value="optometrist">Optometrist / Vision Care</SelectItem>
+                              <SelectItem value="lab-technician">Lab Technician</SelectItem>
+                              <SelectItem value="massage-therapist">Massage Therapist</SelectItem>
+                              <SelectItem value="nutritionist">Nutritionist / Dietitian</SelectItem>
                               <SelectItem value="mental-health">Mental Health Counselor</SelectItem>
+                              <SelectItem value="respiratory">Respiratory Therapist</SelectItem>
+                              <SelectItem value="pharmacist">Pharmacist</SelectItem>
+                              <SelectItem value="palliative">Palliative Care</SelectItem>
+                              <SelectItem value="home-support">Home Support Worker</SelectItem>
+                              <SelectItem value="speech">Speech Therapist</SelectItem>
+                              <SelectItem value="podiatrist">Podiatrist</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>

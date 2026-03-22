@@ -80,7 +80,36 @@ import {
   type InsertWaitlistEntry,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, sql, gte, lte, ilike } from "drizzle-orm";
+import {
+  eq,
+  desc,
+  and,
+  or,
+  sql,
+  gte,
+  lte,
+  ilike,
+  inArray,
+  exists,
+} from "drizzle-orm";
+
+async function attachServicesToProviders<T extends { id: number }>(
+  results: T[],
+): Promise<Array<T & { services: Service[] }>> {
+  const providerIds = results.map((provider) => provider.id);
+  const allServices =
+    providerIds.length > 0
+      ? await db
+          .select()
+          .from(services)
+          .where(inArray(services.providerId, providerIds))
+      : [];
+
+  return results.map((provider) => ({
+    ...provider,
+    services: allServices.filter((service) => service.providerId === provider.id),
+  }));
+}
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -165,10 +194,13 @@ export interface IStorage {
   deleteProviderPatientNotes(id: number): Promise<void>;
 
   // Booking operations
-  createBooking(booking: InsertBooking): Promise<Booking>;
+  createBooking(
+    booking: InsertBooking & Pick<Booking, "status" | "paymentStatus" | "totalAmount">,
+  ): Promise<Booking>;
   getBooking(id: number): Promise<Booking | undefined>;
   getBookingsByPatient(patientId: string): Promise<Booking[]>;
   getBookingsByProvider(providerId: number): Promise<Booking[]>;
+  getBookingsByProviderAndDate(providerId: number, date: Date): Promise<Booking[]>;
   updateBookingStatus(id: number, status: string): Promise<void>;
   updateBookingPayment(id: number, paymentIntentId: string, paymentStatus: string): Promise<void>;
   getBookingWithDetails(id: number): Promise<any>;
@@ -218,11 +250,12 @@ export interface IStorage {
   // Provider credential operations
   createProviderCredential(credential: InsertProviderCredential): Promise<ProviderCredential>;
   getProviderCredentials(providerId: number): Promise<ProviderCredential[]>;
+  getCredentialsByProvider(userId: string): Promise<ProviderCredential[]>;
   updateCredentialVerification(id: number, status: string, reviewedBy: string, reviewNotes?: string): Promise<void>;
   getAllPendingCredentials(): Promise<any[]>;
 
   // Admin operations
-  getPendingProviders(): Promise<Provider[]>;
+  getPendingProviders(): Promise<any[]>;
   getAllProviders(): Promise<any[]>;
   getAllBookings(): Promise<any[]>;
   getAllReviews(): Promise<any[]>;
@@ -253,6 +286,8 @@ export interface IStorage {
   // Enhanced admin stats
   getPlatformStats(): Promise<{
     totalBookings: number;
+    totalProviders: number;
+    totalPatients: number;
     dailyBookings: number;
     weeklyBookings: number;
     monthlyBookings: number;
@@ -267,6 +302,21 @@ export interface IStorage {
     pendingCredentials: number;
     totalTransactions: number;
     platformCommission: number;
+    providers: {
+      total: number;
+      approved: number;
+      pending: number;
+    };
+    patients: {
+      total: number;
+    };
+    bookings: {
+      total: number;
+      daily: number;
+      weekly: number;
+      monthly: number;
+      revenue: number;
+    };
   }>;
   
   // Communication oversight
@@ -592,7 +642,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMarketplaceProviders(): Promise<any[]> {
-    return db
+    const results = await db
       .select({
         id: providers.id,
         userId: providers.userId,
@@ -615,6 +665,8 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(users, eq(providers.userId, users.id))
       .where(and(eq(providers.isApproved, true), eq(providers.isVerified, true)))
       .orderBy(desc(providers.rating), desc(providers.reviewCount), desc(providers.createdAt));
+
+    return attachServicesToProviders(results);
   }
 
   async getMarketplaceProviderById(id: number): Promise<any | undefined> {
@@ -647,14 +699,41 @@ export class DatabaseStorage implements IStorage {
         ),
       );
 
-    return provider;
+    if (!provider) {
+      return undefined;
+    }
+
+    const providerServices = await db
+      .select()
+      .from(services)
+      .where(eq(services.providerId, id));
+
+    return {
+      ...provider,
+      services: providerServices,
+    };
   }
 
   async updateProviderApproval(id: number, isApproved: boolean): Promise<void> {
-    await db
-      .update(providers)
-      .set({ isApproved, updatedAt: new Date() })
-      .where(eq(providers.id, id));
+    await db.transaction(async (tx) => {
+      const [provider] = await tx
+        .update(providers)
+        .set({ isApproved, updatedAt: new Date() })
+        .where(eq(providers.id, id))
+        .returning({ userId: providers.userId });
+
+      if (!provider) {
+        return;
+      }
+
+      await tx
+        .update(users)
+        .set({
+          userType: isApproved ? "provider" : "patient",
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, provider.userId));
+    });
   }
 
   async searchProviders(filters: {
@@ -669,7 +748,26 @@ export class DatabaseStorage implements IStorage {
     ];
 
     if (filters.serviceType) {
-      conditions.push(ilike(providers.specialization, `%${filters.serviceType}%`));
+      const serviceTypeCondition = or(
+        ilike(providers.specialization, `%${filters.serviceType}%`),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(services)
+            .where(
+              and(
+                eq(services.providerId, providers.id),
+                or(
+                  ilike(services.name, `%${filters.serviceType}%`),
+                  ilike(services.category, `%${filters.serviceType}%`),
+                ),
+              ),
+            ),
+        ),
+      );
+      if (serviceTypeCondition) {
+        conditions.push(serviceTypeCondition);
+      }
     }
 
     if (filters.location) {
@@ -696,9 +794,11 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .orderBy(desc(providers.rating));
 
+    const providersWithServices = await attachServicesToProviders(results);
+
     // Append nextAvailableDate to each result (parallel lookups)
     return Promise.all(
-      results.map(async (p) => ({
+      providersWithServices.map(async (p) => ({
         ...p,
         nextAvailableDate: await this.getNextAvailableSlot(p.id),
       })),
@@ -895,7 +995,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Booking operations
-  async createBooking(booking: InsertBooking): Promise<Booking> {
+  async createBooking(
+    booking: InsertBooking & Pick<Booking, "status" | "paymentStatus" | "totalAmount">,
+  ): Promise<Booking> {
     const [newBooking] = await db
       .insert(bookings)
       .values(booking)
@@ -924,6 +1026,27 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(bookings)
       .where(eq(bookings.providerId, providerId))
+      .orderBy(desc(bookings.scheduledDate));
+  }
+
+  async getBookingsByProviderAndDate(
+    providerId: number,
+    date: Date,
+  ): Promise<Booking[]> {
+    const windowStart = new Date(date.getTime() - 59 * 60 * 1000);
+    const windowEnd = new Date(date.getTime() + 59 * 60 * 1000);
+
+    return await db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.providerId, providerId),
+          gte(bookings.scheduledDate, windowStart),
+          lte(bookings.scheduledDate, windowEnd),
+          sql`${bookings.status} <> 'cancelled'`,
+        ),
+      )
       .orderBy(desc(bookings.scheduledDate));
   }
 
@@ -1389,10 +1512,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Admin operations
-  async getPendingProviders(): Promise<Provider[]> {
+  async getPendingProviders(): Promise<any[]> {
     return await db
-      .select()
+      .select({
+        id: providers.id,
+        userId: providers.userId,
+        specialization: providers.specialization,
+        licenseNumber: providers.licenseNumber,
+        yearsExperience: providers.yearsExperience,
+        bio: providers.bio,
+        serviceAreas: providers.serviceAreas,
+        isApproved: providers.isApproved,
+        isVerified: providers.isVerified,
+        createdAt: providers.createdAt,
+        user: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          profileImageUrl: users.profileImageUrl,
+        },
+      })
       .from(providers)
+      .innerJoin(users, eq(providers.userId, users.id))
       .where(eq(providers.isApproved, false))
       .orderBy(desc(providers.createdAt));
   }
@@ -1471,10 +1613,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateProviderStatus(id: number, isApproved: boolean, isVerified: boolean = false): Promise<void> {
-    await db
-      .update(providers)
-      .set({ isApproved, isVerified, updatedAt: new Date() })
-      .where(eq(providers.id, id));
+    await db.transaction(async (tx) => {
+      const [provider] = await tx
+        .update(providers)
+        .set({ isApproved, isVerified, updatedAt: new Date() })
+        .where(eq(providers.id, id))
+        .returning({ userId: providers.userId });
+
+      if (!provider) {
+        return;
+      }
+
+      await tx
+        .update(users)
+        .set({
+          userType: isApproved ? "provider" : "patient",
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, provider.userId));
+    });
   }
 
   async getPlatformStats(): Promise<any> {
@@ -1549,6 +1706,8 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalBookings: Number(bookingStats?.total || 0),
+      totalProviders: Number(providerStats?.approved || 0),
+      totalPatients: Number(userStats?.patients || 0),
       dailyBookings: Number(bookingStats?.daily || 0),
       weeklyBookings: Number(bookingStats?.weekly || 0),
       monthlyBookings: Number(bookingStats?.monthly || 0),
@@ -1563,6 +1722,21 @@ export class DatabaseStorage implements IStorage {
       pendingCredentials: 0,
       totalTransactions: 0,
       platformCommission: 0,
+      providers: {
+        total: Number(providerStats?.total || 0),
+        approved: Number(providerStats?.approved || 0),
+        pending: Number(providerStats?.pending || 0),
+      },
+      patients: {
+        total: Number(userStats?.patients || 0),
+      },
+      bookings: {
+        total: Number(bookingStats?.total || 0),
+        daily: Number(bookingStats?.daily || 0),
+        weekly: Number(bookingStats?.weekly || 0),
+        monthly: Number(bookingStats?.monthly || 0),
+        revenue: Number(bookingStats?.revenue || 0),
+      },
     };
   }
 
@@ -1581,6 +1755,16 @@ export class DatabaseStorage implements IStorage {
       .from(providerCredentials)
       .where(eq(providerCredentials.providerId, providerId))
       .orderBy(desc(providerCredentials.createdAt));
+  }
+
+  async getCredentialsByProvider(userId: string): Promise<ProviderCredential[]> {
+    return await db
+      .select({ providerCredentials })
+      .from(providerCredentials)
+      .innerJoin(providers, eq(providerCredentials.providerId, providers.id))
+      .where(eq(providers.userId, userId))
+      .orderBy(desc(providerCredentials.createdAt))
+      .then((rows) => rows.map((row) => row.providerCredentials));
   }
 
   async updateCredentialVerification(id: number, status: string, reviewedBy: string, reviewNotes?: string): Promise<void> {

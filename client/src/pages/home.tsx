@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import ServiceCategories from "@/components/ServiceCategories";
 import ProviderCard from "@/components/ProviderCard";
@@ -16,7 +17,19 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (user.userType === "provider") {
+        setLocation("/dashboard/provider");
+      } else if (user.userType === "admin") {
+        setLocation("/dashboard/admin");
+      }
+      // patients stay on home page — it's their browse/discovery experience
+    }
+  }, [isLoading, isAuthenticated, user, setLocation]);
   
   // Fetch real providers from API instead of using mock data
   const { data: providers = [], isLoading: providersLoading } = useQuery({

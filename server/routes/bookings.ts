@@ -36,14 +36,52 @@ router.post("/bookings", checkAuth, bookingRateLimit, async (req: any, res) => {
     const bookingData = insertBookingSchema.parse({
       ...req.body,
       patientId: userId,
+      scheduledDate: req.body.scheduledDate
+        ? new Date(req.body.scheduledDate)
+        : req.body.scheduledDate,
     });
-    const booking = await storage.createBooking(bookingData);
+    const scheduledDate = new Date(bookingData.scheduledDate);
+
+    if (scheduledDate.getTime() <= Date.now()) {
+      return res
+        .status(422)
+        .json({ message: "Scheduled date must be in the future" });
+    }
+
+    const conflictingBookings = await storage.getBookingsByProviderAndDate(
+      bookingData.providerId,
+      scheduledDate,
+    );
+    if (conflictingBookings.length > 0) {
+      return res.status(409).json({ message: "This slot is already taken" });
+    }
+
+    const service = await storage.getService(bookingData.serviceId);
+    if (!service || service.price == null) {
+      return res
+        .status(422)
+        .json({ message: "Service not found or price unavailable" });
+    }
+
+    const totalAmount = Number(service.price);
+    if (!Number.isFinite(totalAmount)) {
+      return res
+        .status(422)
+        .json({ message: "Service not found or price unavailable" });
+    }
+
+    const booking = await storage.createBooking({
+      ...bookingData,
+      scheduledDate,
+      status: "pending",
+      paymentStatus: "unpaid",
+      totalAmount: totalAmount.toFixed(2),
+    });
 
     // Send email notifications
     const patient = await storage.getUser(userId);
     const provider = await storage.getProvider(booking.providerId);
     const providerUser = provider ? await storage.getUser(provider.userId) : null;
-    const service = await storage.getService(booking.serviceId);
 
     if (patient && providerUser && service) {
       await emailService.sendBookingConfirmation(
