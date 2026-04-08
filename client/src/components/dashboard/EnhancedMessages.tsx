@@ -23,6 +23,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
+import { AssistantBubble } from "@/components/messages/AssistantBubble";
 
 interface Conversation {
   id: string;
@@ -55,10 +57,19 @@ export function EnhancedMessages() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [assistantHistory, setAssistantHistory] = useState<
+    Array<{ role: "user" | "assistant"; content: string }>
+  >([]);
+  const [assistantResponse, setAssistantResponse] = useState<{
+    message: string;
+    suggestedProviders: any[];
+  } | null>(null);
+  const [assistantLoading, setAssistantLoading] = useState(false);
 
   const { data: conversations, isLoading: conversationsLoading } = useQuery({
     queryKey: ["/api/conversations", user?.id],
@@ -101,13 +112,54 @@ export function EnhancedMessages() {
     }
   });
 
+  const callAssistant = (sentText: string) => {
+    setAssistantLoading(true);
+    fetch("/api/assistant/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        message: sentText,
+        history: assistantHistory,
+        patientContext: { location: "Calgary", insuranceProviders: [] },
+      }),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+        return response.json();
+      })
+      .then((data: { message: string; suggestedProviders: any[] }) => {
+        setAssistantResponse(data);
+        setAssistantLoading(false);
+        setAssistantHistory((prev) => [
+          ...prev,
+          { role: "user", content: sentText },
+          { role: "assistant", content: data.message },
+        ]);
+      })
+      .catch(() => setAssistantLoading(false));
+  };
+
   const handleSendMessage = () => {
     if (!messageText.trim() || !selectedConversation) return;
-    
-    sendMessageMutation.mutate({
-      conversationId: selectedConversation,
-      content: messageText.trim()
-    });
+    const sentText = messageText.trim();
+
+    sendMessageMutation.mutate(
+      {
+        conversationId: selectedConversation,
+        content: sentText,
+      },
+      {
+        onSuccess: () => {
+          const isNewInquiry = !selectedConversationData?.providerId;
+          if (isNewInquiry && user?.userType === "patient") {
+            callAssistant(sentText);
+          }
+        },
+      },
+    );
   };
 
   const handleConversationSelect = (conversationId: string) => {
@@ -141,10 +193,13 @@ export function EnhancedMessages() {
 
   const conversationList = (conversations as Conversation[]) || [];
   const messageList = (messages as Message[]) || [];
-  const filteredConversations = conversationList.filter(conv => 
-    searchQuery === "" || 
-    conv.providerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  const uniqueMessages = messageList.filter(
+    (msg, index, arr) => arr.findIndex((message) => message.id === msg.id) === index,
+  );
+  const filteredConversations = conversationList.filter(conv =>
+    searchQuery === "" ||
+    (conv.providerName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (conv.lastMessage || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const selectedConversationData = conversationList.find(c => c.id === selectedConversation);
@@ -207,7 +262,7 @@ export function EnhancedMessages() {
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3 flex-1">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            {conversation.providerName.charAt(0)}
+                            {(conversation.providerName || "?").charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
@@ -240,12 +295,55 @@ export function EnhancedMessages() {
         {/* Message View */}
         <Card className="lg:col-span-2">
           {!selectedConversation ? (
-            <CardContent className="p-8 text-center h-full flex items-center justify-center">
-              <div>
-                <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
-                <p className="text-gray-600">Choose a conversation from the list to start messaging</p>
-              </div>
+            <CardContent className="p-8 h-full flex items-center justify-center">
+              {user?.userType === "patient" ? (
+                <div className="w-full max-w-lg">
+                  <AssistantBubble
+                    message={
+                      assistantResponse?.message ??
+                      "Hi! I'm the MedLink assistant. What kind of healthcare are you looking for today?"
+                    }
+                    suggestedProviders={assistantResponse?.suggestedProviders}
+                    isLoading={assistantLoading}
+                    onSelectProvider={(id) => setLocation(`/providers/${id}`)}
+                  />
+                  <div className="flex items-end gap-2 mt-4">
+                    <textarea
+                      className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[60px] resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      placeholder="Describe what you're looking for..."
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (!messageText.trim()) return;
+                          const sentText = messageText.trim();
+                          setMessageText("");
+                          callAssistant(sentText);
+                        }
+                      }}
+                    />
+                    <Button
+                      disabled={!messageText.trim() || assistantLoading}
+                      className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
+                      onClick={() => {
+                        if (!messageText.trim()) return;
+                        const sentText = messageText.trim();
+                        setMessageText("");
+                        callAssistant(sentText);
+                      }}
+                    >
+                      Ask
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
+                  <p className="text-gray-600">Choose a conversation from the list to start messaging</p>
+                </div>
+              )}
             </CardContent>
           ) : (
             <>
@@ -254,7 +352,7 @@ export function EnhancedMessages() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {selectedConversationData?.providerName.charAt(0)}
+                      {selectedConversationData?.providerName?.charAt(0) ?? "?"}
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
@@ -287,9 +385,9 @@ export function EnhancedMessages() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {messageList.map((message, index) => {
+                      {uniqueMessages.map((message, index) => {
                         const isFromUser = message.senderType === 'patient';
-                        const isLastMessage = index === messageList.length - 1;
+                        const isLastMessage = index === uniqueMessages.length - 1;
                         
                         return (
                           <div
@@ -299,7 +397,7 @@ export function EnhancedMessages() {
                           >
                             {!isFromUser && (
                               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                                {selectedConversationData?.providerName.charAt(0)}
+                                {selectedConversationData?.providerName?.charAt(0) ?? "?"}
                               </div>
                             )}
                             <div className={`max-w-xs lg:max-w-md ${isFromUser ? 'order-1' : ''}`}>

@@ -4,6 +4,7 @@ import { isAuthenticated } from "../auth0";
 import { storage } from "../storage";
 import { getAuthUserId, isAdmin } from "../routeHelpers";
 import { paymentRateLimit } from "../middleware/rateLimit";
+import { requireSubscription } from "../middleware/requireSubscription";
 import { dispatchClaimsHubEvent } from "../claimsHubClient";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -16,6 +17,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 const router = Router();
 const checkAuth = isAuthenticated;
 
+function getSubscriptionPeriodEnd(subscription: Stripe.Subscription): Date | null {
+  const periodEnd = subscription.items.data[0]?.current_period_end;
+  return typeof periodEnd === "number" ? new Date(periodEnd * 1000) : null;
+}
+
 /**
  * POST /api/create-payment-intent
  *
@@ -26,6 +32,7 @@ const checkAuth = isAuthenticated;
 router.post(
   "/create-payment-intent",
   checkAuth,
+  requireSubscription,
   paymentRateLimit,
   async (req: any, res) => {
     try {
@@ -161,6 +168,71 @@ router.post(
 
     // Handle relevant event types
     switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (session.mode !== "subscription") {
+          break;
+        }
+        const subscriptionId =
+          typeof session.subscription === "string"
+            ? session.subscription
+            : session.subscription?.id;
+        const customerId =
+          typeof session.customer === "string"
+            ? session.customer
+            : session.customer?.id;
+        if (!subscriptionId || !customerId) {
+          break;
+        }
+        const sub = await stripe.subscriptions.retrieve(subscriptionId);
+        const user = await storage.getUserByStripeCustomerId(customerId);
+        if (!user) {
+          break;
+        }
+        await storage.updateUserSubscription(user.id, {
+          stripeSubscriptionId: sub.id,
+          subscriptionStatus: sub.status,
+          subscriptionCurrentPeriodEnd: getSubscriptionPeriodEnd(sub),
+        });
+        break;
+      }
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        const sub = event.data.object as Stripe.Subscription;
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+        if (!customerId) {
+          break;
+        }
+        const user = await storage.getUserByStripeCustomerId(customerId);
+        if (!user) {
+          break;
+        }
+        await storage.updateUserSubscription(user.id, {
+          stripeSubscriptionId: sub.id,
+          subscriptionStatus: sub.status,
+          subscriptionCurrentPeriodEnd: getSubscriptionPeriodEnd(sub),
+        });
+        break;
+      }
+      case "customer.subscription.deleted": {
+        const sub = event.data.object as Stripe.Subscription;
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+        if (!customerId) {
+          break;
+        }
+        const user = await storage.getUserByStripeCustomerId(customerId);
+        if (!user) {
+          break;
+        }
+        await storage.updateUserSubscription(user.id, {
+          subscriptionStatus: "inactive",
+          stripeSubscriptionId: null,
+          subscriptionCurrentPeriodEnd: null,
+        });
+        break;
+      }
       case "payment_intent.succeeded": {
         const pi = event.data.object as Stripe.PaymentIntent;
         const bookingId = pi.metadata?.bookingId
@@ -179,6 +251,53 @@ router.post(
               serviceId: booking.serviceId,
               amount: booking.totalAmount,
             });
+          }
+
+          const bookingForCommission = await storage.getBooking(bookingId);
+          if (bookingForCommission) {
+            const provider = await storage.getProvider(
+              bookingForCommission.providerId,
+            );
+            if (provider) {
+              const platformFeeCents = Math.round(pi.amount * 0.2);
+              const providerPayoutCents = pi.amount - platformFeeCents;
+
+              let transferId: string | null = null;
+              let txStatus = "pending";
+
+              if (
+                provider.connectOnboardingComplete &&
+                provider.stripeAccountId
+              ) {
+                const piExpanded = await stripe.paymentIntents.retrieve(pi.id, {
+                  expand: ["latest_charge"],
+                });
+                const chargeId = (piExpanded.latest_charge as Stripe.Charge)?.id;
+                const transfer = await stripe.transfers.create({
+                  amount: providerPayoutCents,
+                  currency: "cad",
+                  destination: provider.stripeAccountId,
+                  ...(chargeId ? { source_transaction: chargeId } : {}),
+                  metadata: { bookingId: String(bookingId) },
+                });
+                transferId = transfer.id;
+                txStatus = "completed";
+              }
+
+              await storage.createTransaction({
+                bookingId,
+                providerId: bookingForCommission.providerId,
+                type: "commission",
+                amount: String(pi.amount / 100),
+                platformFee: String(platformFeeCents / 100),
+                providerPayout: String(providerPayoutCents / 100),
+                status: txStatus,
+                stripeTransactionId: transferId,
+                metadata: !provider.connectOnboardingComplete
+                  ? { pendingReason: "provider_not_connected" }
+                  : null,
+              });
+            }
           }
 
           // Analytics (fire-and-forget)

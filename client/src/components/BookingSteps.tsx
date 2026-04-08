@@ -32,6 +32,7 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
   const [bookingData, setBookingData] = useState<BookingData>({
     serviceId: initialServiceId,
   });
+  const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [slotLoadError, setSlotLoadError] = useState<string | null>(null);
@@ -94,11 +95,35 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
 
   const progress = (currentStep / steps.length) * 100;
 
-  const nextStep = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+  function nextStep() {
+    const e: Record<string, string> = {};
+
+    if (currentStep === 1) {
+      if (!bookingData.serviceId) e.serviceId = "Please select a service.";
     }
-  };
+
+    if (currentStep === 2) {
+      if (!bookingData.date) e.date = "Please select a date.";
+      if (!bookingData.time) e.time = "Please select a time slot.";
+    }
+
+    if (currentStep === 3) {
+      if (!bookingData.firstName?.trim()) e.firstName = "First name is required.";
+      if (!bookingData.lastName?.trim()) e.lastName = "Last name is required.";
+      if (!bookingData.address?.trim()) e.address = "Please enter your address.";
+    }
+
+    if (Object.keys(e).length > 0) {
+      setStepErrors(e);
+      setTimeout(() => {
+        document.querySelector("[data-error]")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+      return;
+    }
+
+    setStepErrors({});
+    setCurrentStep((s) => s + 1);
+  }
 
   const prevStep = () => {
     if (currentStep > 1) {
@@ -108,10 +133,14 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
 
   const handleServiceSelect = (serviceId: string) => {
     setBookingData((previous) => ({ ...previous, serviceId: Number(serviceId) }));
+    setStepErrors((prev) => ({ ...prev, serviceId: "" }));
   };
 
   const handleInputChange = (field: string, value: string) => {
     setBookingData((previous) => ({ ...previous, [field]: value }));
+    if (["time", "firstName", "lastName", "address", "serviceId"].includes(field)) {
+      setStepErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleDateChange = (value: string) => {
@@ -120,7 +149,13 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
       date: value,
       time: undefined,
     }));
+    setStepErrors((prev) => ({ ...prev, date: "" }));
   };
+
+  const isContinueDisabled =
+    (currentStep === 1 && !bookingData.serviceId) ||
+    (currentStep === 2 && (!bookingData.date || !bookingData.time)) ||
+    (currentStep === 3 && (!bookingData.firstName || !bookingData.lastName || !bookingData.address));
 
   const renderStep = () => {
     switch (currentStep) {
@@ -176,7 +211,13 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                   value={bookingData.date || ""}
                   onChange={(e) => handleDateChange(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
+                  className={stepErrors.date ? "border-destructive" : ""}
                 />
+                {stepErrors.date && (
+                  <p className="text-sm text-destructive mt-1" data-error="date">
+                    {stepErrors.date}
+                  </p>
+                )}
               </div>
               <div>
                 <Label className="text-lg font-semibold text-gray-900 mb-4">Available Times</Label>
@@ -211,6 +252,11 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                     ))}
                   </div>
                 )}
+                {stepErrors.time && (
+                  <p className="text-sm text-destructive mt-1" data-error="time">
+                    {stepErrors.time}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -228,6 +274,11 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                   value={bookingData.firstName || ""}
                   onChange={(e) => handleInputChange("firstName", e.target.value)}
                 />
+                {stepErrors.firstName && (
+                  <p className="text-sm text-destructive mt-1" data-error="firstName">
+                    {stepErrors.firstName}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="lastName">Last Name</Label>
@@ -236,6 +287,11 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                   value={bookingData.lastName || ""}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                 />
+                {stepErrors.lastName && (
+                  <p className="text-sm text-destructive mt-1" data-error="lastName">
+                    {stepErrors.lastName}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
@@ -263,7 +319,13 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                 placeholder="123 Main Street, Calgary, AB"
                 value={bookingData.address || ""}
                 onChange={(e) => handleInputChange("address", e.target.value)}
+                className={stepErrors.address ? "border-destructive" : ""}
               />
+              {stepErrors.address && (
+                <p className="text-sm text-destructive mt-1" data-error="address">
+                  {stepErrors.address}
+                </p>
+              )}
             </div>
           </div>
         );
@@ -338,17 +400,21 @@ export default function BookingSteps({ providerId, services, initialServiceId, o
                 Confirm Booking
               </Button>
             ) : (
-              <Button
-                onClick={nextStep}
-                disabled={
-                  (currentStep === 1 && !bookingData.serviceId) ||
-                  (currentStep === 2 && (!bookingData.date || !bookingData.time)) ||
-                  (currentStep === 3 && (!bookingData.firstName || !bookingData.lastName || !bookingData.address))
-                }
-                className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
-              >
-                Continue
-              </Button>
+              <div className="relative">
+                <Button
+                  onClick={nextStep}
+                  disabled={isContinueDisabled}
+                  className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
+                >
+                  Continue
+                </Button>
+                {isContinueDisabled && (
+                  <div
+                    className="absolute inset-0 cursor-not-allowed"
+                    onClick={nextStep}
+                  />
+                )}
+              </div>
             )}
           </div>
         </CardContent>

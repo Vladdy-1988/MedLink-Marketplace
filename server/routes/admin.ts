@@ -329,6 +329,16 @@ router.get("/admin/bookings", checkAuth, requireAdmin, async (_req, res) => {
   }
 });
 
+router.get("/admin/commissions", checkAuth, requireAdmin, async (_req, res) => {
+  try {
+    const commissions = await storage.getAdminCommissions();
+    res.json(commissions);
+  } catch (err) {
+    console.error("Admin commissions error:", err);
+    res.status(500).json({ error: "Failed to fetch commissions" });
+  }
+});
+
 router.get("/admin/reviews", checkAuth, requireAdmin, async (_req, res) => {
   try {
     const reviews = await storage.getAllReviews();
@@ -351,5 +361,60 @@ router.get("/admin/reports", checkAuth, requireAdmin, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch reports" });
   }
 });
+
+router.post("/admin/seed-availability", checkAuth, requireAdmin, async (_req, res) => {
+  try {
+    const allProviders = await storage.getAllProviders();
+
+    let seeded = 0;
+    for (const provider of allProviders) {
+      const existing = await storage.getProviderAvailability(provider.id);
+      if (existing.length > 0) continue;
+
+      for (let day = 1; day <= 5; day++) {
+        await storage.createProviderAvailability({
+          providerId: provider.id,
+          dayOfWeek: day,
+          startTime: "08:00",
+          endTime: "18:00",
+          isAvailable: true,
+        });
+      }
+      seeded++;
+    }
+
+    res.json({ seeded, message: `Seeded availability for ${seeded} providers` });
+  } catch (err: any) {
+    console.error("Seed availability error:", err);
+    res.status(500).json({ error: "Failed to seed availability" });
+  }
+});
+
+router.post(
+  "/admin/fix-provider-roles",
+  checkAuth,
+  requireAdmin,
+  async (_req, res) => {
+    try {
+      const allProviders = await storage.getAllProviders();
+      const approvedProviders = allProviders.filter((p) => p.isApproved === true);
+
+      let fixed = 0;
+      for (const p of approvedProviders) {
+        await storage.updateProviderApproval(p.id, true);
+        fixed++;
+      }
+
+      res.json({
+        checked: allProviders.length,
+        fixed,
+        message: `Synced userType to "provider" for ${fixed} approved provider account(s)`,
+      });
+    } catch (err: any) {
+      console.error("fix-provider-roles error:", err);
+      res.status(500).json({ error: "Failed to sync provider roles" });
+    }
+  },
+);
 
 export default router;

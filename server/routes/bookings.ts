@@ -8,6 +8,7 @@ import {
   canAccessBooking,
 } from "../routeHelpers";
 import { bookingRateLimit } from "../middleware/rateLimit";
+import { requireSubscription } from "../middleware/requireSubscription";
 import { insertBookingSchema } from "@shared/schema";
 import { emailService } from "../emailService";
 import { handleValidationError } from "./shared";
@@ -30,7 +31,7 @@ const router = Router();
 const checkAuth = isAuthenticated;
 
 // Create booking
-router.post("/bookings", checkAuth, bookingRateLimit, async (req: any, res) => {
+router.post("/bookings", checkAuth, requireSubscription, bookingRateLimit, async (req: any, res) => {
   try {
     const userId = getAuthUserId(req);
     const bookingData = insertBookingSchema.parse({
@@ -124,6 +125,57 @@ router.post("/bookings", checkAuth, bookingRateLimit, async (req: any, res) => {
   } catch (error) {
     console.error("Error creating booking:", error);
     res.status(400).json({ message: "Failed to create booking" });
+  }
+});
+
+router.post("/bookings/series", checkAuth, async (req: any, res) => {
+  try {
+    const userId = getAuthUserId(req);
+    const {
+      providerId,
+      serviceId,
+      startDate,
+      visitCount,
+      frequencyDays,
+      timeSlot,
+      patientAddress,
+      patientNotes,
+    } = req.body;
+
+    if (!providerId || !serviceId || !startDate || !visitCount || !frequencyDays || !timeSlot) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    if (visitCount < 1 || visitCount > 20) {
+      return res.status(400).json({ error: "visitCount must be between 1 and 20" });
+    }
+
+    const service = await storage.getService(serviceId);
+    if (!service) return res.status(404).json({ error: "Service not found" });
+
+    const created = [];
+    for (let i = 0; i < visitCount; i++) {
+      const visitDate = new Date(startDate);
+      visitDate.setDate(visitDate.getDate() + i * frequencyDays);
+      const [hours, minutes] = String(timeSlot).split(":").map(Number);
+      visitDate.setHours(hours, minutes, 0, 0);
+      const booking = await storage.createBooking({
+        patientId: userId,
+        providerId: Number(providerId),
+        serviceId: Number(serviceId),
+        scheduledDate: visitDate,
+        duration: service.duration || 60,
+        status: "pending",
+        patientAddress: patientAddress || "",
+        patientNotes: patientNotes || null,
+        totalAmount: String((service as any).basePrice ?? service.price ?? "0"),
+        paymentStatus: "pending",
+      });
+      created.push(booking);
+    }
+    res.status(201).json(created);
+  } catch (error) {
+    console.error("Error creating booking series:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

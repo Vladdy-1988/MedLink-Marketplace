@@ -5,6 +5,7 @@ import {
   timestamp,
   jsonb,
   index,
+  uniqueIndex,
   integer,
   decimal,
   boolean,
@@ -38,6 +39,8 @@ export const users = pgTable("users", {
   gender: varchar("gender"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
+  subscriptionStatus: text("subscription_status").default("inactive"),
+  subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
   notificationPreferences: jsonb("notification_preferences").default({
     email: true,
     sms: false,
@@ -53,7 +56,7 @@ export const users = pgTable("users", {
 // Healthcare providers
 export const providers = pgTable("providers", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
   specialization: varchar("specialization").notNull(),
   licenseNumber: varchar("license_number").notNull(),
   yearsExperience: integer("years_experience").notNull(),
@@ -65,6 +68,9 @@ export const providers = pgTable("providers", {
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   reviewCount: integer("review_count").default(0),
   availability: jsonb("availability"), // Schedule object
+  insuranceAccepted: jsonb("insurance_accepted").$type<string[]>().default([]),
+  stripeAccountId: text("stripe_account_id"),
+  connectOnboardingComplete: boolean("connect_onboarding_complete").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -377,18 +383,27 @@ export const consentRecords = pgTable("consent_records", {
 });
 
 // Waitlist entries for patients waiting on provider slots
-export const waitlistEntries = pgTable("waitlist_entries", {
-  id: serial("id").primaryKey(),
-  patientId: varchar("patient_id").notNull().references(() => users.id),
-  providerId: integer("provider_id").notNull().references(() => providers.id),
-  serviceId: integer("service_id").references(() => services.id),
-  preferredDateRange: jsonb("preferred_date_range"), // { start: ISO, end: ISO }
-  notes: text("notes"),
-  status: varchar("status").notNull().default("waiting"), // waiting, notified, booked, expired
-  notifiedAt: timestamp("notified_at"),
-  expiresAt: timestamp("expires_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const waitlistEntries = pgTable(
+  "waitlist_entries",
+  {
+    id: serial("id").primaryKey(),
+    patientId: varchar("patient_id").notNull().references(() => users.id),
+    providerId: integer("provider_id").notNull().references(() => providers.id),
+    serviceId: integer("service_id").references(() => services.id),
+    preferredDateRange: jsonb("preferred_date_range"), // { start: ISO, end: ISO }
+    notes: text("notes"),
+    status: varchar("status").notNull().default("waiting"), // waiting, notified, booked, expired
+    notifiedAt: timestamp("notified_at"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("waitlist_entries_patient_provider_unique").on(
+      table.patientId,
+      table.providerId,
+    ),
+  ],
+);
 
 // Patient reports about providers
 export const userReports = pgTable("user_reports", {

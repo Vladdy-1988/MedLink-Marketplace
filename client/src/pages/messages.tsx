@@ -31,6 +31,10 @@ export default function Messages() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    document.title = "Messages — MedLink Marketplace";
+  }, []);
+
+  useEffect(() => {
     if (user) {
       fetchConversations();
     }

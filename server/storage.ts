@@ -81,6 +81,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import {
+  asc,
   eq,
   desc,
   and,
@@ -111,11 +112,97 @@ async function attachServicesToProviders<T extends { id: number }>(
   }));
 }
 
+function dedupeProvidersByUserId<T extends { userId: string }>(results: T[]): T[] {
+  const seen = new Set<string>();
+
+  return results.filter((provider) => {
+    if (seen.has(provider.userId)) {
+      return false;
+    }
+
+    seen.add(provider.userId);
+    return true;
+  });
+}
+
+function sortMarketplaceProviders<
+  T extends {
+    rating: string | number | null;
+    reviewCount: number | null;
+    createdAt: Date | string | null;
+  },
+>(results: T[]): T[] {
+  return [...results].sort((a, b) => {
+    const ratingDelta = Number(b.rating ?? 0) - Number(a.rating ?? 0);
+    if (ratingDelta !== 0) {
+      return ratingDelta;
+    }
+
+    const reviewDelta = Number(b.reviewCount ?? 0) - Number(a.reviewCount ?? 0);
+    if (reviewDelta !== 0) {
+      return reviewDelta;
+    }
+
+    return (
+      new Date(b.createdAt ?? 0).getTime() -
+      new Date(a.createdAt ?? 0).getTime()
+    );
+  });
+}
+
+const liveProviderRating = sql<string>`
+  COALESCE(
+    ROUND(
+      (
+        SELECT AVG(${reviews.rating})::numeric
+        FROM ${reviews}
+        WHERE ${reviews.providerId} = ${providers.id}
+      ),
+      1
+    )::text,
+    '0'
+  )
+`;
+
+const liveProviderReviewCount = sql<number>`
+  COALESCE(
+    (
+      SELECT COUNT(*)::int
+      FROM ${reviews}
+      WHERE ${reviews.providerId} = ${providers.id}
+    ),
+    0
+  )
+`;
+
+const liveProviderPatientCount = sql<number>`
+  COALESCE(
+    (
+      SELECT COUNT(DISTINCT ${bookings.patientId})::int
+      FROM ${bookings}
+      WHERE
+        ${bookings.providerId} = ${providers.id}
+        AND ${bookings.status} <> 'cancelled'
+    ),
+    0
+  )
+`;
+
 export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserByStripeCustomerId(customerId: string): Promise<User | null>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User>;
+  updateUserSubscription(
+    userId: string,
+    data: {
+      stripeCustomerId?: string | null;
+      stripeSubscriptionId?: string | null;
+      subscriptionStatus?: string | null;
+      subscriptionCurrentPeriodEnd?: Date | null;
+    },
+  ): Promise<User>;
 
   // User address operations
   createUserAddress(address: InsertUserAddress): Promise<UserAddress>;
@@ -158,15 +245,35 @@ export interface IStorage {
   createProvider(provider: InsertProvider): Promise<Provider>;
   getProvider(id: number): Promise<Provider | undefined>;
   getProviderByUserId(userId: string): Promise<Provider | undefined>;
+  updateProvider(id: number, updates: Partial<typeof providers.$inferInsert>): Promise<any>;
+  updateProviderConnect(
+    providerId: number,
+    data: { stripeAccountId?: string | null; connectOnboardingComplete?: boolean },
+  ): Promise<void>;
   getMarketplaceProviders(): Promise<any[]>;
   getMarketplaceProviderById(id: number): Promise<any | undefined>;
   updateProviderApproval(id: number, isApproved: boolean): Promise<void>;
   searchProviders(filters: {
+    q?: string;
     serviceType?: string;
     location?: string;
     priceRange?: [number, number];
     rating?: number;
+    sortBy?: string;
   }): Promise<any[]>;
+  getProviderEarnings(providerId: number): Promise<{
+    totalEarned: number;
+    pendingTransfers: number;
+    bookings: Array<{
+      id: number;
+      date: Date;
+      patientId: string;
+      totalAmount: string;
+      platformFee: string | null;
+      providerPayout: string | null;
+      status: string;
+    }>;
+  }>;
   getNextAvailableSlot(providerId: number): Promise<Date | null>;
 
   // Service operations
@@ -235,6 +342,7 @@ export interface IStorage {
   createReview(review: InsertReview): Promise<Review>;
   getReviewsForProvider(providerId: number): Promise<any[]>;
   getReviewByBookingId(bookingId: number): Promise<Review | undefined>;
+  getAllReviews(): Promise<any[]>;
 
   // User report operations
   createUserReport(report: InsertUserReport): Promise<UserReport>;
@@ -269,6 +377,7 @@ export interface IStorage {
   // Transaction operations
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
   getTransactions(filters?: { status?: string; type?: string; providerId?: number }): Promise<any[]>;
+  getAdminCommissions(): Promise<any[]>;
   updateTransactionStatus(id: number, status: string): Promise<void>;
   
   // System settings operations
@@ -342,6 +451,15 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByStripeCustomerId(customerId: string): Promise<User | null> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.stripeCustomerId, customerId))
+      .limit(1);
+    return user ?? null;
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -364,6 +482,23 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async updateUserSubscription(
+    userId: string,
+    data: {
+      stripeCustomerId?: string | null;
+      stripeSubscriptionId?: string | null;
+      subscriptionStatus?: string | null;
+      subscriptionCurrentPeriodEnd?: Date | null;
+    },
+  ): Promise<User> {
+    const [updated] = await db
+      .update(users)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return updated;
   }
 
   // User address operations
@@ -618,9 +753,12 @@ export class DatabaseStorage implements IStorage {
 
   // Provider operations
   async createProvider(provider: InsertProvider): Promise<Provider> {
+    const insuranceAccepted = Array.isArray(provider.insuranceAccepted)
+      ? (provider.insuranceAccepted as string[])
+      : [];
     const [newProvider] = await db
       .insert(providers)
-      .values(provider)
+      .values({ ...provider, insuranceAccepted })
       .returning();
     return newProvider;
   }
@@ -637,8 +775,29 @@ export class DatabaseStorage implements IStorage {
     const [provider] = await db
       .select()
       .from(providers)
-      .where(eq(providers.userId, userId));
+      .where(eq(providers.userId, userId))
+      .orderBy(desc(providers.updatedAt), desc(providers.createdAt), desc(providers.id))
+      .limit(1);
     return provider;
+  }
+
+  async updateProvider(id: number, updates: Partial<typeof providers.$inferInsert>): Promise<any> {
+    const [updated] = await db
+      .update(providers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(providers.id, id))
+      .returning();
+    return updated;
+  }
+
+  async updateProviderConnect(
+    providerId: number,
+    data: { stripeAccountId?: string | null; connectOnboardingComplete?: boolean },
+  ): Promise<void> {
+    await db
+      .update(providers)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(providers.id, providerId));
   }
 
   async getMarketplaceProviders(): Promise<any[]> {
@@ -656,17 +815,22 @@ export class DatabaseStorage implements IStorage {
         basePricing: providers.basePricing,
         isVerified: providers.isVerified,
         isApproved: providers.isApproved,
-        rating: providers.rating,
-        reviewCount: providers.reviewCount,
+        rating: liveProviderRating,
+        reviewCount: liveProviderReviewCount,
+        patientCount: liveProviderPatientCount,
         availability: providers.availability,
         createdAt: providers.createdAt,
       })
       .from(providers)
       .innerJoin(users, eq(providers.userId, users.id))
       .where(and(eq(providers.isApproved, true), eq(providers.isVerified, true)))
-      .orderBy(desc(providers.rating), desc(providers.reviewCount), desc(providers.createdAt));
+      .orderBy(desc(providers.updatedAt), desc(providers.createdAt), desc(providers.id));
 
-    return attachServicesToProviders(results);
+    const uniqueProviders = sortMarketplaceProviders(
+      dedupeProvidersByUserId(results),
+    );
+
+    return attachServicesToProviders(uniqueProviders);
   }
 
   async getMarketplaceProviderById(id: number): Promise<any | undefined> {
@@ -684,8 +848,9 @@ export class DatabaseStorage implements IStorage {
         basePricing: providers.basePricing,
         isVerified: providers.isVerified,
         isApproved: providers.isApproved,
-        rating: providers.rating,
-        reviewCount: providers.reviewCount,
+        rating: liveProviderRating,
+        reviewCount: liveProviderReviewCount,
+        patientCount: liveProviderPatientCount,
         availability: providers.availability,
         createdAt: providers.createdAt,
       })
@@ -737,10 +902,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchProviders(filters: {
+    q?: string;
     serviceType?: string;
     location?: string;
     priceRange?: [number, number];
     rating?: number;
+    sortBy?: string;
   }): Promise<any[]> {
     const conditions = [
       eq(providers.isApproved, true),
@@ -770,6 +937,18 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
+    if (filters.q) {
+      const qCondition = or(
+        ilike(users.firstName, `%${filters.q}%`),
+        ilike(users.lastName, `%${filters.q}%`),
+        ilike(providers.bio, `%${filters.q}%`),
+        ilike(providers.specialization, `%${filters.q}%`),
+      );
+      if (qCondition) {
+        conditions.push(qCondition);
+      }
+    }
+
     if (filters.location) {
       // serviceAreas is a jsonb array — cast to text for a simple substring search
       conditions.push(
@@ -778,7 +957,18 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (filters.rating) {
-      conditions.push(gte(providers.rating, filters.rating.toString()));
+      conditions.push(
+        sql`
+          COALESCE(
+            (
+              SELECT AVG(${reviews.rating})::numeric
+              FROM ${reviews}
+              WHERE ${reviews.providerId} = ${providers.id}
+            ),
+            0
+          ) >= ${filters.rating}
+        `,
+      );
     }
 
     if (filters.priceRange) {
@@ -788,13 +978,45 @@ export class DatabaseStorage implements IStorage {
       );
     }
 
-    const results = await db
-      .select()
-      .from(providers)
-      .where(and(...conditions))
-      .orderBy(desc(providers.rating));
+    const orderClause =
+      filters.sortBy === "rating"
+        ? [desc(liveProviderRating), desc(providers.updatedAt)]
+        : filters.sortBy === "price_asc"
+          ? [asc(providers.basePricing), desc(providers.updatedAt)]
+          : filters.sortBy === "price_desc"
+            ? [desc(providers.basePricing), desc(providers.updatedAt)]
+            : [desc(providers.updatedAt), desc(providers.createdAt), desc(providers.id)];
 
-    const providersWithServices = await attachServicesToProviders(results);
+    const results = await db
+      .select({
+        id: providers.id,
+        userId: providers.userId,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
+        specialization: providers.specialization,
+        licenseNumber: providers.licenseNumber,
+        yearsExperience: providers.yearsExperience,
+        bio: providers.bio,
+        serviceAreas: providers.serviceAreas,
+        basePricing: providers.basePricing,
+        isVerified: providers.isVerified,
+        isApproved: providers.isApproved,
+        rating: liveProviderRating,
+        reviewCount: liveProviderReviewCount,
+        patientCount: liveProviderPatientCount,
+        availability: providers.availability,
+        createdAt: providers.createdAt,
+        updatedAt: providers.updatedAt,
+      })
+      .from(providers)
+      .innerJoin(users, eq(providers.userId, users.id))
+      .where(and(...conditions))
+      .orderBy(...orderClause);
+
+    const providersWithServices = await attachServicesToProviders(
+      dedupeProvidersByUserId(results),
+    );
 
     // Append nextAvailableDate to each result (parallel lookups)
     return Promise.all(
@@ -803,6 +1025,41 @@ export class DatabaseStorage implements IStorage {
         nextAvailableDate: await this.getNextAvailableSlot(p.id),
       })),
     );
+  }
+
+  async getProviderEarnings(providerId: number) {
+    const rows = await db
+      .select({
+        id: transactions.id,
+        date: bookings.scheduledDate,
+        patientId: bookings.patientId,
+        totalAmount: transactions.amount,
+        platformFee: transactions.platformFee,
+        providerPayout: transactions.providerPayout,
+        status: sql<string>`COALESCE(${transactions.status}, 'pending')`,
+      })
+      .from(transactions)
+      .innerJoin(bookings, eq(transactions.bookingId, bookings.id))
+      .where(
+        and(
+          eq(transactions.providerId, providerId),
+          eq(transactions.type, "commission"),
+        ),
+      )
+      .orderBy(desc(bookings.scheduledDate));
+
+    const totalEarned = rows.reduce(
+      (sum, row) => sum + parseFloat(String(row.providerPayout ?? "0")),
+      0,
+    );
+    const pendingTransfers = rows
+      .filter((row) => row.status === "pending")
+      .reduce(
+        (sum, row) => sum + parseFloat(String(row.providerPayout ?? "0")),
+        0,
+      );
+
+    return { totalEarned, pendingTransfers, bookings: rows };
   }
 
   async getNextAvailableSlot(providerId: number): Promise<Date | null> {
@@ -920,11 +1177,73 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProviderAvailability(providerId: number): Promise<ProviderAvailability[]> {
-    return db
+    const tableRows = await db
       .select()
       .from(providerAvailability)
       .where(eq(providerAvailability.providerId, providerId))
       .orderBy(providerAvailability.dayOfWeek, providerAvailability.startTime);
+
+    if (tableRows.length > 0) {
+      return tableRows;
+    }
+
+    const provider = await db
+      .select({ availability: providers.availability })
+      .from(providers)
+      .where(eq(providers.id, providerId))
+      .limit(1)
+      .then((rows) => rows[0]);
+
+    if (!provider?.availability || typeof provider.availability !== "object" || Array.isArray(provider.availability)) {
+      return [1, 2, 3, 4, 5].map((day) => ({
+        id: 0,
+        providerId,
+        dayOfWeek: day,
+        startTime: "08:00",
+        endTime: "18:00",
+        isAvailable: true,
+        createdAt: new Date(),
+      } as ProviderAvailability));
+    }
+
+    const dayNameToIndex: Record<string, number> = {
+      sunday: 0,
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+    };
+
+    const now = new Date();
+    const syntheticRows: ProviderAvailability[] = [];
+
+    for (const [dayName, times] of Object.entries(provider.availability as Record<string, string[]>)) {
+      const dayOfWeek = dayNameToIndex[dayName.toLowerCase()];
+      if (dayOfWeek === undefined || !Array.isArray(times) || times.length < 2) {
+        continue;
+      }
+
+      syntheticRows.push({
+        id: -(dayOfWeek + 1),
+        providerId,
+        dayOfWeek,
+        startTime: times[0],
+        endTime: times[times.length - 1],
+        isAvailable: true,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    return syntheticRows.sort((a, b) => {
+      if (a.dayOfWeek !== b.dayOfWeek) {
+        return a.dayOfWeek - b.dayOfWeek;
+      }
+
+      return a.startTime.localeCompare(b.startTime);
+    });
   }
 
   async updateProviderAvailability(id: number, updates: Partial<ProviderAvailability>): Promise<ProviderAvailability> {
@@ -1873,6 +2192,25 @@ export class DatabaseStorage implements IStorage {
     }
 
     return await baseQuery.orderBy(desc(transactions.createdAt));
+  }
+
+  async getAdminCommissions(): Promise<any[]> {
+    return db
+      .select({
+        txId: transactions.id,
+        date: transactions.createdAt,
+        providerName: sql<string>`${users.firstName} || ' ' || ${users.lastName}`,
+        amount: transactions.amount,
+        platformFee: transactions.platformFee,
+        providerPayout: transactions.providerPayout,
+        transferId: transactions.stripeTransactionId,
+        status: transactions.status,
+      })
+      .from(transactions)
+      .innerJoin(providers, eq(transactions.providerId, providers.id))
+      .innerJoin(users, eq(providers.userId, users.id))
+      .where(eq(transactions.type, "commission"))
+      .orderBy(desc(transactions.createdAt));
   }
 
   async updateTransactionStatus(id: number, status: string): Promise<void> {

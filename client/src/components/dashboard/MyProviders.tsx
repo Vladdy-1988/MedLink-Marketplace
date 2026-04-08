@@ -91,7 +91,7 @@ export function MyProviders() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                        {provider.name.charAt(0)}
+                        {(provider.name || "?").charAt(0)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
@@ -124,7 +124,7 @@ export function MyProviders() {
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Message
                       </Button>
-                      <Link href={`/providers/${provider.id}`}>
+                      <Link href={`/provider/${provider.id}`}>
                         <Button size="sm" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]" data-testid={`book-provider-${provider.id}`}>
                           Book Again
                         </Button>
@@ -174,7 +174,7 @@ export function MyProviders() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                        {provider.name.charAt(0)}
+                        {(provider.name || "?").charAt(0)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
@@ -229,7 +229,7 @@ export function MyProviders() {
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Message
                       </Button>
-                      <Link href={`/providers/${provider.id}`}>
+                      <Link href={`/provider/${provider.id}`}>
                         <Button size="sm" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]" data-testid={`book-provider-${provider.id}`}>
                           Book Again
                         </Button>

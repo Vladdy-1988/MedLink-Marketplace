@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
+import { providerSpecializations } from "@/lib/serviceCatalog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,30 @@ import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
 import { UserCheck, FileText, Star, CheckCircle, Shield, AlertCircle } from "lucide-react";
 
+const CALGARY_AREAS = [
+  "Calgary NW",
+  "Calgary NE",
+  "Calgary SW",
+  "Calgary SE",
+  "Calgary Downtown",
+  "Cochrane",
+  "Airdrie",
+  "Okotoks",
+];
+
+const INSURANCE_OPTIONS = [
+  "Alberta Blue Cross",
+  "Sun Life",
+  "Manulife",
+  "Great-West Life",
+  "Canada Life",
+  "Desjardins",
+  "Industrial Alliance",
+  "Green Shield",
+  "Chambers of Commerce",
+  "No insurance (self-pay only)",
+];
+
 // Optimized form schema with proper types
 const formSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -26,10 +51,14 @@ const formSchema = z.object({
   specialization: z.string().min(1, "Please select a specialization"),
   licenseNumber: z.string().min(1, "License number is required"),
   yearsExperience: z.coerce.number().min(0).max(50),
-  bio: z.string().min(50, "Bio must be at least 50 characters").optional().or(z.literal("").transform(() => undefined)),
-  serviceAreas: z.string().min(1, "Service area is required"),
-
-  availability: z.string().optional(),
+  basePricing: z.coerce.number().nonnegative("Must be 0 or more").optional(),
+  bio: z
+    .string()
+    .min(50, "Bio must be at least 50 characters")
+    .max(500, "Bio must be 500 characters or fewer"),
+  serviceAreas: z.array(z.string()).min(1, "Select at least one service area"),
+  insuranceAccepted: z.array(z.string()).min(1, "Select at least one insurance option"),
+  availability: z.string().min(1, "Availability is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -40,9 +69,14 @@ const ProviderRegistrationOptimized = React.memo(() => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [consentHipaa, setConsentHipaa] = useState(false);
   const [consentBaa, setConsentBaa] = useState(false);
   const [consentTerms, setConsentTerms] = useState(false);
+
+  useEffect(() => {
+    document.title = "Apply as a Provider — MedLink Marketplace";
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -54,9 +88,10 @@ const ProviderRegistrationOptimized = React.memo(() => {
       specialization: "",
       licenseNumber: "",
       yearsExperience: 0,
-      bio: undefined,
-
-      serviceAreas: "Calgary, AB",
+      basePricing: 0,
+      bio: "",
+      serviceAreas: [],
+      insuranceAccepted: [],
       availability: "",
     },
   });
@@ -73,7 +108,9 @@ const ProviderRegistrationOptimized = React.memo(() => {
       
       const providerData = {
         ...formData,
-        serviceAreas: [formData.serviceAreas],
+        serviceAreas: formData.serviceAreas,
+        basePricing: formData.basePricing || null,
+        insuranceAccepted: formData.insuranceAccepted,
         availability: formData.availability || null,
         bio: formData.bio || null,
       };
@@ -82,6 +119,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
       return await response.json();
     }, []),
     onSuccess: useCallback(() => {
+      setSubmissionError(null);
       toast({
         title: "Application Submitted!",
         description: "Your provider application has been submitted successfully.",
@@ -90,9 +128,13 @@ const ProviderRegistrationOptimized = React.memo(() => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     }, [toast, queryClient]),
     onError: useCallback((error: Error) => {
+      const message =
+        error.message.replace(/^\d+:\s*/, "") ||
+        "Failed to submit application. Please try again.";
+      setSubmissionError(message);
       toast({
         title: "Application Failed",
-        description: error.message || "Failed to submit application. Please try again.",
+        description: message,
         variant: "destructive",
       });
     }, [toast]),
@@ -114,6 +156,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
 
   // Memoized form submit handler
   const onSubmit = useCallback(async (data: FormData) => {
+    setSubmissionError(null);
     if (!consentHipaa || !consentBaa || !consentTerms) {
       toast({
         title: "Consent Required",
@@ -208,11 +251,21 @@ const ProviderRegistrationOptimized = React.memo(() => {
             <CardTitle>Provider Application Form</CardTitle>
           </CardHeader>
           <CardContent>
+            {submissionError && (
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-semibold">Application could not be submitted</p>
+                  <p>{submissionError}</p>
+                </div>
+              </div>
+            )}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Personal Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                <div className="space-y-4 border-b border-gray-200 pb-6">
+                  <h3 className="border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+                    About You
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -221,7 +274,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} required aria-required="true" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -234,7 +287,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         <FormItem>
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} required aria-required="true" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -249,7 +302,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         <FormItem>
                           <FormLabel>Email Address</FormLabel>
                           <FormControl>
-                            <Input type="email" {...field} />
+                            <Input type="email" {...field} required aria-required="true" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -262,7 +315,13 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="(403) 555-0123" {...field} />
+                            <Input
+                              type="tel"
+                              placeholder="(403) 555-0123"
+                              {...field}
+                              required
+                              aria-required="true"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -271,42 +330,29 @@ const ProviderRegistrationOptimized = React.memo(() => {
                   </div>
                 </div>
 
-                {/* Professional Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Professional Information</h3>
+                <div className="space-y-4 border-b border-gray-200 pb-6">
+                  <h3 className="border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+                    Your Practice
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="specialization"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Specialization</FormLabel>
+                          <FormLabel>Discipline / Specialization *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select your specialization" />
+                                <SelectValue placeholder="Select your discipline" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="registered-nurse">Registered Nurse</SelectItem>
-                              <SelectItem value="nurse-practitioner">Nurse Practitioner</SelectItem>
-                              <SelectItem value="physiotherapist">Physiotherapist</SelectItem>
-                              <SelectItem value="occupational">Occupational Therapist</SelectItem>
-                              <SelectItem value="dental-hygienist">Dental Hygienist</SelectItem>
-                              <SelectItem value="denturist">Denturist</SelectItem>
-                              <SelectItem value="audiologist">Audiologist / Hearing Care</SelectItem>
-                              <SelectItem value="optometrist">Optometrist / Vision Care</SelectItem>
-                              <SelectItem value="lab-technician">Lab Technician</SelectItem>
-                              <SelectItem value="massage-therapist">Massage Therapist</SelectItem>
-                              <SelectItem value="nutritionist">Nutritionist / Dietitian</SelectItem>
-                              <SelectItem value="mental-health">Mental Health Counselor</SelectItem>
-                              <SelectItem value="respiratory">Respiratory Therapist</SelectItem>
-                              <SelectItem value="pharmacist">Pharmacist</SelectItem>
-                              <SelectItem value="palliative">Palliative Care</SelectItem>
-                              <SelectItem value="home-support">Home Support Worker</SelectItem>
-                              <SelectItem value="speech">Speech Therapist</SelectItem>
-                              <SelectItem value="podiatrist">Podiatrist</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              {providerSpecializations.map((spec) => (
+                                <SelectItem key={spec} value={spec}>
+                                  {spec}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -320,7 +366,12 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         <FormItem>
                           <FormLabel>License Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your professional license number" {...field} />
+                            <Input
+                              placeholder="Your professional license number"
+                              {...field}
+                              required
+                              aria-required="true"
+                            />
                           </FormControl>
                           <FormDescription>
                             Your professional license number (e.g., CRNA, CPSO, etc.)
@@ -330,41 +381,80 @@ const ProviderRegistrationOptimized = React.memo(() => {
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="yearsExperience"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Years of Experience</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            min="0" 
-                            max="50" 
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Service Details */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Service Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="yearsExperience"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Years of Experience</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0" 
+                              max="50" 
+                              {...field}
+                              required
+                              aria-required="true"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="basePricing"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Base Pricing (CAD)</FormLabel>
+                          <FormControl>
+                            <Input type="number" min="0" step="0.01" placeholder="e.g. 120" {...field} />
+                          </FormControl>
+                          <p className="text-xs text-gray-500">Your starting rate per visit in CAD</p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <FormField
                     control={form.control}
                     name="serviceAreas"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem>
-                        <FormLabel>Service Area</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Calgary, AB" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          The geographic area you're willing to provide services in
-                        </FormDescription>
+                        <FormLabel>
+                          Service Areas *{" "}
+                          <span className="text-sm text-gray-500 font-normal">
+                            (select all that apply)
+                          </span>
+                        </FormLabel>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          {CALGARY_AREAS.map((area) => (
+                            <FormField
+                              key={area}
+                              control={form.control}
+                              name="serviceAreas"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center space-x-2">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(area)}
+                                      onCheckedChange={(checked) => {
+                                        const current = field.value || [];
+                                        field.onChange(
+                                          checked
+                                            ? [...current, area]
+                                            : current.filter((v: string) => v !== area),
+                                        );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal cursor-pointer">{area}</FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -379,9 +469,13 @@ const ProviderRegistrationOptimized = React.memo(() => {
                           <Textarea 
                             placeholder="Tell us about your background, experience, and approach to patient care..."
                             className="min-h-[120px]"
+                            maxLength={500}
                             {...field}
+                            required
+                            aria-required="true"
                           />
                         </FormControl>
+                        <p className="text-xs text-gray-500 text-right">{(form.watch("bio") || "").length}/500</p>
                         <FormDescription>
                           This will be displayed on your provider profile (minimum 50 characters)
                         </FormDescription>
@@ -392,15 +486,17 @@ const ProviderRegistrationOptimized = React.memo(() => {
                   <FormField
                     control={form.control}
                     name="availability"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>General Availability</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="e.g., Monday-Friday 9AM-5PM, Weekend availability upon request..."
-                            {...field}
-                          />
-                        </FormControl>
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>General Availability</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="e.g., Monday-Friday 9AM-5PM, Weekend availability upon request..."
+                              {...field}
+                              required
+                              aria-required="true"
+                            />
+                          </FormControl>
                         <FormDescription>
                           Describe your general availability for home visits
                         </FormDescription>
@@ -410,8 +506,48 @@ const ProviderRegistrationOptimized = React.memo(() => {
                   />
                 </div>
 
-                {/* Consent & Legal Agreements */}
                 <div className="space-y-4 pt-2">
+                  <h3 className="border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+                    Insurance & Consent
+                  </h3>
+                  <FormField
+                    control={form.control}
+                    name="insuranceAccepted"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Insurance Accepted *</FormLabel>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                          {INSURANCE_OPTIONS.map((option) => (
+                            <FormField
+                              key={option}
+                              control={form.control}
+                              name="insuranceAccepted"
+                              render={({ field }) => (
+                                <FormItem className="flex items-center space-x-2">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(option)}
+                                      onCheckedChange={(checked) => {
+                                        const current = field.value || [];
+                                        field.onChange(
+                                          checked
+                                            ? [...current, option]
+                                            : current.filter((v: string) => v !== option),
+                                        );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal cursor-pointer">{option}</FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <div className="flex items-center gap-2">
                     <Shield className="w-5 h-5 text-blue-600" />
                     <h3 className="text-lg font-semibold text-gray-900">Legal Agreements</h3>
@@ -438,6 +574,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         checked={consentHipaa}
                         onCheckedChange={(v) => setConsentHipaa(Boolean(v))}
                         className="mt-0.5"
+                        aria-required="true"
                       />
                       <div>
                         <p className="font-medium text-sm">I acknowledge the Notice of Privacy Practices</p>
@@ -452,6 +589,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         checked={consentBaa}
                         onCheckedChange={(v) => setConsentBaa(Boolean(v))}
                         className="mt-0.5"
+                        aria-required="true"
                       />
                       <div>
                         <p className="font-medium text-sm">I accept the Business Associate Agreement (BAA)</p>
@@ -466,6 +604,7 @@ const ProviderRegistrationOptimized = React.memo(() => {
                         checked={consentTerms}
                         onCheckedChange={(v) => setConsentTerms(Boolean(v))}
                         className="mt-0.5"
+                        aria-required="true"
                       />
                       <div>
                         <p className="font-medium text-sm">I accept the Provider Terms of Service</p>
@@ -477,7 +616,10 @@ const ProviderRegistrationOptimized = React.memo(() => {
                   </div>
 
                   {(!consentHipaa || !consentBaa || !consentTerms) && (
-                    <div className="flex items-start gap-2 text-xs text-gray-500 bg-amber-50 border border-amber-100 rounded p-2">
+                    <div
+                      id="provider-consent-requirements"
+                      className="flex items-start gap-2 text-xs text-gray-500 bg-amber-50 border border-amber-100 rounded p-2"
+                    >
                       <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
                       <span>All three agreements must be accepted before you can submit your application.</span>
                     </div>
@@ -495,6 +637,8 @@ const ProviderRegistrationOptimized = React.memo(() => {
                   <Button
                     type="submit"
                     disabled={createProviderMutation.isPending || !consentHipaa || !consentBaa || !consentTerms}
+                    aria-disabled={createProviderMutation.isPending || !consentHipaa || !consentBaa || !consentTerms}
+                    aria-describedby="provider-consent-requirements"
                     className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]"
                   >
                     {createProviderMutation.isPending ? "Submitting..." : "Submit Application"}

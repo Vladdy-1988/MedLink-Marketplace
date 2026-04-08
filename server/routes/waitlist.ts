@@ -3,6 +3,7 @@ import { z } from "zod";
 import { isAuthenticated } from "../auth0";
 import { storage } from "../storage";
 import { getAuthUserId } from "../routeHelpers";
+import { requireSubscription } from "../middleware/requireSubscription";
 import { handleValidationError } from "./shared";
 
 const createWaitlistSchema = z.object({
@@ -17,10 +18,26 @@ const createWaitlistSchema = z.object({
 const router = Router();
 const checkAuth = isAuthenticated;
 
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "23505"
+  );
+}
+
 // POST /api/waitlist — join a provider's waitlist
-router.post("/waitlist", checkAuth, async (req: any, res) => {
+router.post("/waitlist", checkAuth, requireSubscription, async (req: any, res) => {
   try {
     const userId = getAuthUserId(req);
+    const user = await storage.getUser(userId);
+    if (user?.userType !== "patient") {
+      return res
+        .status(403)
+        .json({ message: "Only patients can join waitlists" });
+    }
+
     const parsed = createWaitlistSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: "Invalid request payload", details: parsed.error.issues });
@@ -29,6 +46,16 @@ router.post("/waitlist", checkAuth, async (req: any, res) => {
     const provider = await storage.getProvider(parsed.data.providerId);
     if (!provider) {
       return res.status(404).json({ message: "Provider not found" });
+    }
+
+    const existingEntries = await storage.getWaitlistByPatient(userId);
+    const duplicateEntry = existingEntries.find(
+      (entry) => entry.providerId === parsed.data.providerId,
+    );
+    if (duplicateEntry) {
+      return res
+        .status(409)
+        .json({ message: "You are already on this provider's waitlist" });
     }
 
     const entry = await storage.createWaitlistEntry({
@@ -42,6 +69,11 @@ router.post("/waitlist", checkAuth, async (req: any, res) => {
 
     res.status(201).json(entry);
   } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return res
+        .status(409)
+        .json({ message: "You are already on this provider's waitlist" });
+    }
     if (handleValidationError(error, res)) return;
     console.error("Error creating waitlist entry:", error);
     res.status(500).json({ message: "Failed to join waitlist" });

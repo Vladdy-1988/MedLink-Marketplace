@@ -21,6 +21,10 @@ export default function Home() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
+    document.title = "Home — MedLink Marketplace";
+  }, []);
+
+  useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
       if (user.userType === "provider") {
         setLocation("/dashboard/provider");

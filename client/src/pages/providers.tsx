@@ -16,31 +16,82 @@ import { apiRequest } from "@/lib/queryClient";
 
 export default function Providers() {
   const [location] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedServiceType, setSelectedServiceType] = useState("all");
-  const [selectedLocation, setSelectedLocation] = useState("all");
-  const [sortBy, setSortBy] = useState("recommended");
-  const [showRapidOnly, setShowRapidOnly] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [filters, setFilters] = useState({
+    serviceType: "",
+    location: "",
+    serviceTypes: [] as string[],
+    priceRanges: [] as string[],
+    ratings: [] as string[],
+    rapidOnly: false,
+    sortBy: "newest",
+  });
 
-  // Fetch real providers from API
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQ(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const searchParams = new URLSearchParams();
+  if (debouncedQ) searchParams.set("q", debouncedQ);
+  if (filters.serviceType) searchParams.set("serviceType", filters.serviceType);
+  // serviceTypes (sidebar checkboxes) are filtered client-side — see displayedProviders below
+  if (filters.location) searchParams.set("location", filters.location);
+  if (filters.sortBy && filters.sortBy !== "newest") searchParams.set("sortBy", filters.sortBy);
+
+  const priceMap: Record<string, [number, number]> = {
+    "under-75": [0, 75],
+    "75-100": [75, 100],
+    "100-plus": [100, 9999],
+  };
+  const selectedPriceRange =
+    filters.priceRanges.length === 1 ? priceMap[filters.priceRanges[0]] : undefined;
+  if (selectedPriceRange) {
+    const [min, max] = selectedPriceRange;
+    searchParams.set("priceMin", String(min));
+    searchParams.set("priceMax", String(max));
+  }
+
+  const ratingValues = filters.ratings.reduce<number[]>((values, rating) => {
+    if (rating === "4.5-plus") {
+      values.push(4.5);
+    } else if (rating === "4.0-plus") {
+      values.push(4.0);
+    }
+
+    return values;
+  }, []);
+  if (ratingValues.length > 0) {
+    searchParams.set("rating", String(Math.min(...ratingValues)));
+  }
+
   const { data: providersData = [], isLoading: providersLoading, error: providersError } = useQuery({
-    queryKey: ["/api/providers"],
+    queryKey: ["/api/providers/search", debouncedQ, filters],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/providers");
+      const queryString = searchParams.toString();
+      const response = await apiRequest(
+        "GET",
+        queryString ? `/api/providers/search?${queryString}` : "/api/providers/search",
+      );
       return response.json();
     },
   });
 
+  useEffect(() => {
+    document.title = "Find Providers — MedLink Marketplace";
+  }, []);
+
   // Check URL parameters to auto-enable rapid services filter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('rapid') === 'true') {
-      setShowRapidOnly(true);
+    if (urlParams.get("rapid") === "true") {
+      setFilters((prev) => ({ ...prev, rapidOnly: true }));
     }
   }, [location]);
 
   // Convert API data to provider format
-  const allProviders = providersData.map((provider: any) => ({
+  const allProviders = (providersData as any[]).map((provider: any) => ({
     services: Array.isArray(provider.services) ? provider.services : [],
     id: provider.id,
     userId: provider.userId,
@@ -49,10 +100,19 @@ export default function Providers() {
     experience: `${provider.yearsExperience} years exp.`,
     rating: parseFloat(provider.rating) || 4.5,
     reviewCount: provider.reviewCount || 0,
+    patientCount: provider.patientCount || 0,
     location:
       Array.isArray(provider.serviceAreas) && provider.serviceAreas.length > 0
         ? String(provider.serviceAreas[0])
         : "Calgary, AB",
+    basePrice:
+      provider.basePricing !== null && provider.basePricing !== undefined
+        ? Number(provider.basePricing)
+        : Array.isArray(provider.services)
+          ? provider.services
+              .map((service: any) => Number(service?.price))
+              .find((price: number) => Number.isFinite(price)) ?? null
+          : null,
     price: "Message Provider",
     description: provider.bio || "Experienced healthcare provider offering quality in-home services.",
     image: provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
@@ -67,6 +127,31 @@ export default function Providers() {
         })
       : false,
   }));
+
+  // Derive sidebar filter options from live provider data (self-heals as providers onboard)
+  const uniqueSpecializations = Array.from(new Set(allProviders.map((p) => p.specialty))).sort();
+
+  const displayedProviders = allProviders
+    .filter((p) => !filters.rapidOnly || p.rapidService === true)
+    .filter(
+      (p) =>
+        filters.serviceTypes.length === 0 ||
+        filters.serviceTypes.some((t) => p.specialty.toLowerCase() === t.toLowerCase()),
+    );
+
+  const resetAllFilters = () => {
+    setSearchInput("");
+    setDebouncedQ("");
+    setFilters({
+      serviceType: "",
+      location: "",
+      serviceTypes: [],
+      priceRanges: [],
+      ratings: [],
+      rapidOnly: false,
+      sortBy: "newest",
+    });
+  };
 
   if (providersLoading) {
     return (
@@ -103,51 +188,14 @@ export default function Providers() {
     );
   }
 
-  // Use only real providers from API
-
-  const filteredProviders = allProviders.filter((provider: any) => {
-    const matchesSearch = provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         provider.specialty.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // More flexible service matching - check against specialty and category
-    const serviceSlug = selectedServiceType.replace(/-/g, " ");
-    const matchesProviderSpecialty =
-      provider.category === selectedServiceType ||
-      provider.specialty.toLowerCase().replace(/\s+/g, "-") === selectedServiceType ||
-      provider.specialty.toLowerCase().includes(serviceSlug);
-    const matchesProviderServices = provider.services.some((service: any) => {
-      const category = String(service?.category || "").toLowerCase().replace(/\s+/g, "-");
-      const name = String(service?.name || "").toLowerCase().replace(/\s+/g, "-");
-      return category === selectedServiceType || name.includes(selectedServiceType);
-    });
-    const matchesService =
-      selectedServiceType === "all" || matchesProviderSpecialty || matchesProviderServices;
-    
-    const matchesLocation = selectedLocation === "all" || provider.location.includes(selectedLocation);
-    
-    // Rapid services filter
-    const matchesRapid = !showRapidOnly || provider.rapidService === true;
-    
-    return matchesSearch && matchesService && matchesLocation && matchesRapid;
-  });
-
-  const sortedProviders = [...filteredProviders].sort((a, b) => {
-    switch (sortBy) {
-      case "rating":
-        return b.rating - a.rating;
-      case "price-low":
-        return parseInt(a.price.replace(/\D/g, '')) - parseInt(b.price.replace(/\D/g, ''));
-      case "price-high":
-        return parseInt(b.price.replace(/\D/g, '')) - parseInt(a.price.replace(/\D/g, ''));
-      default:
-        return b.reviewCount - a.reviewCount;
-    }
-  });
   const hasActiveFilters =
-    searchQuery.trim().length > 0 ||
-    selectedServiceType !== "all" ||
-    selectedLocation !== "all" ||
-    showRapidOnly;
+    searchInput.trim().length > 0 ||
+    filters.serviceType !== "" ||
+    filters.location !== "" ||
+    filters.rapidOnly ||
+    filters.serviceTypes.length > 0 ||
+    filters.priceRanges.length > 0 ||
+    filters.ratings.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -165,13 +213,21 @@ export default function Providers() {
               <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
               <Input
                 placeholder="Search providers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
                 className="pl-10"
               />
             </div>
             
-            <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
+            <Select
+              value={filters.serviceType || "all"}
+              onValueChange={(value) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  serviceType: value === "all" ? "" : value,
+                }))
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Service Type" />
               </SelectTrigger>
@@ -185,7 +241,15 @@ export default function Providers() {
               </SelectContent>
             </Select>
             
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+            <Select
+              value={filters.location || "all"}
+              onValueChange={(value) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  location: value === "all" ? "" : value,
+                }))
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Location" />
               </SelectTrigger>
@@ -198,28 +262,41 @@ export default function Providers() {
               </SelectContent>
             </Select>
             
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select
+              value={filters.sortBy}
+              onValueChange={(value) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  sortBy: value,
+                }))
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="recommended">Recommended</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
                 <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                <SelectItem value="price_desc">Price: High to Low</SelectItem>
               </SelectContent>
             </Select>
             
             {/* Rapid Services Toggle */}
             <div 
-              onClick={() => setShowRapidOnly(!showRapidOnly)}
+              onClick={() =>
+                setFilters((prev) => ({
+                  ...prev,
+                  rapidOnly: !prev.rapidOnly,
+                }))
+              }
               className={`flex items-center justify-center px-4 py-2 rounded-lg border cursor-pointer transition-all duration-200 ${
-                showRapidOnly 
+                filters.rapidOnly 
                   ? 'bg-blue-600 text-white border-blue-600' 
                   : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
               }`}
             >
-              <Zap className={`h-4 w-4 mr-2 ${showRapidOnly ? 'text-white' : 'text-blue-600'}`} />
+              <Zap className={`h-4 w-4 mr-2 ${filters.rapidOnly ? 'text-white' : 'text-blue-600'}`} />
               <span className="font-medium text-sm">Rapid Services</span>
             </div>
           </div>
@@ -238,16 +315,31 @@ export default function Providers() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Service Type Filter */}
+                {/* Service Type Filter — options derived from live provider data */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Service Type</Label>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Specialization</Label>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {serviceCategories.map((service) => (
-                      <div key={service.id} className="flex items-center space-x-2">
-                        <Checkbox id={service.name.toLowerCase().replace(/\s+/g, '-')} />
-                        <Label htmlFor={service.name.toLowerCase().replace(/\s+/g, '-')} className="text-sm text-gray-700">{service.name}</Label>
-                      </div>
-                    ))}
+                    {uniqueSpecializations.length === 0 ? (
+                      <p className="text-xs text-gray-400">No providers loaded</p>
+                    ) : (
+                      uniqueSpecializations.map((spec) => (
+                        <div key={spec} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`spec-${spec}`}
+                            checked={filters.serviceTypes.includes(spec)}
+                            onCheckedChange={(checked) =>
+                              setFilters((prev) => ({
+                                ...prev,
+                                serviceTypes: checked === true
+                                  ? [...prev.serviceTypes, spec]
+                                  : prev.serviceTypes.filter((s) => s !== spec),
+                              }))
+                            }
+                          />
+                          <Label htmlFor={`spec-${spec}`} className="text-sm text-gray-700">{spec}</Label>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
                 
@@ -261,7 +353,18 @@ export default function Providers() {
                       { id: "100-plus", label: "$100+" }
                     ].map((price) => (
                       <div key={price.id} className="flex items-center space-x-2">
-                        <Checkbox id={price.id} />
+                        <Checkbox
+                          id={price.id}
+                          checked={filters.priceRanges.includes(price.id)}
+                          onCheckedChange={(checked) =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              priceRanges: checked === true
+                                ? [...prev.priceRanges, price.id]
+                                : prev.priceRanges.filter((item) => item !== price.id),
+                            }))
+                          }
+                        />
                         <Label htmlFor={price.id} className="text-sm text-gray-700">{price.label}</Label>
                       </div>
                     ))}
@@ -277,7 +380,18 @@ export default function Providers() {
                       { id: "4.0-plus", label: "4.0+ stars" }
                     ].map((rating) => (
                       <div key={rating.id} className="flex items-center space-x-2">
-                        <Checkbox id={rating.id} />
+                        <Checkbox
+                          id={rating.id}
+                          checked={filters.ratings.includes(rating.id)}
+                          onCheckedChange={(checked) =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              ratings: checked === true
+                                ? [...prev.ratings, rating.id]
+                                : prev.ratings.filter((item) => item !== rating.id),
+                            }))
+                          }
+                        />
                         <Label htmlFor={rating.id} className="text-sm text-gray-700">{rating.label}</Label>
                       </div>
                     ))}
@@ -289,10 +403,15 @@ export default function Providers() {
                   <Label className="text-sm font-medium text-gray-700 mb-3 block">Service Options</Label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="rapid-services" 
-                        checked={showRapidOnly}
-                        onCheckedChange={(checked) => setShowRapidOnly(checked === true)}
+                      <Checkbox
+                        id="rapid-services"
+                        checked={filters.rapidOnly}
+                        onCheckedChange={(checked) =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            rapidOnly: checked as boolean,
+                          }))
+                        }
                       />
                       <Label htmlFor="rapid-services" className="text-sm text-gray-700 flex items-center">
                         <Zap className="h-3 w-3 mr-1 text-blue-600" />
@@ -301,10 +420,12 @@ export default function Providers() {
                     </div>
                   </div>
                 </div>
-                
-                <Button className="w-full bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
-                  Apply Filters
-                </Button>
+
+                {hasActiveFilters && (
+                  <Button variant="outline" className="w-full text-sm" onClick={resetAllFilters}>
+                    Clear All Filters
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -314,23 +435,22 @@ export default function Providers() {
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {showRapidOnly ? 'Rapid Service Providers' : 'Healthcare Providers'}
+                  {filters.rapidOnly ? "Rapid Service Providers" : "Healthcare Providers"}
                 </h2>
                 <p className="text-gray-600">
-                  {sortedProviders.length} providers found in Calgary
-                  {showRapidOnly && ' offering rapid services'}
+                  {displayedProviders.length} provider{displayedProviders.length !== 1 ? "s" : ""} found
                 </p>
               </div>
             </div>
             
             {/* Provider Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-              {sortedProviders.map((provider) => (
+              {displayedProviders.map((provider) => (
                 <ProviderCard key={provider.id} provider={provider} />
               ))}
             </div>
             
-            {sortedProviders.length === 0 && (
+            {displayedProviders.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-600 text-lg">
                   {hasActiveFilters
@@ -338,11 +458,7 @@ export default function Providers() {
                     : "No providers found in your area yet."}
                 </p>
                 <Button 
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSelectedServiceType("all");
-                    setSelectedLocation("all");
-                  }}
+                  onClick={resetAllFilters}
                   className="mt-4"
                   variant="outline"
                 >

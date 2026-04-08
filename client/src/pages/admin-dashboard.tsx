@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,11 +28,15 @@ export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
+  const wrongRole =
+    !authLoading &&
+    isAuthenticated &&
+    user?.userType !== 'admin';
 
-  // Redirect to home if not authenticated or not an admin
+  // Redirect to login only when the user is unauthenticated.
   useEffect(() => {
-    // UI-only role check for dashboard routing. Server/API enforce real authorization.
-    if (!authLoading && (!isAuthenticated || user?.userType !== 'admin')) {
+    if (!authLoading && !isAuthenticated) {
       toast({
         title: "Unauthorized",
         description: "You are logged out. Logging in again...",
@@ -42,7 +47,7 @@ export default function AdminDashboard() {
       }, 500);
       return;
     }
-  }, [isAuthenticated, authLoading, user, toast]);
+  }, [isAuthenticated, authLoading, toast]);
 
   const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ["/api/admin/stats"],
@@ -147,7 +152,40 @@ export default function AdminDashboard() {
     );
   }
 
-  // UI-only role check for rendering. Server/API enforce real authorization.
+  if (wrongRole && user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="p-8 text-center">
+              <h1 className="text-2xl font-semibold mb-2">Access Denied</h1>
+              <p className="text-muted-foreground mb-6">
+                This area is restricted to MedLink administrators. If you believe this is an
+                error, please contact support.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (window.history.length > 1) {
+                      window.history.back();
+                      return;
+                    }
+                    setLocation("/");
+                  }}
+                >
+                  Go Back
+                </Button>
+                <Button onClick={() => setLocation("/")}>Return Home</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated || user?.userType !== 'admin') {
     return null;
   }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation, useRoute } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
@@ -15,6 +16,10 @@ export default function Booking() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    document.title = "Book Appointment — MedLink Marketplace";
+  }, []);
 
   const { data: provider, isLoading: providerLoading } = useQuery({
     queryKey: ["/api/providers", providerId],

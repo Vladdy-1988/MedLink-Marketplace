@@ -36,6 +36,11 @@ export default function PatientDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'appointments' | 'providers' | 'messages' | 'billing' | 'settings'>('appointments');
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  useEffect(() => {
+    document.title = "My Dashboard — MedLink Marketplace";
+  }, []);
 
   // Redirect away if not authenticated or if the wrong role lands here.
   useEffect(() => {
@@ -79,6 +84,15 @@ export default function PatientDashboard() {
   const { data: conversations, isLoading: conversationsLoading, error: conversationsError } = useQuery({
     queryKey: ["/api/conversations", user?.id],
     enabled: !!user?.id && isAuthenticated && user?.userType === 'patient',
+  });
+
+  const { data: subscriptionStatus, isLoading: subscriptionLoading } = useQuery({
+    queryKey: ["subscription-status"],
+    queryFn: () =>
+      fetch("/api/subscriptions/status", { credentials: "include" }).then((r) =>
+        r.json(),
+      ),
+    enabled: !!user?.id && isAuthenticated && user?.userType === "patient",
   });
 
   // Handle conversation errors
@@ -160,6 +174,28 @@ export default function PatientDashboard() {
   ) || [];
 
   const totalProviders = new Set((bookings as any[])?.map((booking: any) => booking.providerId) || []).size;
+
+  const handleManageSubscription = async () => {
+    try {
+      setPortalLoading(true);
+      const response = await fetch("/api/subscriptions/create-portal", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || "Failed to open billing portal");
+      }
+      window.location.href = data.url;
+    } catch (error) {
+      toast({
+        title: "Unable to open billing portal",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+      setPortalLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -442,7 +478,60 @@ export default function PatientDashboard() {
             {activeTab === 'providers' && <MyProviders />}
             {activeTab === 'messages' && <EnhancedMessages />}
             {activeTab === 'billing' && <Billing />}
-            {activeTab === 'settings' && <EnhancedSettings />}
+            {activeTab === 'settings' && (
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Subscription</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {subscriptionLoading ? (
+                      <Skeleton className="h-20 w-full" />
+                    ) : subscriptionStatus?.isActive ? (
+                      <>
+                        <div className="flex items-center justify-between gap-4 flex-wrap">
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              Active — renews{" "}
+                              {subscriptionStatus.currentPeriodEnd
+                                ? new Date(
+                                    subscriptionStatus.currentPeriodEnd,
+                                  ).toLocaleDateString()
+                                : "soon"}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Your patient access subscription is active.
+                            </p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            onClick={handleManageSubscription}
+                            disabled={portalLoading}
+                          >
+                            {portalLoading ? "Opening..." : "Manage Subscription"}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            No active subscription
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Subscribe to book in-home visits across Calgary.
+                          </p>
+                        </div>
+                        <Link href="/subscribe">
+                          <Button>Subscribe</Button>
+                        </Link>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                <EnhancedSettings />
+              </div>
+            )}
           </div>
         </div>
       </div>

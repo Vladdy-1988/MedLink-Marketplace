@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -92,17 +92,18 @@ export function UserProfileTabs() {
     },
   });
 
-  // Initialize form with user data when available
-  if (user && !form.formState.isDirty) {
-    form.reset({
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      email: user.email || "",
-      phone: user.phone || "",
-      dateOfBirth: user.dateOfBirth || "",
-      bio: user.bio || "",
-    });
-  }
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        dateOfBirth: user.dateOfBirth || "",
+        bio: user.bio || "",
+      });
+    }
+  }, [user, form]);
 
   const onSubmit = (data: ProfileFormData) => {
     updateProfileMutation.mutate(data);

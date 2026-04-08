@@ -21,6 +21,23 @@ const reportSchema = z.object({
   bookingId: z.number().int().optional(),
 });
 
+const providerApplicationSchema = z.object({
+  specialization: z.string().trim().min(1).max(120),
+  licenseNumber: z.string().trim().min(1).max(120),
+  yearsExperience: z.coerce.number().int().min(0).max(50),
+  bio: z.string().trim().min(50).max(5000).nullable().optional(),
+  serviceAreas: z.array(z.string().trim().min(1)).min(1),
+  insuranceAccepted: z.array(z.string().trim()).optional().default([]),
+  availability: z
+    .union([z.string().trim().min(1), z.record(z.any()), z.array(z.any())])
+    .nullable()
+    .optional(),
+  basePricing: z
+    .union([z.string().trim().min(1), z.number().nonnegative()])
+    .nullable()
+    .optional(),
+});
+
 const SLOT_DURATION_MS = 60 * 60 * 1000;
 
 function parseLocalDate(dateString: string): Date | null {
@@ -66,7 +83,17 @@ function formatSlotTime(date: Date): string {
 }
 
 const router = Router();
+const providerObjectsRouter = Router();
 const checkAuth = isAuthenticated;
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "23505"
+  );
+}
 
 // --- Provider CRUD ---
 
@@ -79,10 +106,20 @@ router.post("/providers", checkAuth, async (req: any, res) => {
         .status(409)
         .json({ message: "You already have a provider profile" });
     }
-    const providerData = insertProviderSchema.parse({ ...req.body, userId });
+    const validatedData = providerApplicationSchema.parse(req.body);
+    const providerData = insertProviderSchema.parse({
+      ...validatedData,
+      insuranceAccepted: validatedData.insuranceAccepted ?? [],
+      userId,
+    });
     const provider = await storage.createProvider(providerData);
-    res.json(provider);
+    res.status(201).json(provider);
   } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return res
+        .status(409)
+        .json({ message: "You already have a provider profile" });
+    }
     if (error instanceof z.ZodError) {
       return res
         .status(400)
@@ -90,6 +127,20 @@ router.post("/providers", checkAuth, async (req: any, res) => {
     }
     console.error("Error creating provider:", error);
     res.status(500).json({ message: "Failed to create provider" });
+  }
+});
+
+router.get("/providers/me", checkAuth, async (req: any, res) => {
+  try {
+    const provider = await storage.getProviderByUserId(getAuthUserId(req));
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    res.json(provider);
+  } catch (error) {
+    console.error("Error fetching current provider:", error);
+    res.status(500).json({ message: "Failed to fetch provider" });
   }
 });
 
@@ -106,19 +157,18 @@ router.get("/providers", async (_req, res) => {
 router.get("/providers/search", async (req, res) => {
   try {
     const filters = {
-      serviceType: req.query.serviceType as string,
-      location: req.query.location as string,
+      q: req.query.q as string | undefined,
+      serviceType: req.query.serviceType as string | undefined,
+      location: req.query.location as string | undefined,
       priceRange:
         req.query.priceMin && req.query.priceMax
-          ? ([Number(req.query.priceMin), Number(req.query.priceMax)] as [
-              number,
-              number,
-            ])
+          ? ([Number(req.query.priceMin), Number(req.query.priceMax)] as [number, number])
           : undefined,
       rating: req.query.rating ? Number(req.query.rating) : undefined,
+      sortBy: req.query.sortBy as string | undefined,
     };
-    const providers = await storage.searchProviders(filters);
-    res.json(providers);
+    const results = await storage.searchProviders(filters);
+    res.json(results);
   } catch (error) {
     console.error("Error searching providers:", error);
     res.status(500).json({ message: "Failed to search providers" });
@@ -196,6 +246,19 @@ router.get("/providers/user/:userId", checkAuth, async (req, res) => {
   }
 });
 
+router.get("/providers/earnings", checkAuth, async (req: any, res) => {
+  try {
+    const userId = getAuthUserId(req);
+    const provider = await storage.getProviderByUserId(userId);
+    if (!provider) return res.status(403).json({ error: "Provider not found" });
+    const earnings = await storage.getProviderEarnings(provider.id);
+    res.json(earnings);
+  } catch (err) {
+    console.error("Earnings error:", err);
+    res.status(500).json({ error: "Failed to fetch earnings" });
+  }
+});
+
 router.get("/providers/:id", async (req, res) => {
   try {
     const provider = await storage.getMarketplaceProviderById(
@@ -208,6 +271,35 @@ router.get("/providers/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching provider:", error);
     res.status(500).json({ message: "Failed to fetch provider" });
+  }
+});
+
+router.patch("/providers/:id", checkAuth, async (req: any, res) => {
+  try {
+    const userId = getAuthUserId(req);
+    const provider = await storage.getProviderByUserId(userId);
+    if (!provider || provider.id !== parseInt(req.params.id)) {
+      return res.status(403).json({ message: "Not authorized to update this profile" });
+    }
+
+    const allowedFields = [
+      "specialization",
+      "bio",
+      "basePricing",
+      "serviceAreas",
+      "insuranceAccepted",
+      "yearsExperience",
+    ];
+    const updates: Record<string, any> = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+
+    const updated = await storage.updateProvider(provider.id, updates);
+    res.json(updated);
+  } catch (error) {
+    console.error("Error updating provider:", error);
+    res.status(500).json({ message: "Failed to update provider profile" });
   }
 });
 
@@ -246,6 +338,16 @@ router.get("/providers/:providerId/services", async (req, res) => {
 });
 
 // --- Reviews ---
+
+router.get("/reviews", async (_req, res) => {
+  try {
+    const reviews = await storage.getAllReviews();
+    res.json(reviews);
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ message: "Failed to fetch reviews" });
+  }
+});
 
 router.post("/reviews", checkAuth, async (req: any, res) => {
   try {
@@ -499,6 +601,24 @@ router.get("/providers/:id/blackouts", async (req, res) => {
   }
 });
 
+router.delete("/providers/:providerId/blackouts/:id", checkAuth, async (req: any, res) => {
+  try {
+    const providerId = parseInt(req.params.providerId);
+    const blackoutId = parseInt(req.params.id);
+    const requestUserId = getAuthUserId(req);
+    const provider = await storage.getProvider(providerId);
+    if (!provider) return res.status(404).json({ error: "Provider not found" });
+    if (provider.userId !== requestUserId && !(await isAdmin(requestUserId))) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    await storage.deleteProviderBlackout(blackoutId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting blackout:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // --- Provider–patient notes ---
 
 router.post(
@@ -569,7 +689,7 @@ router.get(
 
 // --- Serve provider documents (admin-only) ---
 
-router.get(
+providerObjectsRouter.get(
   "/objects/provider-documents/:documentId(*)",
   checkAuth,
   async (req: any, res) => {
@@ -595,3 +715,4 @@ router.get(
 );
 
 export default router;
+export { providerObjectsRouter };

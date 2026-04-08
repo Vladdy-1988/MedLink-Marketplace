@@ -10,15 +10,20 @@
  *   messages  → /api/messages/*, /api/conversations/*
  *   admin     → /api/admin/*
  */
+import path from "path";
+import fs from "fs";
 import type { Express } from "express";
 import authRouter from "./auth";
-import providersRouter from "./providers";
+import providersRouter, { providerObjectsRouter } from "./providers";
 import bookingsRouter from "./bookings";
 import paymentsRouter from "./payments";
 import usersRouter from "./users";
 import messagesRouter from "./messages";
 import adminRouter from "./admin";
 import waitlistRouter from "./waitlist";
+import assistantRouter from "./assistant";
+import subscriptionsRouter from "./subscriptions";
+import connectRouter from "./connect";
 
 export function registerApiRouters(app: Express): void {
   app.use("/api", authRouter);
@@ -26,9 +31,24 @@ export function registerApiRouters(app: Express): void {
   app.use("/api", bookingsRouter);
   app.use("/api", paymentsRouter);
   app.use("/api", messagesRouter);
+  app.use("/api", assistantRouter);
+  app.use("/api", subscriptionsRouter);
+  app.use("/api", connectRouter);
   app.use("/api", adminRouter);
   app.use("/api", waitlistRouter);
-  // providers router also handles /objects/* (document downloads)
+  // Provider marketplace/profile APIs live behind /api.
   app.use("/api", providersRouter);
-  app.use(providersRouter);
+  // Provider document downloads keep their existing /objects/* URLs.
+  app.use(providerObjectsRouter);
+
+  // SPA catch-all: serves index.html for direct navigation to client-side routes.
+  // Skips /api paths and paths with file extensions so static assets still resolve.
+  // Falls through gracefully in dev (no build dir yet — Vite handles it after this).
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) return next();
+    if (/\.\w{2,5}$/.test(req.path)) return next();
+    const indexPath = path.resolve(import.meta.dirname, "../public/index.html");
+    if (fs.existsSync(indexPath)) return res.sendFile(indexPath);
+    next();
+  });
 }

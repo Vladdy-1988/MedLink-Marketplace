@@ -11,15 +11,22 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ProviderProfile() {
-  const [, params] = useRoute("/provider/:id");
-  const providerId = params?.id ? parseInt(params.id) : 1;
+  const [, singularParams] = useRoute("/provider/:id");
+  const [, pluralParams] = useRoute("/providers/:id");
+  const providerId = singularParams?.id
+    ? parseInt(singularParams.id)
+    : pluralParams?.id
+      ? parseInt(pluralParams.id)
+      : 1;
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isMessaging, setIsMessaging] = useState(false);
+  const [isJoiningWaitlist, setIsJoiningWaitlist] = useState(false);
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   
   // Fetch provider data from API
   const { data: provider, isLoading, isError } = useQuery({
@@ -47,6 +54,13 @@ export default function ProviderProfile() {
     },
     enabled: !!provider,
   });
+
+  useEffect(() => {
+    if (provider) {
+      const providerName = `${provider.firstName || ""} ${provider.lastName || ""}`.trim() || "Provider";
+      document.title = `${providerName} — MedLink Marketplace`;
+    }
+  }, [provider]);
 
   if (isLoading) {
     return (
@@ -94,6 +108,14 @@ export default function ProviderProfile() {
   }
 
   const fullName = `${provider.firstName || ""} ${provider.lastName || ""}`.trim();
+  const heroImage =
+    provider.profileImageUrl ||
+    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300";
+  const providerLocation =
+    Array.isArray(provider.serviceAreas) && provider.serviceAreas.length > 0
+      ? provider.serviceAreas.join(" • ")
+      : "Calgary, AB";
+  const providerRating = Number.parseFloat(provider.rating ?? "0") || 0;
   const services = (servicesData as any[]).map((service) => ({
     ...service,
     duration: Number(service.duration),
@@ -105,6 +127,10 @@ export default function ProviderProfile() {
     patientName: review.patientName || "Verified Patient",
     date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
   }));
+
+  useEffect(() => {
+    setHeroImageLoaded(false);
+  }, [heroImage, providerId]);
 
   const sendProviderMessage = async (serviceName?: string) => {
     if (!user) {
@@ -147,6 +173,50 @@ export default function ProviderProfile() {
     }
   };
 
+  const joinWaitlist = async () => {
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to join this provider's waitlist.",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1500);
+      return;
+    }
+
+    if (user.userType !== "patient") {
+      toast({
+        title: "Patients Only",
+        description: "Only patient accounts can join provider waitlists.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsJoiningWaitlist(true);
+    try {
+      await apiRequest("POST", "/api/waitlist", { providerId });
+      toast({
+        title: "Joined Waitlist",
+        description: `We'll notify you when ${fullName} has an opening.`,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message.replace(/^\d+:\s*/, "")
+          : "Failed to join the waitlist. Please try again.";
+      toast({
+        title: "Unable to Join Waitlist",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsJoiningWaitlist(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
       <Navigation />
@@ -160,13 +230,18 @@ export default function ProviderProfile() {
       >
         {/* Background Image with Parallax Effect */}
         <div className="absolute inset-0">
+          {!heroImageLoaded && (
+            <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900" />
+          )}
           <motion.img 
-            src={provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300"} 
+            src={heroImage}
             alt={`${provider.firstName} ${provider.lastName}`}
             className="w-full h-full object-cover opacity-40"
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 1.5 }}
+            onLoad={() => setHeroImageLoaded(true)}
+            onError={() => setHeroImageLoaded(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-purple-900/30"></div>
@@ -225,7 +300,7 @@ export default function ProviderProfile() {
                 transition={{ duration: 0.8, delay: 1.0 }}
               >
                 <div className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                  <div className="text-3xl font-bold text-white mb-1">{parseFloat(provider.rating) || 4.5}</div>
+                  <div className="text-3xl font-bold text-white mb-1">{providerRating.toFixed(1)}</div>
                   <div className="text-xs text-gray-400 uppercase tracking-wide">Rating</div>
                 </div>
                 <div className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
@@ -233,11 +308,11 @@ export default function ProviderProfile() {
                   <div className="text-xs text-gray-400 uppercase tracking-wide">Reviews</div>
                 </div>
                 <div className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                  <div className="text-3xl font-bold text-white mb-1">500+</div>
+                  <div className="text-3xl font-bold text-white mb-1">{provider.patientCount ?? 0}</div>
                   <div className="text-xs text-gray-400 uppercase tracking-wide">Patients</div>
                 </div>
                 <div className="text-center p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                  <div className="text-3xl font-bold text-white mb-1">12</div>
+                  <div className="text-3xl font-bold text-white mb-1">{provider.yearsExperience}</div>
                   <div className="text-xs text-gray-400 uppercase tracking-wide">Years</div>
                 </div>
               </motion.div>
@@ -249,7 +324,7 @@ export default function ProviderProfile() {
                 transition={{ duration: 0.8, delay: 1.2 }}
               >
                 <MapPin className="h-5 w-5 text-gray-400" />
-                <span className="text-gray-300 font-medium">Calgary, AB</span>
+                <span className="text-gray-300 font-medium">{providerLocation}</span>
               </motion.div>
             </motion.div>
             
@@ -309,6 +384,20 @@ export default function ProviderProfile() {
                     Sign In to Schedule
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
+                )}
+
+                <Button
+                  onClick={joinWaitlist}
+                  disabled={isJoiningWaitlist || (!!user && user.userType !== "patient")}
+                  variant="outline"
+                  className="mt-4 w-full bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm py-6 text-lg font-semibold rounded-2xl"
+                >
+                  {isJoiningWaitlist ? "Joining Waitlist..." : "Join Waitlist"}
+                </Button>
+                {user && user.userType !== "patient" && (
+                  <p className="mt-2 text-center text-sm text-gray-300">
+                    Waitlists are available to patient accounts only.
+                  </p>
                 )}
                 
                 <div className="mt-6 space-y-4">
@@ -474,6 +563,21 @@ export default function ProviderProfile() {
           <div className="text-center mb-12">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Patient Reviews</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
+            {!reviewsLoading && (provider as any)?.rating && (
+              <div className="flex items-center justify-center gap-6 mt-6 mb-4">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-current text-yellow-400" />
+                  <span className="text-xl font-bold text-gray-900">
+                    {Number((provider as any).rating).toFixed(1)}
+                  </span>
+                  <span className="text-gray-500">avg rating</span>
+                </div>
+                <div className="text-gray-300">|</div>
+                <span className="text-gray-700 font-medium">
+                  {reviews.length} review{reviews.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            )}
           </div>
           
           {reviewsLoading ? (
@@ -496,13 +600,21 @@ export default function ProviderProfile() {
                   <CardContent className="p-8">
                     <div className="flex items-center mb-6">
                       <div className="flex text-yellow-400">
-                        {[...Array(Number(review.rating) || 0)].map((_, i) => (
-                          <Star key={i} className="h-5 w-5 fill-current" />
-                        ))}
+                        {(() => {
+                          const filled = Math.round(Math.min(5, Math.max(0, Number(review.rating) || 0)));
+                          return [...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-5 w-5 ${i < filled ? "fill-current text-yellow-400" : "text-gray-300"}`}
+                            />
+                          ));
+                        })()}
                       </div>
                       <span className="ml-3 text-sm text-gray-500 font-medium">{review.date}</span>
                     </div>
-                    <p className="text-gray-700 mb-6 text-lg leading-relaxed italic">"{review.comment}"</p>
+                    {review.comment && (
+                      <p className="text-gray-700 mb-6 text-lg leading-relaxed italic">"{review.comment}"</p>
+                    )}
                     <div className="font-semibold text-gray-900">— {review.patientName}</div>
                   </CardContent>
                 </Card>

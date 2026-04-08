@@ -8,6 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Auth0Provider } from "@/components/Auth0Provider";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
+import { SubscriptionGate } from "@/components/SubscriptionGate";
+import ConnectSuccess from "@/pages/connect-success";
+import ConnectRefresh from "@/pages/connect-refresh";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Landing = lazy(() => import("@/pages/landing"));
@@ -36,6 +39,8 @@ const AdminPortal = lazy(() => import("@/pages/admin-portal"));
 const AuthTest = lazy(() => import("@/pages/auth-test"));
 const AuthLogin = lazy(() => import("@/pages/auth-login"));
 const LoginFailed = lazy(() => import("@/pages/login-failed"));
+const Subscribe = lazy(() => import("@/pages/Subscribe"));
+const SubscribeSuccess = lazy(() => import("@/pages/SubscribeSuccess"));
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -61,13 +66,18 @@ function Router() {
       <Route path="/auth-test" component={AuthTest} />
       <Route path="/auth-login" component={AuthLogin} />
       <Route path="/login-failed" component={LoginFailed} />
+      <Route path="/connect/success" component={ConnectSuccess} />
+      <Route path="/connect/refresh" component={ConnectRefresh} />
       
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
           <Route path="/providers" component={Providers} />
+          <Route path="/providers/:id" component={ProviderProfile} />
           <Route path="/provider/:id" component={ProviderProfile} />
           <Route path="/apply" component={ProviderRegistration} />
+          <Route path="/subscribe" component={Subscribe} />
+          <Route path="/subscribe/success" component={SubscribeSuccess} />
           <Route path="/services" component={Services} />
           <Route path="/how-it-works" component={HowItWorks} />
           <Route path="/rapid-services" component={RapidServices} />
@@ -79,9 +89,16 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/providers" component={Providers} />
+          <Route path="/providers/:id" component={ProviderProfile} />
           <Route path="/provider/:id" component={ProviderProfile} />
-          <Route path="/booking/:providerId/:serviceId" component={Booking} />
+          <Route path="/booking/:providerId/:serviceId">
+            <SubscriptionGate>
+              <Booking />
+            </SubscriptionGate>
+          </Route>
           <Route path="/apply" component={ProviderRegistration} />
+          <Route path="/subscribe" component={Subscribe} />
+          <Route path="/subscribe/success" component={SubscribeSuccess} />
           <Route path="/services" component={Services} />
           <Route path="/how-it-works" component={HowItWorks} />
           <Route path="/rapid-services" component={RapidServices} />
@@ -91,7 +108,11 @@ function Router() {
           <Route path="/dashboard/patient" component={PatientDashboard} />
           <Route path="/dashboard/provider" component={ProviderDashboard} />
           <Route path="/dashboard/admin" component={AdminDashboard} />
-          <Route path="/checkout" component={Checkout} />
+          <Route path="/checkout">
+            <SubscriptionGate>
+              <Checkout />
+            </SubscriptionGate>
+          </Route>
           <Route path="/booking-success" component={BookingSuccess} />
           <Route path="/messages" component={Messages} />
           <Route path="/provider/verification" component={ProviderVerification} />

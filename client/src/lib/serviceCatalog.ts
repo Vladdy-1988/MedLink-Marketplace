@@ -1,5 +1,7 @@
 export interface ServiceCategory {
   id: number;
+  value: string;
+  label: string;
   name: string;
   description: string;
   icon: string;
@@ -8,7 +10,20 @@ export interface ServiceCategory {
   insurance?: string;
 }
 
-export const coreServiceCategories: ServiceCategory[] = [
+type BaseServiceCategory = Omit<ServiceCategory, "value" | "label">;
+
+function withCategoryMeta(categories: BaseServiceCategory[]): ServiceCategory[] {
+  return categories.map((category) => ({
+    ...category,
+    label: category.name,
+    value: category.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, ""),
+  }));
+}
+
+export const coreServiceCategories: ServiceCategory[] = withCategoryMeta([
   {
     id: 1,
     name: "General Practice",
@@ -29,7 +44,7 @@ export const coreServiceCategories: ServiceCategory[] = [
   },
   {
     id: 3,
-    name: "Physical Therapy",
+    name: "Physiotherapy",
     description: "In-home rehabilitation and recovery",
     icon: "Activity",
     color: "purple",
@@ -81,9 +96,9 @@ export const coreServiceCategories: ServiceCategory[] = [
     price: "Message Provider",
     insurance: "Covered by AHS & most private plans",
   },
-];
+]);
 
-export const additionalServiceCategories: ServiceCategory[] = [
+export const additionalServiceCategories: ServiceCategory[] = withCategoryMeta([
   {
     id: 9,
     name: "Dental Care",
@@ -156,6 +171,78 @@ export const additionalServiceCategories: ServiceCategory[] = [
     price: "Message Provider",
     insurance: "Check with your insurance provider",
   },
-];
+  {
+    id: 17,
+    name: "Denturism",
+    description: "Denture assessments, fittings, relines, and mobile denture care",
+    icon: "Smile",
+    color: "blue",
+    price: "Message Provider",
+    insurance: "Check with your dental plan",
+  },
+  {
+    id: 18,
+    name: "Cardiology",
+    description: "Cardiac consultations, monitoring, and heart health follow-up at home",
+    icon: "Heart",
+    color: "red",
+    price: "Message Provider",
+    insurance: "May be covered by specialist benefits",
+  },
+  {
+    id: 19,
+    name: "Internal Medicine",
+    description: "Comprehensive in-home care for chronic disease management and adult medicine",
+    icon: "Stethoscope",
+    color: "indigo",
+    price: "Message Provider",
+    insurance: "Often covered by provincial or private plans",
+  },
+  {
+    id: 20,
+    name: "Other",
+    description: "Additional in-home healthcare specialties available on request",
+    icon: "BriefcaseMedical",
+    color: "gray",
+    price: "Message Provider",
+    insurance: "Coverage depends on the provider and plan",
+  },
+]);
 
 export const serviceCategories = [...coreServiceCategories, ...additionalServiceCategories];
+
+export const providerSpecializations: string[] = [
+  "Anesthesiology",
+  "Cardiology",
+  "Dental Care",
+  "Denturism",
+  "Dermatology",
+  "Emergency Medicine",
+  "Family Medicine",
+  "General Practice",
+  "General Surgery",
+  "Geriatrics",
+  "Hearing Services",
+  "Internal Medicine",
+  "IV Therapy",
+  "Mental Health",
+  "Mobile Lab Tests",
+  "Neurology",
+  "Nursing Services",
+  "Nutrition",
+  "Obstetrics & Gynecology",
+  "Occupational Therapy",
+  "Ophthalmology",
+  "Orthopedic Surgery",
+  "Other",
+  "Palliative Care",
+  "Pediatrics",
+  "Pharmacy",
+  "Physiotherapy",
+  "Podiatry",
+  "Psychiatry",
+  "Speech Therapy",
+  "Urology",
+  "Vaccinations",
+  "Vision Care",
+];

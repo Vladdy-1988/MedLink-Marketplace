@@ -153,10 +153,18 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             <h3 className="text-xl font-bold text-gray-900 group-hover:text-[hsl(207,90%,54%)] transition-colors leading-tight">
               {provider.name}
             </h3>
-            <div className="flex items-center bg-gradient-to-r from-yellow-400 to-amber-400 rounded-full px-3 py-1.5 shadow-md">
-              <Star className="w-4 h-4 text-white mr-1 fill-current" />
-              <span className="font-bold text-white text-sm">{provider.rating}</span>
-            </div>
+            {provider.reviewCount > 0 && provider.rating ? (
+              <div className="flex items-center bg-gradient-to-r from-yellow-400 to-amber-400 rounded-full px-3 py-1.5 shadow-md">
+                <Star className="w-4 h-4 text-white mr-1 fill-current" />
+                <span className="font-bold text-white text-sm">
+                  {Number(provider.rating).toFixed(1)}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center bg-gray-100 text-gray-600 rounded-full px-3 py-1.5 shadow-sm text-sm font-medium">
+                New
+              </div>
+            )}
           </div>
           
           <div className="flex items-center text-sm text-gray-600 mb-3 bg-slate-50/80 rounded-lg px-3 py-2">
@@ -217,14 +225,14 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             <div className="text-sm text-gray-500 font-medium">Personalized pricing</div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-gray-500 mb-1">
-              ({provider.reviewCount} reviews)
-            </div>
+            {provider.reviewCount > 0 && (
+              <div className="text-xs text-gray-500 mb-1">({provider.reviewCount} reviews)</div>
+            )}
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star 
                   key={i}
-                  className={`w-3 h-3 ${i < Math.floor(provider.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                  className={`w-3 h-3 ${i < Math.floor(Number(provider.rating) || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                 />
               ))}
             </div>
