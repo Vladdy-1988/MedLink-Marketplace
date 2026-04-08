@@ -10,7 +10,6 @@ const REQUIRED_ENV_VARS = [
   "AUTH0_CLIENT_ID",
   "AUTH0_CLIENT_SECRET",
   "STRIPE_SECRET_KEY",
-  "STRIPE_WEBHOOK_SECRET",
 ] as const;
 
 // In production, these must be explicitly set to avoid Auth0 redirect mismatch.
@@ -27,6 +26,8 @@ const OPTIONAL_ENV_VARS: Record<string, string> = {
     "Post-logout redirect URL will be auto-derived from the request — set this to your registered logout URL (e.g. https://mymedlink.ca)",
   SESSION_COOKIE_DOMAIN:
     "Session cookie domain defaults to .mymedlink.ca in production — set this explicitly if your production domain differs",
+  STRIPE_WEBHOOK_SECRET:
+    "Stripe webhook signature verification is disabled — set this to validate incoming webhook events and prevent replay attacks",
   CLAIMSHUB_WEBHOOK_URL: "ClaimsHub outbound events will be disabled",
   CLAIMSHUB_WEBHOOK_SECRET: "ClaimsHub outbound events will be disabled",
   SENDGRID_SMS_FROM_NUMBER: "SMS appointment reminders will be disabled",
