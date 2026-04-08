@@ -461,18 +461,40 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+    // First try the normal ID-based upsert
+    try {
+      const [user] = await db
+        .insert(users)
+        .values(userData)
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            profileImageUrl: userData.profileImageUrl,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return user;
+    } catch (err: any) {
+      // Unique constraint on email — a user with this email exists under
+      // a different Auth0 ID. Return the existing record rather than crashing.
+      if (
+        err?.code === "23505" &&
+        err?.constraint?.includes("email") &&
+        typeof userData.email === "string"
+      ) {
+        const [existing] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, userData.email))
+          .limit(1);
+        if (existing) return existing;
+      }
+      throw err;
+    }
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {

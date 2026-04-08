@@ -98,16 +98,10 @@ export function getSession() {
     process.env.REPLIT_DEPLOYMENT === '1' ||
     process.env.NODE_ENV === 'production';
   const isHttps = isProduction;
-  const cookieDomain =
-    process.env.SESSION_COOKIE_DOMAIN ||
-    (isProduction ? ".mymedlink.ca" : undefined);
-  const sameSite = isProduction ? "none" : "lax";
 
   console.log("Session configuration:", {
     isProduction,
     isHttps,
-    cookieDomain,
-    sameSite,
     sessionCookieName: SESSION_COOKIE_NAME,
   });
 
@@ -122,9 +116,7 @@ export function getSession() {
       httpOnly: true,
       secure: isHttps,
       maxAge: sessionTtl,
-      // Use None in production so OAuth callbacks work even if POST mode is enabled.
-      sameSite: sameSite,
-      domain: cookieDomain,
+      sameSite: "lax",
     },
   });
 }
