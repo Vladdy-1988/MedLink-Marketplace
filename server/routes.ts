@@ -13,9 +13,6 @@ import { getSession } from "./auth0";
 import { registerApiRouters } from "./routes/index";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Must be set before session middleware so secure cookies survive proxy TLS termination.
-  app.set("trust proxy", 1);
-
   // Session middleware must be mounted once and before passport middleware.
   app.use(getSession());
 
