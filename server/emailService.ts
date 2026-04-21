@@ -1,10 +1,10 @@
 import sgMail from '@sendgrid/mail';
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY environment variable must be set");
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+} else {
+  console.warn('[email] SENDGRID_API_KEY not set — email features disabled');
 }
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export interface EmailParams {
   to: string;
