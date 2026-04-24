@@ -83,21 +83,18 @@ const disciplines = [
   "and more",
 ];
 
-const testimonials = [
+const launchHighlights = [
   {
-    quote: "MedLink made it easy to offer home visits without building my own booking system.",
-    name: "Dr. [Name]",
-    role: "[Discipline], Calgary",
+    title: "Provider-first scheduling",
+    body: "Providers can define availability, service areas, pricing, and visit types from one dashboard.",
   },
   {
-    quote: "The compliance features save me hours of paperwork every week. Everything is built in.",
-    name: "[Provider Name]",
-    role: "[Discipline], Calgary",
+    title: "Compliance-ready records",
+    body: "Care notes, consent workflows, and PHI audit logging are built into the patient and provider experience.",
   },
   {
-    quote: "I went from application to first booking in under a week. The onboarding is seamless.",
-    name: "[Provider Name]",
-    role: "[Discipline], Calgary",
+    title: "Calgary launch focus",
+    body: "The marketplace is scoped around in-home healthcare discovery and booking for Calgary patients.",
   },
 ];
 
@@ -265,9 +262,9 @@ export default function Landing() {
 
       <section className="bg-gray-50 py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-gray-900 mb-12">Trusted by Calgary providers</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-12">Built for Calgary care teams</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
+            {launchHighlights.map((highlight, index) => (
               <Card key={index} className="bg-white border shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex text-yellow-400 mb-4">
@@ -275,9 +272,8 @@ export default function Landing() {
                       <Star key={starIndex} className="h-4 w-4 fill-current" />
                     ))}
                   </div>
-                  <p className="text-gray-700 italic mb-4">"{testimonial.quote}"</p>
-                  <p className="font-semibold text-gray-900">- {testimonial.name}</p>
-                  <p className="text-sm text-gray-500">{testimonial.role}</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">{highlight.title}</h3>
+                  <p className="text-gray-700">{highlight.body}</p>
                 </CardContent>
               </Card>
             ))}
