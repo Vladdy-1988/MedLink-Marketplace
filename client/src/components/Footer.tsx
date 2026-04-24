@@ -1,8 +1,10 @@
 import { Link } from "wouter";
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -36,11 +38,21 @@ export default function Footer() {
               </div>
             </div>
             
-            <div className="flex space-x-4">
-              <Facebook className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Twitter className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Instagram className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Linkedin className="h-6 w-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="mailto:support@mymedlink.ca"
+                className="inline-flex items-center rounded-full border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-white hover:text-white"
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Email support
+              </a>
+              <a
+                href="tel:1-844-633-5465"
+                className="inline-flex items-center rounded-full border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-white hover:text-white"
+              >
+                <Phone className="mr-2 h-4 w-4" />
+                Call MedLink
+              </a>
             </div>
           </div>
           
@@ -61,7 +73,7 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-6">For Providers</h3>
             <ul className="space-y-3 text-gray-400">
               <li><Link href="/apply" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Join MedLink</Link></li>
-              <li><Link href="/dashboard/provider" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Portal</Link></li>
+              <li><a href="/api/login" className="hover:text-white transition-colors">Provider Portal</a></li>
               <li><Link href="/safety" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Verification Process</Link></li>
               <li><Link href="/support" className="hover:text-white transition-colors" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>Provider Support</Link></li>
             </ul>
@@ -90,12 +102,12 @@ export default function Footer() {
           
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
-              © 2025 MedLink House Calls Inc. All rights reserved.
+              © {currentYear} MedLink House Calls Inc. All rights reserved.
             </div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">PIPEDA Compliance</a>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 md:mt-0">
+              <Link href="/support" className="text-gray-400 hover:text-white transition-colors text-sm">Privacy requests</Link>
+              <Link href="/support" className="text-gray-400 hover:text-white transition-colors text-sm">Terms questions</Link>
+              <Link href="/safety" className="text-gray-400 hover:text-white transition-colors text-sm">HIA + PIPEDA</Link>
             </div>
           </div>
         </div>

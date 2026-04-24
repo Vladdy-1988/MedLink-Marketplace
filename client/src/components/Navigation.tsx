@@ -14,7 +14,7 @@ export default function Navigation() {
     if (typeof loginWithRedirect === "function") {
       loginWithRedirect();
     } else {
-      window.location.href = "/auth-login";
+      window.location.href = "/api/login";
     }
   }, [loginWithRedirect]);
 

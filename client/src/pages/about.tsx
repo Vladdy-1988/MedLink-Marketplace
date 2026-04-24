@@ -6,14 +6,8 @@ import {
   Heart, 
   Shield, 
   Users, 
-  CheckCircle,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Play
+  CheckCircle
 } from "lucide-react";
-import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
 
 export default function About() {
@@ -53,7 +47,7 @@ export default function About() {
                 Book Your Visit
               </Button>
             </Link>
-            <Link href="/provider-registration">
+            <Link href="/apply">
               <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
                 Join as Provider
               </Button>
@@ -210,7 +204,7 @@ export default function About() {
                 Book Your Visit
               </Button>
             </Link>
-            <Link href="/provider-registration">
+            <Link href="/apply">
               <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-12 py-4 text-lg font-semibold rounded-full transition-all duration-300">
                 Join as Provider
               </Button>

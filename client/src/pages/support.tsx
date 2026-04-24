@@ -53,25 +53,29 @@ const supportCategories = [
     icon: Calendar,
     title: "Booking Support",
     description: "Help with scheduling, rescheduling, or canceling appointments",
-    color: "blue"
+    color: "blue",
+    subject: "Booking support request",
   },
   {
     icon: CreditCard,
     title: "Billing & Insurance",
     description: "Questions about payments, insurance claims, and billing",
-    color: "green"
+    color: "green",
+    subject: "Billing and insurance support request",
   },
   {
     icon: UserCheck,
     title: "Provider Issues",
     description: "Concerns about your healthcare provider or service quality",
-    color: "purple"
+    color: "purple",
+    subject: "Provider issue support request",
   },
   {
     icon: Shield,
     title: "Safety & Security",
     description: "Report safety concerns or security issues",
-    color: "blue"
+    color: "blue",
+    subject: "Safety and security support request",
   }
 ];
 
@@ -190,9 +194,11 @@ export default function Support() {
               <p className="text-gray-600 mb-6">
                 For rapid assistance during your appointment
               </p>
-              <Button className="bg-blue-600 hover:bg-blue-700 w-full">
-                <Phone className="w-4 h-4 mr-2" />
-                Call 1-844-MEDLINK
+              <Button asChild className="bg-blue-600 hover:bg-blue-700 w-full">
+                <a href="tel:1-844-633-5465">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call 1-844-MEDLINK
+                </a>
               </Button>
               <Badge className="mt-2 bg-blue-100 text-blue-800">Available During Visits</Badge>
             </Card>
@@ -255,7 +261,12 @@ export default function Support() {
               };
               
               return (
-                <Card key={index} className="p-6 hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1">
+                <a
+                  key={index}
+                  href={`mailto:${supportEmail}?subject=${encodeURIComponent(category.subject)}`}
+                  className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+                <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="flex items-start">
                     <div className={`w-12 h-12 ${colorClasses[category.color as keyof typeof colorClasses]} rounded-lg flex items-center justify-center mr-4 flex-shrink-0`}>
                       <IconComponent className="w-6 h-6 text-white" />
@@ -266,6 +277,7 @@ export default function Support() {
                     </div>
                   </div>
                 </Card>
+                </a>
               );
             })}
           </div>

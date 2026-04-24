@@ -1,6 +1,6 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -15,14 +15,8 @@ import {
   Phone,
   AlertTriangle,
   CheckCircle,
-  DollarSign,
-  Heart,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin
+  DollarSign
 } from "lucide-react";
-import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
 import { rapidServiceDetails } from "@/lib/rapidServicesCatalog";
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,50 +6,18 @@ import { Link } from "wouter";
 import { 
   Search, 
   Calendar, 
-  UserCheck, 
-  MapPin, 
-  CreditCard, 
   Star,
   Shield,
-  Clock,
-  Phone,
-  CheckCircle,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  ChevronDown,
-  ChevronUp,
-  Heart,
-  Stethoscope,
   Home,
-  Plus,
-  Minus,
-  Activity,
-  Users,
-  FileText,
-  Sparkles,
-  ArrowRight,
-  Info
+  ArrowRight
 } from "lucide-react";
-import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 // Service pricing data
 const servicePricing = {
@@ -62,30 +30,6 @@ const servicePricing = {
   "Dental Care": { base: 200, insurance: "Specialty Plans" },
   "Specialized Care": { base: 180, insurance: "Varies by Plan" }
 };
-
-const memberTestimonials = [
-  {
-    name: "Sarah Chen",
-    avatar: "SC",
-    visits: "15+ visits on MedLink",
-    quote: "Having healthcare come to me has been life-changing. I can manage my chronic condition without the stress of travel and waiting rooms.",
-    tip: "Book recurring appointments with the same provider for continuity of care"
-  },
-  {
-    name: "Robert Martinez", 
-    avatar: "RM",
-    visits: "8+ visits on MedLink",
-    quote: "As a busy parent, MedLink saves me hours every week. My kids get quality care at home while I can continue working.",
-    tip: "Schedule family appointments back-to-back for efficiency"
-  },
-  {
-    name: "Emily Thompson",
-    avatar: "ET", 
-    visits: "20+ visits on MedLink",
-    quote: "The convenience is unmatched. I've had everything from physio to mental health support, all in my living room.",
-    tip: "Use the rapid service option when you need same-day care"
-  }
-];
 
 export default function HowItWorks() {
 
@@ -216,7 +160,7 @@ export default function HowItWorks() {
                   </div>
                   <h4 className="text-2xl font-bold text-gray-900 mb-4">Browse available providers</h4>
                   <p className="text-gray-600 leading-relaxed">
-                    Search from a selection of 100+ verified healthcare providers in Calgary. Filter by specialty, location, and availability.
+                    Search verified healthcare providers in Calgary. Filter by specialty, location, and availability.
                   </p>
                 </div>
               </div>
@@ -265,19 +209,20 @@ export default function HowItWorks() {
               </div>
             </div>
 
-            {/* Member Tip */}
+            {/* Booking Tip */}
             <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
               <div className="flex items-start gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-blue-600 text-white">{memberTestimonials[0].avatar}</AvatarFallback>
-                </Avatar>
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+                  <Calendar className="h-6 w-6" />
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Star className="h-4 w-4 text-yellow-500" />
-                    <span className="font-semibold text-gray-900">Member Pro Tip: Book Early</span>
+                    <span className="font-semibold text-gray-900">Booking Tip: Plan Ahead</span>
                   </div>
-                  <p className="text-gray-700 italic">"{memberTestimonials[0].tip}"</p>
-                  <p className="text-sm text-gray-500 mt-1">- {memberTestimonials[0].name}, {memberTestimonials[0].visits}</p>
+                  <p className="text-gray-700">
+                    Book recurring appointments with the same provider when continuity of care matters.
+                  </p>
                 </div>
               </div>
             </div>

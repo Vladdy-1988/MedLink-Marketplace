@@ -99,6 +99,8 @@ const launchHighlights = [
 ];
 
 export default function Landing() {
+  const currentYear = new Date().getFullYear();
+
   useEffect(() => {
     document.title = "MedLink - In-Home Healthcare in Calgary";
     let meta = document.querySelector('meta[name="description"]');
@@ -317,14 +319,18 @@ export default function Landing() {
                 How It Works
               </a>
               <Link href="/providers">Services</Link>
-              <a href="#" className="hover:text-white">
+              <Link href="/support" className="hover:text-white">
                 Support
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="border-t border-gray-700 mt-8 pt-8 flex justify-between flex-wrap gap-4 text-sm text-gray-500">
-            <div>© 2026 MedLink. All rights reserved. · Privacy Policy · Terms</div>
+            <div className="flex flex-wrap gap-x-3 gap-y-1">
+              <span>© {currentYear} MedLink. All rights reserved.</span>
+              <Link href="/support" className="hover:text-white">Privacy requests</Link>
+              <Link href="/support" className="hover:text-white">Terms questions</Link>
+            </div>
             <div className="bg-gray-800 px-3 py-1 rounded-full text-xs text-green-400">
               🔒 HIA + PIPEDA Compliant
             </div>

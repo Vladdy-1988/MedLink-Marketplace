@@ -1,7 +1,6 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { 
@@ -11,16 +10,8 @@ import {
   FileText, 
   Lock, 
   Award,
-  AlertTriangle,
-  Phone,
-  Clock,
-  Star,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin
+  Star
 } from "lucide-react";
-import { MedlinkLogo } from "@/components/MedlinkLogo";
 import Footer from "@/components/Footer";
 
 export default function Safety() {
@@ -65,7 +56,7 @@ export default function Safety() {
                 View Verified Providers
               </Button>
             </Link>
-            <Link href="/provider-registration">
+            <Link href="/apply">
               <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
                 Join as Provider
               </Button>

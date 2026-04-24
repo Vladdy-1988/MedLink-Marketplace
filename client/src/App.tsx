@@ -36,8 +36,6 @@ const ProviderDocumentSubmission = lazy(() => import("@/pages/provider-document-
 const ComprehensiveAdminPortal = lazy(() => import("@/pages/comprehensive-admin-portal"));
 const AdminData = lazy(() => import("@/pages/admin-data"));
 const AdminPortal = lazy(() => import("@/pages/admin-portal"));
-const AuthTest = lazy(() => import("@/pages/auth-test"));
-const AuthLogin = lazy(() => import("@/pages/auth-login"));
 const LoginFailed = lazy(() => import("@/pages/login-failed"));
 const Subscribe = lazy(() => import("@/pages/Subscribe"));
 const SubscribeSuccess = lazy(() => import("@/pages/SubscribeSuccess"));
@@ -63,8 +61,6 @@ function Router() {
       <Route path="/comprehensive-admin-portal" component={ComprehensiveAdminPortal} />
       <Route path="/provider-verification" component={ProviderVerification} />
       <Route path="/provider-documents" component={ProviderDocumentSubmission} />
-      <Route path="/auth-test" component={AuthTest} />
-      <Route path="/auth-login" component={AuthLogin} />
       <Route path="/login-failed" component={LoginFailed} />
       <Route path="/connect/success" component={ConnectSuccess} />
       <Route path="/connect/refresh" component={ConnectRefresh} />

@@ -283,14 +283,17 @@ export default function Providers() {
             </Select>
             
             {/* Rapid Services Toggle */}
-            <div 
+            <button
+              type="button"
+              aria-pressed={filters.rapidOnly}
+              aria-label="Toggle rapid services filter"
               onClick={() =>
                 setFilters((prev) => ({
                   ...prev,
                   rapidOnly: !prev.rapidOnly,
                 }))
               }
-              className={`flex items-center justify-center px-4 py-2 rounded-lg border cursor-pointer transition-all duration-200 ${
+              className={`flex items-center justify-center px-4 py-2 rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                 filters.rapidOnly 
                   ? 'bg-blue-600 text-white border-blue-600' 
                   : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
@@ -298,7 +301,7 @@ export default function Providers() {
             >
               <Zap className={`h-4 w-4 mr-2 ${filters.rapidOnly ? 'text-white' : 'text-blue-600'}`} />
               <span className="font-medium text-sm">Rapid Services</span>
-            </div>
+            </button>
           </div>
         </div>
       </section>
