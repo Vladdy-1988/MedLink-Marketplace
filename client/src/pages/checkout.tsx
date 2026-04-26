@@ -8,11 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
-
 interface CheckoutFormProps {
   bookingId: number;
   amount: number;
@@ -117,11 +112,14 @@ const CheckoutForm = ({ bookingId, amount }: CheckoutFormProps) => {
 export default function Checkout() {
   const [clientSecret, setClientSecret] = useState("");
   const [bookingData, setBookingData] = useState<any>(null);
+  const [stripePromise, setStripePromise] =
+    useState<ReturnType<typeof loadStripe> | null>(null);
   const [setupError, setSetupError] = useState("");
   const [, setLocation] = useLocation();
   
   // Get booking data from URL params or state
   useEffect(() => {
+    let isMounted = true;
     const urlParams = new URLSearchParams(window.location.search);
     const bookingId = urlParams.get('bookingId');
     
@@ -130,30 +128,51 @@ export default function Checkout() {
       return;
     }
 
-    if (!stripePublicKey) {
-      setSetupError("Payments are not configured yet. Please contact support.");
-      return;
-    }
+    const setupPayment = async () => {
+      try {
+        const publicConfigResponse = await apiRequest("GET", "/api/config/public");
+        const publicConfig = (await publicConfigResponse.json()) as {
+          stripePublicKey?: string | null;
+        };
 
-    // Create PaymentIntent as soon as the page loads
-    apiRequest("POST", "/api/create-payment-intent", { 
-      bookingId: parseInt(bookingId)
-    })
-      .then((res) => res.json())
-      .then((data) => {
+        if (!publicConfig.stripePublicKey) {
+          throw new Error("Stripe publishable key is not configured");
+        }
+
+        const paymentIntentResponse = await apiRequest(
+          "POST",
+          "/api/create-payment-intent",
+          { bookingId: parseInt(bookingId) },
+        );
+        const data = await paymentIntentResponse.json();
+
         if (!data.clientSecret || typeof data.amount !== "number") {
           throw new Error("Payment setup response was incomplete");
         }
+
+        if (!isMounted) {
+          return;
+        }
+
+        setStripePromise(loadStripe(publicConfig.stripePublicKey));
         setBookingData({
           bookingId: parseInt(bookingId),
           amount: data.amount,
         });
         setClientSecret(data.clientSecret);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error creating payment intent:", error);
-        setSetupError("We could not start payment for this booking. Please try again or contact support.");
-      });
+        if (isMounted) {
+          setSetupError("We could not start payment for this booking. Please try again or contact support.");
+        }
+      }
+    };
+
+    setupPayment();
+
+    return () => {
+      isMounted = false;
+    };
   }, [setLocation]);
 
   if (setupError) {
@@ -174,7 +193,7 @@ export default function Checkout() {
     );
   }
 
-  if (!clientSecret || !bookingData) {
+  if (!clientSecret || !bookingData || !stripePromise) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">

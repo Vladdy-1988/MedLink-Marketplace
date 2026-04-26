@@ -17,6 +17,15 @@ const patchProfileSchema = z.object({
 const router = Router();
 const checkAuth = isAuthenticated;
 
+router.get("/config/public", (_req, res) => {
+  const stripePublicKey =
+    process.env.STRIPE_PUBLIC_KEY || process.env.VITE_STRIPE_PUBLIC_KEY || "";
+
+  res.json({
+    stripePublicKey: stripePublicKey.startsWith("pk_") ? stripePublicKey : null,
+  });
+});
+
 // Current authenticated user
 router.get("/auth/user", checkAuth, async (req: any, res) => {
   try {

@@ -164,6 +164,22 @@ describe("QA regression coverage", () => {
     expect(mockStorage.getService).toHaveBeenCalledWith(12);
   });
 
+  it("serves non-secret public runtime config", async () => {
+    const original = process.env.STRIPE_PUBLIC_KEY;
+    process.env.STRIPE_PUBLIC_KEY = "pk_test_public_key";
+
+    const response = await request(app).get("/api/config/public");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ stripePublicKey: "pk_test_public_key" });
+
+    if (original === undefined) {
+      delete process.env.STRIPE_PUBLIC_KEY;
+    } else {
+      process.env.STRIPE_PUBLIC_KEY = original;
+    }
+  });
+
   it("rejects waitlist joins for non-patient accounts", async () => {
     mockStorage.getUser.mockResolvedValue({
       id: "user-1",
