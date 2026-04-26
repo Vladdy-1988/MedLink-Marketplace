@@ -13,6 +13,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const router = Router();
+const APP_URL = process.env.APP_URL || "https://mymedlink.ca";
 
 router.post("/subscriptions/create-checkout", checkAuth, async (req: any, res) => {
   try {
@@ -51,10 +52,8 @@ router.post("/subscriptions/create-checkout", checkAuth, async (req: any, res) =
           quantity: 1,
         },
       ],
-      success_url: `${
-        process.env.APP_URL || "https://mymedlink.ca"
-      }/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.APP_URL || "https://mymedlink.ca"}/subscribe`,
+      success_url: `${APP_URL}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${APP_URL}/subscribe`,
       metadata: { userId: user.id },
     });
 
@@ -100,7 +99,7 @@ router.post("/subscriptions/create-portal", checkAuth, async (req: any, res) => 
 
     const portal = await stripe.billingPortal.sessions.create({
       customer: user.stripeCustomerId,
-      return_url: "https://mymedlink.ca/dashboard/patient",
+      return_url: `${APP_URL}/dashboard/patient`,
     });
 
     res.json({ url: portal.url });

@@ -305,6 +305,25 @@ router.patch("/providers/:id", checkAuth, async (req: any, res) => {
 
 // --- Services ---
 
+router.get("/services/:id", async (req, res) => {
+  try {
+    const serviceId = Number(req.params.id);
+    if (!Number.isFinite(serviceId)) {
+      return res.status(400).json({ message: "Invalid service id" });
+    }
+
+    const service = await storage.getService(serviceId);
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    res.json(service);
+  } catch (error) {
+    console.error("Error fetching service:", error);
+    res.status(500).json({ message: "Failed to fetch service" });
+  }
+});
+
 router.post("/services", checkAuth, async (req, res) => {
   try {
     const requestUserId = getAuthUserId(req);

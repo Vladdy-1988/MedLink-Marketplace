@@ -13,6 +13,7 @@ const { mockStorage } = vi.hoisted(() => ({
     getWaitlistByPatient: vi.fn(),
     createWaitlistEntry: vi.fn(),
     getMarketplaceProviders: vi.fn(),
+    getService: vi.fn(),
   },
 }));
 
@@ -66,6 +67,7 @@ describe("QA regression coverage", () => {
     mockStorage.getWaitlistByPatient.mockReset();
     mockStorage.createWaitlistEntry.mockReset();
     mockStorage.getMarketplaceProviders.mockReset();
+    mockStorage.getService.mockReset();
 
     mockStorage.getAllReviews.mockResolvedValue([]);
     mockStorage.getProviderByUserId.mockResolvedValue(undefined);
@@ -76,6 +78,13 @@ describe("QA regression coverage", () => {
     mockStorage.getProvider.mockResolvedValue({
       id: 5,
       userId: "provider-1",
+    });
+    mockStorage.getService.mockResolvedValue({
+      id: 12,
+      providerId: 5,
+      name: "Home Visit",
+      price: "100.00",
+      duration: 60,
     });
     mockStorage.getWaitlistByPatient.mockResolvedValue([]);
     mockStorage.createWaitlistEntry.mockResolvedValue({
@@ -140,6 +149,19 @@ describe("QA regression coverage", () => {
       }),
     );
     expect(mockStorage.getProviderByUserId).toHaveBeenCalledWith("user-1");
+  });
+
+  it("serves service details from GET /api/services/:id", async () => {
+    const response = await request(app).get("/api/services/12");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        id: 12,
+        name: "Home Visit",
+      }),
+    );
+    expect(mockStorage.getService).toHaveBeenCalledWith(12);
   });
 
   it("rejects waitlist joins for non-patient accounts", async () => {

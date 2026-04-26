@@ -28,6 +28,8 @@ const OPTIONAL_ENV_VARS: Record<string, string> = {
     "Session cookie domain defaults to .mymedlink.ca in production — set this explicitly if your production domain differs",
   STRIPE_WEBHOOK_SECRET:
     "Stripe webhook signature verification is disabled — set this to validate incoming webhook events and prevent replay attacks",
+  APP_URL:
+    "Stripe Checkout, billing portal, and Connect redirects default to https://mymedlink.ca — set this if production runs on a different public URL",
   CLAIMSHUB_WEBHOOK_URL: "ClaimsHub outbound events will be disabled",
   CLAIMSHUB_WEBHOOK_SECRET: "ClaimsHub outbound events will be disabled",
   SENDGRID_SMS_FROM_NUMBER: "SMS appointment reminders will be disabled",

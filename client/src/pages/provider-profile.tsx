@@ -13,6 +13,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 
+const FALLBACK_PROVIDER_IMAGE =
+  "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300";
+
 export default function ProviderProfile() {
   const [, singularParams] = useRoute("/provider/:id");
   const [, pluralParams] = useRoute("/providers/:id");
@@ -62,6 +65,12 @@ export default function ProviderProfile() {
     }
   }, [provider]);
 
+  const heroImage = provider?.profileImageUrl || FALLBACK_PROVIDER_IMAGE;
+
+  useEffect(() => {
+    setHeroImageLoaded(false);
+  }, [heroImage, providerId]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
@@ -108,9 +117,6 @@ export default function ProviderProfile() {
   }
 
   const fullName = `${provider.firstName || ""} ${provider.lastName || ""}`.trim();
-  const heroImage =
-    provider.profileImageUrl ||
-    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300";
   const providerLocation =
     Array.isArray(provider.serviceAreas) && provider.serviceAreas.length > 0
       ? provider.serviceAreas.join(" • ")
@@ -127,10 +133,6 @@ export default function ProviderProfile() {
     patientName: review.patientName || "Verified Patient",
     date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
   }));
-
-  useEffect(() => {
-    setHeroImageLoaded(false);
-  }, [heroImage, providerId]);
 
   const sendProviderMessage = async (serviceName?: string) => {
     if (!user) {

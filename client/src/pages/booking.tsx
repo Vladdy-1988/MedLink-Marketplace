@@ -66,12 +66,11 @@ export default function Booking() {
       return response.json();
     },
     onSuccess: (booking: any) => {
-      const amount = Number(booking?.totalAmount || 0);
       toast({
         title: "Booking Confirmed!",
         description: "Your appointment has been created. Complete payment to finalize it.",
       });
-      setLocation(`/checkout?bookingId=${booking.id}&amount=${amount}`);
+      setLocation(`/checkout?bookingId=${booking.id}`);
     },
     onError: () => {
       toast({

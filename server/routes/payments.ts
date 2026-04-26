@@ -78,7 +78,11 @@ router.post(
         },
       );
 
-      res.json({ clientSecret: paymentIntent.client_secret });
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        amount: amountCents / 100,
+        currency: "cad",
+      });
     } catch (error: any) {
       console.error("Error creating payment intent:", error);
       res

@@ -10,10 +10,8 @@ import { Loader2 } from "lucide-react";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
 interface CheckoutFormProps {
   bookingId: number;
@@ -119,38 +117,62 @@ const CheckoutForm = ({ bookingId, amount }: CheckoutFormProps) => {
 export default function Checkout() {
   const [clientSecret, setClientSecret] = useState("");
   const [bookingData, setBookingData] = useState<any>(null);
+  const [setupError, setSetupError] = useState("");
   const [, setLocation] = useLocation();
   
   // Get booking data from URL params or state
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const bookingId = urlParams.get('bookingId');
-    const amount = urlParams.get('amount');
     
-    if (!bookingId || !amount) {
+    if (!bookingId) {
       setLocation('/');
       return;
     }
 
-    setBookingData({ 
-      bookingId: parseInt(bookingId), 
-      amount: parseFloat(amount) 
-    });
+    if (!stripePublicKey) {
+      setSetupError("Payments are not configured yet. Please contact support.");
+      return;
+    }
 
     // Create PaymentIntent as soon as the page loads
     apiRequest("POST", "/api/create-payment-intent", { 
-      amount: parseFloat(amount),
       bookingId: parseInt(bookingId)
     })
       .then((res) => res.json())
       .then((data) => {
+        if (!data.clientSecret || typeof data.amount !== "number") {
+          throw new Error("Payment setup response was incomplete");
+        }
+        setBookingData({
+          bookingId: parseInt(bookingId),
+          amount: data.amount,
+        });
         setClientSecret(data.clientSecret);
       })
       .catch((error) => {
         console.error("Error creating payment intent:", error);
-        setLocation('/');
+        setSetupError("We could not start payment for this booking. Please try again or contact support.");
       });
   }, [setLocation]);
+
+  if (setupError) {
+    return (
+      <div className="h-screen flex items-center justify-center px-4">
+        <Card className="max-w-md text-center">
+          <CardHeader>
+            <CardTitle>Payment Setup Unavailable</CardTitle>
+            <CardDescription>{setupError}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => setLocation("/dashboard/patient")}>
+              Return to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!clientSecret || !bookingData) {
     return (

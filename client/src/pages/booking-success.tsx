@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Calendar, User, MapPin, Clock } from "lucide-react";
+import { CheckCircle, Calendar, User } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import type { Booking, Provider, Service, User as UserType } from "@shared/schema";
+import type { Booking, Provider, Service } from "@shared/schema";
 
 export default function BookingSuccess() {
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [provider, setProvider] = useState<
+    (Provider & { firstName?: string | null; lastName?: string | null }) | null
+  >(null);
   const [service, setService] = useState<Service | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -41,11 +44,32 @@ export default function BookingSuccess() {
         setService(serviceData);
       } catch (error) {
         console.error("Error fetching booking details:", error);
+        setErrorMessage(
+          "We could not load your booking details. Please check your dashboard or contact support.",
+        );
       }
     };
 
     fetchBookingDetails();
   }, [setLocation]);
+
+  if (errorMessage) {
+    return (
+      <div className="h-screen flex items-center justify-center px-4">
+        <Card className="max-w-md text-center">
+          <CardHeader>
+            <CardTitle>Booking Details Unavailable</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-600 dark:text-gray-400">{errorMessage}</p>
+            <Button asChild>
+              <Link href="/dashboard/patient">Go to Dashboard</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!booking || !provider || !service) {
     return (
@@ -56,6 +80,10 @@ export default function BookingSuccess() {
   }
 
   const scheduledDate = new Date(booking.scheduledDate);
+  const providerName =
+    `${provider.firstName || ""} ${provider.lastName || ""}`.trim() ||
+    provider.specialization ||
+    "Your provider";
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
@@ -97,7 +125,7 @@ export default function BookingSuccess() {
                   Provider
                 </label>
                 <p className="font-semibold" data-testid="text-provider-name">
-                  Dr. {provider.specialization} Provider
+                  {providerName}
                 </p>
               </div>
               
@@ -190,7 +218,7 @@ export default function BookingSuccess() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Button asChild className="flex-1" data-testid="button-view-bookings">
-            <Link href="/dashboard">
+            <Link href="/dashboard/patient">
               <Calendar className="w-4 h-4 mr-2" />
               View My Bookings
             </Link>
