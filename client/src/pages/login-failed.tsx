@@ -3,6 +3,10 @@ import { AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 
 export default function LoginFailed() {
+  const retryLogin = () => {
+    window.location.assign("/api/login");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-md w-full mx-auto p-8">
@@ -35,11 +39,13 @@ export default function LoginFailed() {
           </ul>
           
           <div className="space-y-3">
-            <Link href="/api/login">
-              <Button className="w-full" data-testid="button-try-again">
-                Try Again
-              </Button>
-            </Link>
+            <Button
+              className="w-full"
+              data-testid="button-try-again"
+              onClick={retryLogin}
+            >
+              Try Again
+            </Button>
             
             <Link href="/">
               <Button variant="outline" className="w-full" data-testid="button-home">
