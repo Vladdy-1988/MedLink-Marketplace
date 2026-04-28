@@ -19,7 +19,7 @@ export const coreServiceCategories = [
   },
   {
     id: 3,
-    name: "Physical Therapy",
+    name: "Physiotherapy",
     description: "In-home rehabilitation and recovery",
     icon: "Activity",
     color: "purple",

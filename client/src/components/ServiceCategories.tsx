@@ -159,7 +159,7 @@ export default function ServiceCategories() {
             </div>
             <Link href="/services">
               <Button className="hidden md:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-6 py-3 group">
-                View All 16 Services
+                View All Services
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
@@ -170,7 +170,7 @@ export default function ServiceCategories() {
             {[
               coreServiceCategories[0], // General Practice
               coreServiceCategories[1], // Nursing Services  
-              coreServiceCategories[2], // Physical Therapy
+              coreServiceCategories[2], // Physiotherapy
               coreServiceCategories[5], // Mobile Lab Tests
               coreServiceCategories[6], // Mental Health
               additionalServiceCategories[0] // Dental Care

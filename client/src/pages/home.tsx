@@ -126,7 +126,7 @@ export default function Home() {
                           <SelectItem value="all">All Services</SelectItem>
                           <SelectItem value="general-practice">General Practice</SelectItem>
                           <SelectItem value="nursing">Nursing Services</SelectItem>
-                          <SelectItem value="physical-therapy">Physical Therapy</SelectItem>
+                          <SelectItem value="physiotherapy">Physiotherapy</SelectItem>
                           <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
                           <SelectItem value="palliative-care">Palliative Care</SelectItem>
                           <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>

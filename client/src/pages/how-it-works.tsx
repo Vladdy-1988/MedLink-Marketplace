@@ -23,7 +23,7 @@ import {
 const servicePricing = {
   "General Practice": { base: 80, insurance: "Alberta Health Services" },
   "Nursing Care": { base: 90, insurance: "Extended Health Plans" },
-  "Physical Therapy": { base: 120, insurance: "Extended Health Plans" },
+  "Physiotherapy": { base: 120, insurance: "Extended Health Plans" },
   "Mental Health": { base: 150, insurance: "Extended Health Plans" },
   "Lab Tests": { base: 60, insurance: "Alberta Health Services" },
   "Vaccinations": { base: 40, insurance: "Alberta Health Services" },

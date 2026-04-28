@@ -182,15 +182,6 @@ export const additionalServiceCategories: ServiceCategory[] = withCategoryMeta([
   },
   {
     id: 18,
-    name: "Cardiology",
-    description: "Cardiac consultations, monitoring, and heart health follow-up at home",
-    icon: "Heart",
-    color: "red",
-    price: "Message Provider",
-    insurance: "May be covered by specialist benefits",
-  },
-  {
-    id: 19,
     name: "Internal Medicine",
     description: "Comprehensive in-home care for chronic disease management and adult medicine",
     icon: "Stethoscope",
@@ -199,7 +190,7 @@ export const additionalServiceCategories: ServiceCategory[] = withCategoryMeta([
     insurance: "Often covered by provincial or private plans",
   },
   {
-    id: 20,
+    id: 19,
     name: "Other",
     description: "Additional in-home healthcare specialties available on request",
     icon: "BriefcaseMedical",
@@ -212,15 +203,11 @@ export const additionalServiceCategories: ServiceCategory[] = withCategoryMeta([
 export const serviceCategories = [...coreServiceCategories, ...additionalServiceCategories];
 
 export const providerSpecializations: string[] = [
-  "Anesthesiology",
-  "Cardiology",
   "Dental Care",
   "Denturism",
   "Dermatology",
-  "Emergency Medicine",
   "Family Medicine",
   "General Practice",
-  "General Surgery",
   "Geriatrics",
   "Hearing Services",
   "Internal Medicine",
@@ -230,10 +217,8 @@ export const providerSpecializations: string[] = [
   "Neurology",
   "Nursing Services",
   "Nutrition",
-  "Obstetrics & Gynecology",
   "Occupational Therapy",
   "Ophthalmology",
-  "Orthopedic Surgery",
   "Other",
   "Palliative Care",
   "Pediatrics",
@@ -242,7 +227,6 @@ export const providerSpecializations: string[] = [
   "Podiatry",
   "Psychiatry",
   "Speech Therapy",
-  "Urology",
   "Vaccinations",
   "Vision Care",
 ];

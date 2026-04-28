@@ -36,7 +36,7 @@ const iconMap = {
 // Organize services by categories
 const organizedServices = {
   'Essential Care': serviceCategories.filter(s => ['General Practice', 'Nursing Services', 'Mobile Lab Tests', 'Vaccinations'].includes(s.name)),
-  'Therapy Services': serviceCategories.filter(s => ['Physical Therapy', 'Occupational Therapy', 'Mental Health', 'Speech Therapy'].includes(s.name)),
+  'Therapy Services': serviceCategories.filter(s => ['Physiotherapy', 'Occupational Therapy', 'Mental Health', 'Speech Therapy'].includes(s.name)),
   'Specialized Care': serviceCategories.filter(s => ['Dental Care', 'Vision Care', 'Hearing Services', 'Podiatry'].includes(s.name)),
   'Advanced Services': serviceCategories.filter(s => ['Palliative Care', 'IV Therapy', 'Nutrition', 'Pharmacy'].includes(s.name))
 };
