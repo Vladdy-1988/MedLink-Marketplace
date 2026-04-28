@@ -54,7 +54,7 @@ router.post("/user/consent", checkAuth, async (req: any, res) => {
     if (!parsed.success) {
       return res
         .status(400)
-        .json({ message: "Invalid consent data", errors: parsed.error.errors });
+        .json({ message: "Invalid consent data", errors: parsed.error.issues });
     }
     const record = await storage.createConsentRecord(parsed.data);
     await auditPhiEvent(

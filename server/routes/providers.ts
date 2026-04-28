@@ -120,11 +120,7 @@ router.post("/providers", checkAuth, async (req: any, res) => {
         .status(409)
         .json({ message: "You already have a provider profile" });
     }
-    if (error instanceof z.ZodError) {
-      return res
-        .status(400)
-        .json({ message: "Invalid provider data", details: error.issues });
-    }
+    if (handleValidationError(error, res, "Invalid provider data")) return;
     console.error("Error creating provider:", error);
     res.status(500).json({ message: "Failed to create provider" });
   }

@@ -3,7 +3,6 @@
  */
 import { storage } from "../storage";
 import { getAuthUserId } from "../routeHelpers";
-import { z } from "zod";
 import type { Response } from "express";
 
 export async function auditPhiEvent(
@@ -29,9 +28,30 @@ export async function auditPhiEvent(
   }
 }
 
-export function handleValidationError(error: unknown, res: Response): boolean {
-  if (error instanceof z.ZodError) {
-    res.status(400).json({ error: "Invalid request payload", details: error.issues });
+function getValidationIssues(error: unknown): unknown[] | null {
+  if (typeof error !== "object" || error === null) {
+    return null;
+  }
+
+  const maybeError = error as { issues?: unknown; errors?: unknown };
+  if (Array.isArray(maybeError.issues)) {
+    return maybeError.issues;
+  }
+  if (Array.isArray(maybeError.errors)) {
+    return maybeError.errors;
+  }
+
+  return null;
+}
+
+export function handleValidationError(
+  error: unknown,
+  res: Response,
+  message = "Invalid request payload",
+): boolean {
+  const details = getValidationIssues(error);
+  if (details) {
+    res.status(400).json({ error: message, details });
     return true;
   }
   return false;
