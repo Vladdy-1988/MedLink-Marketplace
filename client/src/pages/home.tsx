@@ -4,15 +4,14 @@ import { Link, useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import ServiceCategories from "@/components/ServiceCategories";
 import ProviderCard from "@/components/ProviderCard";
+import { ClinicalHeroArt } from "@/components/ClinicalVisuals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign } from "lucide-react";
-import { MedlinkLogo } from "@/components/MedlinkLogo";
+import { Search, Activity, Heart, Calendar, MessageCircle, UserCheck, DollarSign, CheckCircle, Sparkles } from "lucide-react";
 import Footer from "@/components/Footer";
-// Removed heroImage import - now using pure CSS gradient background
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -45,152 +44,126 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f7fbff]">
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen overflow-hidden">
-        {/* Modern Gradient Background */}
-        <div className="absolute inset-0 z-0">
-          {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-emerald-900" />
-          
-          {/* Animated gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-transparent to-green-600/20" />
-          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-500/10 to-teal-600/30" />
-          
-          {/* Geometric shapes */}
-          <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-emerald-500/15 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-green-400/10 rounded-full blur-3xl"></div>
-          
-          {/* Medical cross pattern overlay */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/4 left-1/4 w-1 h-20 bg-white transform rotate-45"></div>
-            <div className="absolute top-1/4 left-1/4 w-20 h-1 bg-white transform rotate-45"></div>
-            <div className="absolute top-3/4 right-1/4 w-1 h-16 bg-white transform -rotate-45"></div>
-            <div className="absolute top-3/4 right-1/4 w-16 h-1 bg-white transform -rotate-45"></div>
-          </div>
-          
-          {/* Subtle texture overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
-        </div>
+      <section className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_14%,rgba(20,184,166,0.16),transparent_32%),radial-gradient(circle_at_88%_18%,rgba(96,165,250,0.22),transparent_34%),linear-gradient(180deg,#ffffff_0%,#f4faff_100%)]" />
+        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-white/75 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-teal-700 shadow-sm backdrop-blur">
+              <Sparkles className="h-4 w-4" />
+              Patient care dashboard
+            </div>
+            <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+              Healthcare at your door,
+              <span className="block bg-gradient-to-r from-teal-500 to-blue-600 bg-clip-text text-transparent">
+                simplified.
+              </span>
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
+              Experience in-home medical services with Calgary's trusted healthcare professionals. Search, compare, book, and manage care from one secure place.
+            </p>
 
-        {/* Content */}
-        <div className="relative z-10 flex items-center min-h-screen">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-            <div className="text-center">
-              {/* Modern Healthcare Hero */}
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-white text-balance">
-                Healthcare
-                <span className="block text-white">
-                  at Your Door
-                </span>
-              </h1>
-              
-              {/* Updated Subtitle */}
-              <div className="max-w-4xl mx-auto mb-16">
-                <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-white leading-relaxed mb-8">
-                  Experience premium in-home medical services with Calgary's most trusted healthcare professionals.
-                </p>
-                <p className="text-xl sm:text-2xl font-light text-white">
-                  Safe. Convenient. Trusted.
-                </p>
-              </div>
-              
-              {/* Apple-style CTA buttons */}
-              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
-                <Link href="/providers">
-                  <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                    Find Providers
-                  </Button>
-                </Link>
-                <Link href="/dashboard/patient">
-                  <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                    My Dashboard
-                  </Button>
-                </Link>
-              </div>
+            <div className="mt-7 grid gap-3 text-sm font-semibold text-slate-600 sm:grid-cols-3">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-teal-500" />
+                Safe
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-teal-500" />
+                Convenient
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-teal-500" />
+                Trusted
+              </span>
+            </div>
 
-              {/* Clean search interface */}
-              <div className="max-w-5xl mx-auto">
-                <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-200/50">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-lg font-semibold text-gray-800">Service Type</Label>
-                      <Select>
-                        <SelectTrigger className="h-14 text-lg rounded-xl border-gray-200">
-                          <SelectValue placeholder="All Services" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Services</SelectItem>
-                          <SelectItem value="general-practice">General Practice</SelectItem>
-                          <SelectItem value="nursing">Nursing Services</SelectItem>
-                          <SelectItem value="physiotherapy">Physiotherapy</SelectItem>
-                          <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
-                          <SelectItem value="palliative-care">Palliative Care</SelectItem>
-                          <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
-                          <SelectItem value="mental-health">Mental Health</SelectItem>
-                          <SelectItem value="vaccinations">Vaccinations</SelectItem>
-                          <SelectItem value="dental-care">Dental Care</SelectItem>
-                          <SelectItem value="hearing-services">Hearing Services</SelectItem>
-                          <SelectItem value="vision-care">Vision Care</SelectItem>
-                          <SelectItem value="podiatry">Podiatry</SelectItem>
-                          <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
-                          <SelectItem value="nutrition">Nutrition</SelectItem>
-                          <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                          <SelectItem value="iv-therapy">IV Therapy</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-lg font-semibold text-gray-800">Date</Label>
-                      <Input 
-                        type="date" 
-                        min={new Date().toISOString().split('T')[0]} 
-                        className="h-14 text-lg rounded-xl border-gray-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-lg font-semibold text-gray-800">Location</Label>
-                      <Input 
-                        type="text" 
-                        placeholder="Calgary, AB" 
-                        className="h-14 text-lg rounded-xl border-gray-200"
-                      />
-                    </div>
-                  </div>
-                  <Link href="/providers">
-                    <Button className="w-full mt-8 bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-xl py-6 rounded-xl font-semibold shadow-lg transition-all duration-300">
-                      <Search className="mr-3 h-6 w-6" />
-                      Find Healthcare Providers
-                    </Button>
-                  </Link>
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+              <Link href="/providers">
+                <Button size="lg" className="rounded-full bg-teal-500 px-8 text-white shadow-[0_14px_32px_rgba(20,184,166,0.28)] hover:bg-teal-600">
+                  Find Providers
+                </Button>
+              </Link>
+              <Link href="/dashboard/patient">
+                <Button size="lg" variant="outline" className="rounded-full border-sky-100 bg-white/80 px-8 text-slate-800 shadow-sm backdrop-blur hover:bg-white">
+                  My Dashboard
+                </Button>
+              </Link>
+            </div>
+
+            <div className="mt-10 max-w-4xl rounded-[1.75rem] border border-white/80 bg-white/90 p-5 shadow-[0_24px_70px_rgba(15,76,117,0.12)] backdrop-blur-xl sm:p-6">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label className="text-sm font-bold text-slate-800">Service Type</Label>
+                  <Select>
+                    <SelectTrigger className="h-14 rounded-2xl border-sky-100 bg-white text-base">
+                      <SelectValue placeholder="All Services" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Services</SelectItem>
+                      <SelectItem value="general-practice">General Practice</SelectItem>
+                      <SelectItem value="nursing">Nursing Services</SelectItem>
+                      <SelectItem value="physiotherapy">Physiotherapy</SelectItem>
+                      <SelectItem value="occupational-therapy">Occupational Therapy</SelectItem>
+                      <SelectItem value="palliative-care">Palliative Care</SelectItem>
+                      <SelectItem value="lab-tests">Mobile Lab Tests</SelectItem>
+                      <SelectItem value="mental-health">Mental Health</SelectItem>
+                      <SelectItem value="vaccinations">Vaccinations</SelectItem>
+                      <SelectItem value="dental-care">Dental Care</SelectItem>
+                      <SelectItem value="hearing-services">Hearing Services</SelectItem>
+                      <SelectItem value="vision-care">Vision Care</SelectItem>
+                      <SelectItem value="podiatry">Podiatry</SelectItem>
+                      <SelectItem value="speech-therapy">Speech Therapy</SelectItem>
+                      <SelectItem value="nutrition">Nutrition</SelectItem>
+                      <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                      <SelectItem value="iv-therapy">IV Therapy</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-bold text-slate-800">Date</Label>
+                  <Input
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    className="h-14 rounded-2xl border-sky-100 bg-white text-base"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-bold text-slate-800">Location</Label>
+                  <Input
+                    type="text"
+                    placeholder="Calgary, AB"
+                    className="h-14 rounded-2xl border-sky-100 bg-white text-base"
+                  />
                 </div>
               </div>
+              <Link href="/providers">
+                <Button className="mt-6 w-full rounded-2xl bg-blue-600 py-6 text-lg font-semibold shadow-lg shadow-blue-600/20 transition-all duration-300 hover:bg-blue-700">
+                  <Search className="mr-3 h-5 w-5" />
+                  Find Healthcare Providers
+                </Button>
+              </Link>
             </div>
           </div>
-        </div>
 
-        {/* Subtle scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
-          </div>
+          <ClinicalHeroArt className="lg:mt-6" />
         </div>
       </section>
 
       {/* Quick Stats */}
       {/* UI-only role check for display personalization. Server/API enforce real authorization. */}
       {user?.userType === 'patient' && (
-        <section className="py-8 -mt-8 relative z-10">
+        <section className="relative z-10 -mt-6 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
+              <Card className="border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] backdrop-blur">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-[hsl(207,90%,54%)]" />
+                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-blue-600" />
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">3</div>
@@ -200,11 +173,11 @@ export default function Home() {
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] backdrop-blur">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <UserCheck className="h-6 w-6 text-[hsl(159,100%,34%)]" />
+                    <div className="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center">
+                      <UserCheck className="h-6 w-6 text-teal-600" />
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">12</div>
@@ -214,11 +187,11 @@ export default function Home() {
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] backdrop-blur">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <MessageCircle className="h-6 w-6 text-[hsl(259,78%,60%)]" />
+                    <div className="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center">
+                      <MessageCircle className="h-6 w-6 text-sky-600" />
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">5</div>
@@ -228,11 +201,11 @@ export default function Home() {
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] backdrop-blur">
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <DollarSign className="h-6 w-6 text-orange-500" />
+                    <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center">
+                      <DollarSign className="h-6 w-6 text-amber-500" />
                     </div>
                     <div className="ml-4">
                       <div className="text-2xl font-bold text-gray-900">$1,250</div>
@@ -247,15 +220,15 @@ export default function Home() {
       )}
 
       {/* Quick Actions */}
-      <section className="py-8">
+      <section className="py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href="/providers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="cursor-pointer rounded-3xl border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(15,76,117,0.12)]">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-[hsl(207,90%,54%)]" />
+                    <Calendar className="h-5 w-5 mr-2 text-blue-600" />
                     Book Appointment
                   </CardTitle>
                 </CardHeader>
@@ -266,10 +239,10 @@ export default function Home() {
             </Link>
             
             <Link href="/dashboard/patient">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="cursor-pointer rounded-3xl border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(15,76,117,0.12)]">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <MessageCircle className="h-5 w-5 mr-2 text-[hsl(159,100%,34%)]" />
+                    <MessageCircle className="h-5 w-5 mr-2 text-teal-600" />
                     My Dashboard
                   </CardTitle>
                 </CardHeader>
@@ -280,10 +253,10 @@ export default function Home() {
             </Link>
             
             <Link href="/rapid-services">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="cursor-pointer rounded-3xl border-0 bg-white/90 shadow-[0_18px_45px_rgba(15,76,117,0.08)] transition-all hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(15,76,117,0.12)]">
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <UserCheck className="h-5 w-5 mr-2 text-[hsl(259,78%,60%)]" />
+                    <UserCheck className="h-5 w-5 mr-2 text-sky-600" />
                     Rapid Services
                   </CardTitle>
                 </CardHeader>
@@ -300,7 +273,7 @@ export default function Home() {
       <ServiceCategories />
 
       {/* Featured Providers */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-[#f7fbff]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-12">
             <div>
@@ -308,7 +281,7 @@ export default function Home() {
               <p className="text-xl text-gray-600">Based on your location and preferences</p>
             </div>
             <Link href="/providers">
-              <Button className="hidden md:block bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
+              <Button className="hidden rounded-full bg-teal-500 px-6 text-white hover:bg-teal-600 md:block">
                 View All Providers
               </Button>
             </Link>
@@ -348,7 +321,7 @@ export default function Home() {
           
           <div className="text-center mt-8 md:hidden">
             <Link href="/providers">
-              <Button className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)]">
+              <Button className="rounded-full bg-teal-500 px-6 text-white hover:bg-teal-600">
                 View All Providers
               </Button>
             </Link>
@@ -357,7 +330,7 @@ export default function Home() {
       </section>
 
       {/* Insurance Coverage Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-50 to-green-50">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Insurance Coverage</h2>
@@ -367,8 +340,8 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="rounded-[1.75rem] border border-sky-100 bg-white p-8 shadow-[0_18px_45px_rgba(15,76,117,0.08)] transition-shadow hover:shadow-[0_24px_60px_rgba(15,76,117,0.12)]">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Activity className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Alberta Health Services</h3>
@@ -381,8 +354,8 @@ export default function Home() {
               </ul>
             </div>
             
-            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="rounded-[1.75rem] border border-teal-100 bg-white p-8 shadow-[0_18px_45px_rgba(15,76,117,0.08)] transition-shadow hover:shadow-[0_24px_60px_rgba(15,76,117,0.12)]">
+              <div className="w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Heart className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Extended Health Plans</h3>
@@ -395,8 +368,8 @@ export default function Home() {
               </ul>
             </div>
             
-            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="rounded-[1.75rem] border border-blue-100 bg-white p-8 shadow-[0_18px_45px_rgba(15,76,117,0.08)] transition-shadow hover:shadow-[0_24px_60px_rgba(15,76,117,0.12)]">
+              <div className="w-16 h-16 bg-sky-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <UserCheck className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Specialty Plans</h3>

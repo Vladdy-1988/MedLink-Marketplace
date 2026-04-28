@@ -55,14 +55,14 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
           <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="hsl(207, 90%, 54%)" />
-              <stop offset="100%" stopColor="hsl(259, 78%, 60%)" />
+              <stop offset="100%" stopColor="hsl(174, 72%, 42%)" />
             </linearGradient>
           </defs>
         </svg>
       </div>
       
       {showText && (
-        <span className={`font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent ${textSizeClasses[size]} tracking-tight`}>
+        <span className={`font-bold bg-gradient-to-r from-slate-900 to-blue-800 bg-clip-text text-transparent ${textSizeClasses[size]} tracking-tight`}>
           Med<span className="text-[hsl(207,90%,54%)]">L</span>ink
         </span>
       )}
