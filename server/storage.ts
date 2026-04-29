@@ -94,6 +94,24 @@ import {
   exists,
 } from "drizzle-orm";
 
+function getDatabaseError(error: any): any {
+  return error?.cause ?? error;
+}
+
+function isUniqueEmailViolation(error: any): boolean {
+  const dbError = getDatabaseError(error);
+  const message = String(dbError?.message || error?.message || "");
+  const detail = String(dbError?.detail || "");
+  const constraint = String(dbError?.constraint || "");
+
+  return (
+    dbError?.code === "23505" &&
+    (constraint.includes("email") ||
+      detail.includes("email") ||
+      message.includes("users_email"))
+  );
+}
+
 async function attachServicesToProviders<T extends { id: number }>(
   results: T[],
 ): Promise<Array<T & { services: Service[] }>> {
@@ -481,15 +499,13 @@ export class DatabaseStorage implements IStorage {
     } catch (err: any) {
       // Unique constraint on email — a user with this email exists under
       // a different Auth0 ID. Return the existing record rather than crashing.
-      if (
-        err?.code === "23505" &&
-        err?.constraint?.includes("email") &&
-        typeof userData.email === "string"
-      ) {
+      const userEmail =
+        typeof userData.email === "string" ? userData.email.trim() : "";
+      if (isUniqueEmailViolation(err) && userEmail) {
         const [existing] = await db
           .select()
           .from(users)
-          .where(eq(users.email, userData.email))
+          .where(eq(users.email, userEmail))
           .limit(1);
         if (existing) return existing;
       }

@@ -11,8 +11,11 @@ import { setupAuth, isAuthenticated } from "./auth0";
 import { setupAuth0Debug } from "./auth0Debug";
 import { getSession } from "./auth0";
 import { registerApiRouters } from "./routes/index";
+import { ensureAuthUserColumns } from "./schemaMaintenance";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  await ensureAuthUserColumns();
+
   // Session middleware must be mounted once and before passport middleware.
   app.use(getSession());
 

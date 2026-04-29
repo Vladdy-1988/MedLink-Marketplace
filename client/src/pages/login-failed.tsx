@@ -2,6 +2,27 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 
+const authFailureMessages: Record<string, string> = {
+  account_email_exists:
+    "This email already exists under another sign-in method. Please try again now, or use the same method you used originally.",
+  auth_callback:
+    "Auth0 returned to MedLink, but the final sign-in step could not be completed.",
+  authentication_failed:
+    "The authentication service could not complete sign-in.",
+  database:
+    "MedLink could not finish creating or updating your account record.",
+  database_schema:
+    "MedLink is updating an account database field required for sign-in.",
+  session:
+    "MedLink could not start a fresh sign-in session.",
+  session_login:
+    "MedLink could not attach your account to the current session.",
+  session_missing:
+    "MedLink could not find the sign-in session after Auth0 returned.",
+  session_save:
+    "MedLink could not save your signed-in session.",
+};
+
 export default function LoginFailed() {
   const retryLogin = () => {
     window.location.assign("/api/login");
@@ -10,6 +31,10 @@ export default function LoginFailed() {
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("reason")
       : null;
+  const authDetail = reason
+    ? authFailureMessages[reason] ||
+      "The authentication service returned an error. Please try again."
+    : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -27,9 +52,9 @@ export default function LoginFailed() {
             We couldn't sign you in. This might be because:
           </p>
 
-          {reason && (
+          {authDetail && (
             <div className="mb-6 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-left text-sm text-red-700">
-              <span className="font-semibold">Auth detail:</span> {reason}
+              <span className="font-semibold">Auth detail:</span> {authDetail}
             </div>
           )}
           

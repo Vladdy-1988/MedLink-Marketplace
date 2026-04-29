@@ -32,6 +32,28 @@ function getAuthRequestContext(req: any) {
   };
 }
 
+function getDatabaseError(error: any): any {
+  return error?.cause ?? error;
+}
+
+function getSafeAuthFailureReason(error: any): string {
+  const dbError = getDatabaseError(error);
+
+  if (dbError?.code === "23505") {
+    return "account_email_exists";
+  }
+
+  if (dbError?.code === "42703") {
+    return "database_schema";
+  }
+
+  if (String(error?.message || "").includes("Failed query")) {
+    return "database";
+  }
+
+  return "auth_callback";
+}
+
 function getBaseUrlFromRequest(req: any): string {
   const forwardedProto = req.headers["x-forwarded-proto"];
   const proto =
@@ -265,9 +287,7 @@ export async function setupAuth(app: Express) {
             info: JSON.stringify(info),
             ...getAuthRequestContext(req),
           });
-          return res.redirect(
-            `/login-failed?reason=${encodeURIComponent(err?.message || "passport_error")}`,
-          );
+          return res.redirect(`/login-failed?reason=${getSafeAuthFailureReason(err)}`);
         }
 
         if (!user) {
@@ -283,13 +303,7 @@ export async function setupAuth(app: Express) {
               errorDescription: req.query.error_description,
             },
           });
-          const reason =
-            req.query.error_description ||
-            req.query.error ||
-            info?.message ||
-            info?.error_description ||
-            info?.error ||
-            "authentication_failed";
+          const reason = req.query.error || info?.error || "authentication_failed";
           return res.redirect(`/login-failed?reason=${encodeURIComponent(String(reason))}`);
         }
 
