@@ -1,5 +1,6 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
+import { MarketplacePageHero } from "@/components/MarketplacePageHero";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { 
@@ -15,53 +16,15 @@ export default function About() {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Apple-style Hero Section */}
-      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-green-50 overflow-hidden flex items-center">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 right-20 w-40 h-40 bg-green-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
-          <div className="absolute bottom-1/3 left-20 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-500"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
-            Meet the
-            <span className="block text-transparent bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text">
-              founders
-            </span>
-          </h1>
-          
-          <div className="max-w-4xl mx-auto mb-16">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
-              MedLink House Calls was founded by two Calgary professionals who share one belief: high-quality healthcare should come to you.
-            </p>
-            <p className="text-xl sm:text-2xl font-light text-gray-500">
-              Comfortably, safely, and on your schedule.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Book Your Visit
-              </Button>
-            </Link>
-            <Link href="/apply">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                Join as Provider
-              </Button>
-            </Link>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="mt-20">
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <MarketplacePageHero
+        eyebrow="Built in Calgary"
+        title="Care at home,"
+        accent="designed with heart."
+        description="MedLink House Calls was founded by Calgary professionals who believe high-quality healthcare should come to patients with more clarity, dignity, and ease."
+        supportingText="The marketplace brings provider quality, healthcare operations, and thoughtful digital experience together for modern house calls."
+        primaryCta={{ href: "/providers", label: "Book Your Visit" }}
+        secondaryCta={{ href: "/apply", label: "Join as Provider" }}
+      />
 
       {/* Co-Founders Section */}
       <section className="py-24 bg-gray-50">

@@ -1,5 +1,6 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
+import { MarketplacePageHero } from "@/components/MarketplacePageHero";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,53 +79,15 @@ export default function RapidServices() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
       
-      {/* Apple-style Hero Section */}
-      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-purple-50 overflow-hidden flex items-center">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-20 w-36 h-36 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
-          <div className="absolute bottom-1/3 right-20 w-40 h-40 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-indigo-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
-            Rapid
-            <span className="block text-transparent bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text">
-              care services
-            </span>
-          </h1>
-          
-          <div className="max-w-4xl mx-auto mb-16">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
-              When you need ASAP healthcare that can't wait, our rapid services provide priority response.
-            </p>
-            <p className="text-xl sm:text-2xl font-light text-gray-500">
-              Immediate scheduling and professional care.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers?rapid=true">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Request Rapid Care
-              </Button>
-            </Link>
-            <Link href="/how-it-works">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                How it works
-              </Button>
-            </Link>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="mt-20">
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <MarketplacePageHero
+        eyebrow="Priority non-emergency care"
+        title="Rapid care"
+        accent="at home."
+        description="For ASAP health concerns that cannot wait for a routine appointment, rapid services help you find non-emergency care with priority scheduling."
+        supportingText="Chest pain, breathing trouble, stroke symptoms, severe injuries, or life-threatening symptoms still require 911."
+        primaryCta={{ href: "/providers?rapid=true", label: "Request Rapid Care" }}
+        secondaryCta={{ href: "/how-it-works", label: "How it works" }}
+      />
 
       {/* Important Notice */}
       <section className="py-8 bg-amber-50 border-t border-b border-amber-200">

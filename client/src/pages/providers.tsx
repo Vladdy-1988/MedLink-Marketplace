@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { serviceCategories } from "@/lib/serviceCatalog";
-import { Search, Filter, Zap } from "lucide-react";
+import { Search, Filter, Zap, HeartPulse, Home, ShieldCheck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -198,24 +198,49 @@ export default function Providers() {
     filters.ratings.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f7fbff]">
       <Navigation />
       
       {/* Search Header */}
-      <section className="bg-white border-b border-gray-200 py-8">
+      <section className="border-b border-sky-100/80 bg-[radial-gradient(circle_at_14%_18%,rgba(20,184,166,0.15),transparent_28%),radial-gradient(circle_at_86%_0%,rgba(96,165,250,0.18),transparent_32%),linear-gradient(180deg,#ffffff_0%,#f5fbff_100%)] py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Find Healthcare Providers</h1>
+          <div className="mb-8 max-w-3xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-teal-700">
+              <HeartPulse className="h-3.5 w-3.5" />
+              Verified Calgary house calls
+            </div>
+            <h1 className="text-4xl font-black tracking-tight text-blue-950 sm:text-5xl">
+              Find care that comes home.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-slate-600">
+              Search in-home healthcare providers, compare service categories, and book non-emergency care with clearer confidence.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3 text-sm font-bold text-slate-700">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 shadow-sm">
+                <ShieldCheck className="h-4 w-4 text-teal-600" />
+                Provider review
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 shadow-sm">
+                <Home className="h-4 w-4 text-blue-600" />
+                In-home services
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 shadow-sm">
+                <Zap className="h-4 w-4 text-amber-500" />
+                Rapid care filter
+              </span>
+            </div>
+          </div>
           
           {/* Search and Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 rounded-[1.25rem] border border-white/90 bg-white/90 p-4 shadow-[0_18px_50px_rgba(15,76,117,0.12)] backdrop-blur md:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1fr_auto]">
             <div className="relative">
               <Label className="sr-only">Search providers</Label>
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
               <Input
                 placeholder="Search providers..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="pl-10"
+                className="h-12 rounded-full border-sky-100 bg-white pl-11 font-medium shadow-sm"
               />
             </div>
             
@@ -228,7 +253,7 @@ export default function Providers() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white font-semibold shadow-sm">
                 <SelectValue placeholder="Service Type" />
               </SelectTrigger>
               <SelectContent>
@@ -250,7 +275,7 @@ export default function Providers() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white font-semibold shadow-sm">
                 <SelectValue placeholder="Location" />
               </SelectTrigger>
               <SelectContent>
@@ -271,7 +296,7 @@ export default function Providers() {
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white font-semibold shadow-sm">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -293,10 +318,10 @@ export default function Providers() {
                   rapidOnly: !prev.rapidOnly,
                 }))
               }
-              className={`flex items-center justify-center px-4 py-2 rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+              className={`flex h-12 items-center justify-center rounded-full border px-4 py-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
                 filters.rapidOnly 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-[0_10px_24px_rgba(37,99,235,0.22)]'
+                  : 'bg-white text-gray-700 border-sky-100 shadow-sm hover:border-blue-300'
               }`}
             >
               <Zap className={`h-4 w-4 mr-2 ${filters.rapidOnly ? 'text-white' : 'text-blue-600'}`} />

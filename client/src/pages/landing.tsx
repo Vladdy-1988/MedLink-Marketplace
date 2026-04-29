@@ -11,7 +11,6 @@ import {
   Globe2,
   HeartPulse,
   Headphones,
-  Home,
   LockKeyhole,
   MapPin,
   PlayCircle,
@@ -19,10 +18,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
-  Star,
   Stethoscope,
   UserRoundCheck,
-  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -117,24 +114,24 @@ const conciergeActions = [
 
 const careStats: StatCard[] = [
   {
-    icon: Users,
-    value: "10M+",
-    label: "Patients Served",
+    icon: MapPin,
+    value: "Calgary",
+    label: "House-call focus",
   },
   {
     icon: UserRoundCheck,
-    value: "20K+",
-    label: "Verified Doctors",
+    value: "Verified",
+    label: "Provider review",
   },
   {
     icon: Building2,
-    value: "3K+",
-    label: "Partner Clinics",
+    value: "In-home",
+    label: "Care network",
   },
   {
-    icon: Star,
-    value: "4.8/5",
-    label: "Average Rating",
+    icon: ShieldCheck,
+    value: "Private",
+    label: "Secure booking",
   },
 ];
 
@@ -195,11 +192,11 @@ function LandingHeader({ onHowItWorks }: { onHowItWorks: (e: MouseEvent<HTMLAnch
 
 function ReferenceHeroArt() {
   return (
-    <div className="relative mx-auto w-full max-w-[680px] overflow-visible" aria-hidden="true">
+    <div className="relative mx-auto w-full max-w-[calc(100vw-2.5rem)] overflow-visible sm:max-w-[680px]" aria-hidden="true">
       <img
-        src="/assets/medlink-reference-hero.png"
+        src="/assets/medlink-journey-hero.png"
         alt=""
-        className="block w-full select-none"
+        className="block w-full select-none rounded-[1.5rem]"
         draggable={false}
       />
     </div>
@@ -234,19 +231,25 @@ export default function Landing() {
 
       <main>
         <section className="relative px-5 pb-10 pt-10 sm:px-6 lg:pb-14 lg:pt-12">
-          <div className="mx-auto grid max-w-[1040px] items-center gap-8 lg:grid-cols-[0.86fr_1.14fr]">
-            <div className="relative z-20">
+          <div className="mx-auto grid max-w-[1040px] min-w-0 items-center gap-8 lg:grid-cols-[0.86fr_1.14fr]">
+            <div className="relative z-20 min-w-0 max-w-[calc(100vw-2.5rem)] sm:max-w-none">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-teal-50/85 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-teal-700">
                 <Sparkles className="h-3.5 w-3.5" />
                 AI-powered care concierge
               </div>
-              <h1 className="max-w-[520px] text-4xl font-black leading-[1.03] tracking-tight text-blue-950 sm:text-5xl lg:text-[3.5rem]">
+              <h1 className="max-w-full text-4xl font-black leading-[1.03] tracking-tight text-blue-950 sm:max-w-[520px] sm:text-5xl lg:text-[3.5rem]">
                 <span className="block">Your journey</span>
                 <span className="block">to better health,</span>
                 <span className="block text-teal-500">simplified.</span>
               </h1>
-              <p className="mt-6 max-w-[430px] text-[15px] font-medium leading-7 text-slate-600">
-                We help you find the right care, at the right time. Compare options, book with confidence, and manage your health - all in one place.
+              <p className="mt-6 max-w-full text-[15px] font-medium leading-7 text-slate-600 sm:max-w-[430px]">
+                We help you find the right care, at the right time.
+                <span className="block">
+                  Compare options, book with confidence,
+                </span>
+                <span className="block">
+                  and manage your health - all in one place.
+                </span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/providers">
@@ -274,7 +277,7 @@ export default function Landing() {
             <ReferenceHeroArt />
           </div>
 
-          <div className="relative z-30 mx-auto mt-7 max-w-[1040px]">
+          <div className="relative z-30 mx-auto mt-7 max-w-[calc(100vw-2.5rem)] sm:max-w-[1040px]">
             <div className="grid gap-2 rounded-[1.25rem] border border-white/90 bg-white/90 p-3 shadow-[0_24px_70px_rgba(15,76,117,0.12)] backdrop-blur-xl lg:grid-cols-[1.34fr_repeat(4,1fr)_auto]">
               <div className="flex items-center gap-3 rounded-2xl bg-blue-50/70 px-4 py-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm">
@@ -374,7 +377,7 @@ export default function Landing() {
 
         <section className="px-5 py-12 sm:px-6">
           <div className="mx-auto max-w-[1040px] text-center">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-600">Trusted by millions</p>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-600">Built for Calgary</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-blue-900 sm:text-4xl">
               Better care. Better outcomes.
             </h2>
@@ -419,8 +422,8 @@ export default function Landing() {
             </div>
             <div className="relative min-h-[360px] bg-sky-50">
               <img
-                src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=90"
-                alt="Bright, calm home living room prepared for in-home care"
+                src="/assets/medlink-housecall-care.png"
+                alt="A clinician providing calm in-home care to a patient"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/5 to-transparent" />

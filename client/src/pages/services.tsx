@@ -1,5 +1,6 @@
 import React from "react";
 import Navigation from "@/components/Navigation";
+import { MarketplacePageHero } from "@/components/MarketplacePageHero";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,67 +47,15 @@ export default function Services() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navigation />
       
-      {/* Apple-style Hero Section */}
-      <section className="relative min-h-[90vh] bg-gradient-to-b from-gray-50 via-white to-blue-50 overflow-hidden flex items-center">
-        {/* Background Elements with medical icons */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-20 w-36 h-36 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse"></div>
-          <div className="absolute bottom-1/3 right-20 w-32 h-32 bg-green-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60 animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-pulse delay-1000"></div>
-          
-          {/* Floating medical illustrations */}
-          <div className="absolute top-20 right-32 opacity-20">
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="40" cy="40" r="30" fill="#3b82f6"/>
-              <path d="M40 25 L40 55 M25 40 L55 40" stroke="#ffffff" strokeWidth="4"/>
-            </svg>
-          </div>
-          <div className="absolute bottom-32 left-32 opacity-20">
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M30 10 C40 10, 50 20, 50 30 C50 40, 40 50, 30 50 C20 50, 10 40, 10 30 C10 20, 20 10, 30 10" fill="#10b981"/>
-              <path d="M20 30 L26 36 L40 22" stroke="#ffffff" strokeWidth="3" fill="none"/>
-            </svg>
-          </div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black mb-8 leading-[0.85] text-gray-900 text-balance">
-            Healthcare
-            <span className="block text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-              services
-            </span>
-          </h1>
-          
-          <div className="max-w-4xl mx-auto mb-16">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-600 leading-relaxed mb-8">
-              Professional, convenient, and personalized healthcare services delivered to your home in Calgary.
-            </p>
-            <p className="text-xl sm:text-2xl font-light text-gray-500">
-              Experience quality care without the hassle of travel.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/providers">
-              <Button size="lg" className="bg-[hsl(207,90%,54%)] hover:bg-[hsl(207,90%,44%)] text-white text-xl px-12 py-6 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Book a Service
-              </Button>
-            </Link>
-            <Link href="/how-it-works">
-              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-gray-400 text-gray-800 text-xl px-12 py-6 rounded-full font-semibold bg-white/80 backdrop-blur-sm transition-all duration-300">
-                How it works
-              </Button>
-            </Link>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="mt-20">
-            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center mx-auto">
-              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <MarketplacePageHero
+        eyebrow="House-call service marketplace"
+        title="Healthcare services"
+        accent="brought home."
+        description="Browse professional in-home care across Calgary, from nursing and mobile lab work to therapy, dental care, mental health support, and wellness services."
+        supportingText="Clear service categories, verified provider profiles, and secure booking make the next step easier to choose."
+        primaryCta={{ href: "/providers", label: "Book a Service" }}
+        secondaryCta={{ href: "/how-it-works", label: "How it works" }}
+      />
 
       {/* All Services by Category */}
       <section className="py-16">
