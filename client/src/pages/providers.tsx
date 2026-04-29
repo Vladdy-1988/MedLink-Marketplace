@@ -9,10 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { serviceCategories } from "@/lib/serviceCatalog";
+import { providerSpecializations, serviceCategories } from "@/lib/serviceCatalog";
 import { Search, Filter, Zap, HeartPulse, Home, ShieldCheck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+
+function toDisplaySpecialization(value: unknown): string {
+  const raw = String(value || "").trim();
+  if (!raw) return "Healthcare";
+
+  return (
+    providerSpecializations.find(
+      (specialization) => specialization.toLowerCase() === raw.toLowerCase(),
+    ) ||
+    raw.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
+  );
+}
 
 export default function Providers() {
   const [location] = useLocation();
@@ -96,7 +108,7 @@ export default function Providers() {
     id: provider.id,
     userId: provider.userId,
     name: `${provider.firstName} ${provider.lastName}`,
-    specialty: provider.specialization,
+    specialty: toDisplaySpecialization(provider.specialization),
     experience: `${provider.yearsExperience} years exp.`,
     rating: parseFloat(provider.rating) || 4.5,
     reviewCount: provider.reviewCount || 0,
@@ -117,8 +129,8 @@ export default function Providers() {
     description: provider.bio || "Experienced healthcare provider offering quality in-home services.",
     image: provider.profileImageUrl || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300",
     verified: provider.isVerified || false,
-    tags: [provider.specialization],
-    category: provider.specialization.toLowerCase().replace(/\s+/g, '-'),
+    tags: [toDisplaySpecialization(provider.specialization)],
+    category: String(provider.specialization || "").toLowerCase().replace(/\s+/g, '-'),
     rapidService: Array.isArray(provider.services)
       ? provider.services.some((service: any) => {
           const category = String(service?.category || "").toLowerCase();
@@ -240,7 +252,7 @@ export default function Providers() {
                 placeholder="Search providers..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="h-12 rounded-full border-sky-100 bg-white pl-11 font-medium shadow-sm"
+                className="h-12 rounded-full border-sky-100 bg-white pl-11 text-base font-medium shadow-sm"
               />
             </div>
             
@@ -253,13 +265,13 @@ export default function Providers() {
                 }))
               }
             >
-              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white font-semibold shadow-sm">
+              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white text-base font-semibold shadow-sm">
                 <SelectValue placeholder="Service Type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Services</SelectItem>
                 {serviceCategories.map((service) => (
-                  <SelectItem key={service.id} value={service.name.toLowerCase().replace(/\s+/g, '-')}>
+                  <SelectItem key={service.id} value={service.name}>
                     {service.name}
                   </SelectItem>
                 ))}
@@ -275,7 +287,7 @@ export default function Providers() {
                 }))
               }
             >
-              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white font-semibold shadow-sm">
+              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white text-base font-semibold shadow-sm">
                 <SelectValue placeholder="Location" />
               </SelectTrigger>
               <SelectContent>
@@ -296,7 +308,7 @@ export default function Providers() {
                 }))
               }
             >
-              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white font-semibold shadow-sm">
+              <SelectTrigger className="h-12 rounded-full border-sky-100 bg-white text-base font-semibold shadow-sm">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -325,7 +337,7 @@ export default function Providers() {
               }`}
             >
               <Zap className={`h-4 w-4 mr-2 ${filters.rapidOnly ? 'text-white' : 'text-blue-600'}`} />
-              <span className="font-medium text-sm">Rapid Services</span>
+              <span className="text-base font-semibold">Rapid Services</span>
             </button>
           </div>
         </div>
@@ -345,10 +357,10 @@ export default function Providers() {
               <CardContent className="space-y-6">
                 {/* Service Type Filter — options derived from live provider data */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Specialization</Label>
+                  <Label className="mb-3 block text-base font-semibold text-gray-700">Specialization</Label>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {uniqueSpecializations.length === 0 ? (
-                      <p className="text-xs text-gray-400">No providers loaded</p>
+                      <p className="text-sm text-gray-400">No providers loaded</p>
                     ) : (
                       uniqueSpecializations.map((spec) => (
                         <div key={spec} className="flex items-center space-x-2">
@@ -364,7 +376,7 @@ export default function Providers() {
                               }))
                             }
                           />
-                          <Label htmlFor={`spec-${spec}`} className="text-sm text-gray-700">{spec}</Label>
+                          <Label htmlFor={`spec-${spec}`} className="text-base text-gray-700">{spec}</Label>
                         </div>
                       ))
                     )}
@@ -373,7 +385,7 @@ export default function Providers() {
                 
                 {/* Price Range Filter */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Price Range</Label>
+                  <Label className="mb-3 block text-base font-semibold text-gray-700">Price Range</Label>
                   <div className="space-y-2">
                     {[
                       { id: "under-75", label: "Under $75" },
@@ -393,7 +405,7 @@ export default function Providers() {
                             }))
                           }
                         />
-                        <Label htmlFor={price.id} className="text-sm text-gray-700">{price.label}</Label>
+                        <Label htmlFor={price.id} className="text-base text-gray-700">{price.label}</Label>
                       </div>
                     ))}
                   </div>
@@ -401,7 +413,7 @@ export default function Providers() {
                 
                 {/* Rating Filter */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Rating</Label>
+                  <Label className="mb-3 block text-base font-semibold text-gray-700">Rating</Label>
                   <div className="space-y-2">
                     {[
                       { id: "4.5-plus", label: "4.5+ stars" },
@@ -420,7 +432,7 @@ export default function Providers() {
                             }))
                           }
                         />
-                        <Label htmlFor={rating.id} className="text-sm text-gray-700">{rating.label}</Label>
+                        <Label htmlFor={rating.id} className="text-base text-gray-700">{rating.label}</Label>
                       </div>
                     ))}
                   </div>
@@ -428,7 +440,7 @@ export default function Providers() {
                 
                 {/* Rapid Services Filter */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-3 block">Service Options</Label>
+                  <Label className="mb-3 block text-base font-semibold text-gray-700">Service Options</Label>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox
@@ -441,7 +453,7 @@ export default function Providers() {
                           }))
                         }
                       />
-                      <Label htmlFor="rapid-services" className="text-sm text-gray-700 flex items-center">
+                      <Label htmlFor="rapid-services" className="flex items-center text-base text-gray-700">
                         <Zap className="h-3 w-3 mr-1 text-blue-600" />
                         Rapid Services Only
                       </Label>
@@ -450,7 +462,7 @@ export default function Providers() {
                 </div>
 
                 {hasActiveFilters && (
-                  <Button variant="outline" className="w-full text-sm" onClick={resetAllFilters}>
+                  <Button variant="outline" className="w-full text-base" onClick={resetAllFilters}>
                     Clear All Filters
                   </Button>
                 )}
@@ -465,7 +477,7 @@ export default function Providers() {
                 <h2 className="text-2xl font-bold text-gray-900">
                   {filters.rapidOnly ? "Rapid Service Providers" : "Healthcare Providers"}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-base text-gray-600">
                   {displayedProviders.length} provider{displayedProviders.length !== 1 ? "s" : ""} found
                 </p>
               </div>

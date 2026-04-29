@@ -133,6 +133,11 @@ export default function ProviderProfile() {
     patientName: review.patientName || "Verified Patient",
     date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
   }));
+  const credentialSignals = [
+    provider.isVerified ? "Provider verification reviewed" : "Verification pending",
+    "Professional details on file",
+    "House-call care profile",
+  ];
 
   const sendProviderMessage = async (serviceName?: string) => {
     if (!user) {
@@ -248,10 +253,6 @@ export default function ProviderProfile() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-purple-900/30"></div>
         </div>
-        
-        {/* Floating Elements */}
-        <div className="absolute top-20 right-20 w-32 h-32 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-40 left-20 w-24 h-24 bg-purple-500/20 rounded-full blur-xl animate-pulse delay-1000"></div>
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
@@ -520,7 +521,7 @@ export default function ProviderProfile() {
           )}
         </motion.section>
         
-        {/* Certifications Section */}
+        {/* Credentials Section */}
         <motion.section 
           className="mb-20"
           initial={{ opacity: 0, y: 50 }}
@@ -529,16 +530,12 @@ export default function ProviderProfile() {
           transition={{ duration: 0.8 }}
         >
           <div className="text-center mb-12">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Certifications & Credentials</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Credentials & Trust</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
           </div>
           
           <div className="flex flex-wrap justify-center gap-4">
-            {[
-              "RN License (Alberta)",
-              "ACLS Certified", 
-              "Wound Care Specialist"
-            ].map((cert, index) => (
+            {credentialSignals.map((cert, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.8 }}

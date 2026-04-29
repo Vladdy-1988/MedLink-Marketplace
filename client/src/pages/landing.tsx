@@ -147,7 +147,7 @@ function LandingHeader({ onHowItWorks }: { onHowItWorks: (e: MouseEvent<HTMLAnch
           <MedlinkLogo size="sm" />
         </Link>
 
-        <nav className="hidden items-center gap-8 text-xs font-bold text-slate-700 lg:flex">
+        <nav className="hidden items-center gap-8 text-sm font-bold text-slate-700 lg:flex">
           <Link href="/" className="relative text-blue-900">
             Home
             <span className="absolute -bottom-3 left-1/2 h-0.5 w-7 -translate-x-1/2 rounded-full bg-teal-500" />
@@ -169,7 +169,7 @@ function LandingHeader({ onHowItWorks }: { onHowItWorks: (e: MouseEvent<HTMLAnch
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="hidden items-center gap-1.5 rounded-full px-2.5 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-sky-50 sm:inline-flex"
+            className="hidden items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-sky-50 sm:inline-flex"
             aria-label="Language selector"
           >
             <Globe2 className="h-3.5 w-3.5" />
@@ -180,7 +180,7 @@ function LandingHeader({ onHowItWorks }: { onHowItWorks: (e: MouseEvent<HTMLAnch
             onClick={handleLogin}
             variant="outline"
             size="sm"
-            className="h-9 rounded-full border-blue-100 bg-white px-4 text-xs font-bold text-blue-800 shadow-sm hover:bg-sky-50"
+            className="h-9 rounded-full border-blue-100 bg-white px-4 text-sm font-bold text-blue-800 shadow-sm hover:bg-sky-50"
           >
             Sign In
           </Button>
@@ -242,7 +242,7 @@ export default function Landing() {
                 <span className="block">to better health,</span>
                 <span className="block text-teal-500">simplified.</span>
               </h1>
-              <p className="mt-6 max-w-full text-[15px] font-medium leading-7 text-slate-600 sm:max-w-[430px]">
+              <p className="mt-6 max-w-full text-base font-medium leading-8 text-slate-600 sm:max-w-[460px]">
                 We help you find the right care, at the right time.
                 <span className="block">
                   Compare options, book with confidence,
@@ -255,7 +255,7 @@ export default function Landing() {
                 <Link href="/providers">
                   <Button
                     size="lg"
-                    className="h-12 rounded-full bg-teal-500 px-6 text-sm font-bold text-white shadow-[0_14px_32px_rgba(20,184,166,0.28)] hover:bg-teal-600"
+                    className="h-12 rounded-full bg-teal-500 px-6 text-base font-bold text-white shadow-[0_14px_32px_rgba(20,184,166,0.28)] hover:bg-teal-600"
                   >
                     Find Care Now
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -265,7 +265,7 @@ export default function Landing() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 rounded-full border-sky-100 bg-white/85 px-6 text-sm font-bold text-blue-900 shadow-sm backdrop-blur hover:bg-white"
+                    className="h-12 rounded-full border-sky-100 bg-white/85 px-6 text-base font-bold text-blue-900 shadow-sm backdrop-blur hover:bg-white"
                   >
                     How It Works
                     <PlayCircle className="ml-2 h-4 w-4 text-blue-500" />
@@ -284,8 +284,8 @@ export default function Landing() {
                   <Bot className="h-5 w-5" />
                 </span>
                 <div>
-                  <div className="text-sm font-bold text-blue-700">Hi, I'm MedLink AI.</div>
-                  <div className="text-xs text-slate-500">How can I help you today?</div>
+                  <div className="text-base font-bold text-blue-700">Hi, I'm MedLink AI.</div>
+                  <div className="text-sm text-slate-500">How can I help you today?</div>
                 </div>
               </div>
 
@@ -301,8 +301,8 @@ export default function Landing() {
                       <Icon className="h-4 w-4" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-slate-800">{action.title}</span>
-                      <span className="block text-xs text-slate-500">{action.body}</span>
+                      <span className="block text-base font-semibold text-slate-800">{action.title}</span>
+                      <span className="block text-sm text-slate-500">{action.body}</span>
                     </span>
                   </Link>
                 );
@@ -331,8 +331,8 @@ export default function Landing() {
                     <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-teal-50 text-teal-600 shadow-sm">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <h3 className="text-sm font-black text-slate-900">{benefit.title}</h3>
-                    <p className="mx-auto mt-3 max-w-[180px] text-xs font-medium leading-5 text-slate-600">{benefit.body}</p>
+                    <h3 className="text-base font-black text-slate-900">{benefit.title}</h3>
+                    <p className="mx-auto mt-3 max-w-[200px] text-sm font-medium leading-6 text-slate-600">{benefit.body}</p>
                   </div>
                 );
               })}
@@ -364,8 +364,8 @@ export default function Landing() {
                         {step.number}
                       </span>
                       <span className="max-w-[160px]">
-                        <span className="block text-sm font-black text-slate-900">{step.title}</span>
-                        <span className="mt-1 block text-xs font-medium leading-5 text-slate-600">{step.body}</span>
+                        <span className="block text-base font-black text-slate-900">{step.title}</span>
+                        <span className="mt-1 block text-sm font-medium leading-6 text-slate-600">{step.body}</span>
                       </span>
                     </div>
                   </div>
@@ -394,7 +394,7 @@ export default function Landing() {
                     </span>
                     <span>
                       <span className="block text-xl font-black text-blue-700">{stat.value}</span>
-                      <span className="block text-xs font-bold text-slate-500">{stat.label}</span>
+                      <span className="block text-sm font-bold text-slate-500">{stat.label}</span>
                     </span>
                   </div>
                 );
@@ -410,7 +410,7 @@ export default function Landing() {
                 Better health. More peace of mind.
                 <span className="block text-teal-500">Every step of the way.</span>
               </h2>
-              <p className="mt-5 max-w-sm text-sm font-medium leading-7 text-slate-600">
+              <p className="mt-5 max-w-sm text-base font-medium leading-7 text-slate-600">
                 We're here to make healthcare simpler, so you can focus on what matters most.
               </p>
               <Link href="/providers">

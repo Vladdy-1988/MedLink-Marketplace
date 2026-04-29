@@ -140,7 +140,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             </Badge>
             <div className="flex items-center bg-black/20 backdrop-blur-md rounded-full px-3 py-1 shadow-sm">
               <Clock className="w-3 h-3 mr-1 text-white" />
-              <span className="text-xs font-medium text-white">Available today</span>
+              <span className="text-sm font-semibold text-white">Available today</span>
             </div>
           </div>
         </div>
@@ -167,14 +167,14 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             )}
           </div>
           
-          <div className="flex items-center text-sm text-gray-600 mb-3 bg-slate-50/80 rounded-lg px-3 py-2">
-            <span className="font-semibold text-[hsl(207,90%,54%)] bg-blue-100 px-2 py-1 rounded-full text-xs mr-2">{provider.experience}</span>
+          <div className="mb-3 flex items-center rounded-lg bg-slate-50/80 px-3 py-2 text-base text-gray-600">
+            <span className="mr-2 rounded-full bg-blue-100 px-2 py-1 text-sm font-semibold text-[hsl(207,90%,54%)]">{provider.experience}</span>
             <span className="mx-1">•</span>
             <MapPin className="w-4 h-4 mr-1 text-slate-500" />
             <span className="font-medium">{provider.location}</span>
           </div>
           
-          <p className="text-gray-700 text-sm leading-relaxed line-clamp-2 mb-4 font-medium">
+          <p className="mb-4 line-clamp-2 text-base font-medium leading-relaxed text-gray-700">
             {provider.description}
           </p>
 
@@ -183,14 +183,14 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
               {provider.services.slice(0, 3).map((service) => (
                 <span
                   key={service.id}
-                  className="text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5"
+                  className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm text-blue-700"
                 >
                   {service.name}
                   {service.price ? ` · $${service.price}` : ""}
                 </span>
               ))}
               {provider.services.length > 3 && (
-                <span className="text-xs text-gray-400">
+                <span className="text-sm text-gray-400">
                   +{provider.services.length - 3} more
                 </span>
               )}
@@ -204,13 +204,13 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             <Badge 
               key={index}
               variant="secondary" 
-              className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200/50 text-xs font-medium px-3 py-1 shadow-sm"
+              className="border border-blue-200/50 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1 text-sm font-medium text-blue-700 shadow-sm"
             >
               {tag}
             </Badge>
           ))}
           {provider.tags.length > 3 && (
-            <Badge variant="secondary" className="bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border border-gray-200 text-xs px-3 py-1 shadow-sm">
+            <Badge variant="secondary" className="border border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50 px-3 py-1 text-sm text-gray-600 shadow-sm">
               +{provider.tags.length - 3} more
             </Badge>
           )}
@@ -222,11 +222,11 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
             <div className="text-lg font-bold text-gray-900">
               Get a Quote
             </div>
-            <div className="text-sm text-gray-500 font-medium">Personalized pricing</div>
+            <div className="text-base font-medium text-gray-500">Personalized pricing</div>
           </div>
           <div className="text-right">
             {provider.reviewCount > 0 && (
-              <div className="text-xs text-gray-500 mb-1">({provider.reviewCount} reviews)</div>
+              <div className="mb-1 text-sm text-gray-500">({provider.reviewCount} reviews)</div>
             )}
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -244,7 +244,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
           <Link href={`/provider/${provider.id}`} className="flex-1 min-w-0">
             <Button 
               variant="outline" 
-              className="w-full border-2 border-slate-200 hover:border-[hsl(207,90%,54%)] hover:text-[hsl(207,90%,54%)] font-semibold rounded-2xl h-12 transition-all duration-200 bg-gradient-to-r from-white to-slate-50 hover:from-blue-50 hover:to-indigo-50 shadow-sm hover:shadow-md text-sm"
+              className="h-12 w-full rounded-2xl border-2 border-slate-200 bg-gradient-to-r from-white to-slate-50 text-base font-semibold shadow-sm transition-all duration-200 hover:border-[hsl(207,90%,54%)] hover:from-blue-50 hover:to-indigo-50 hover:text-[hsl(207,90%,54%)] hover:shadow-md"
             >
               View Profile
             </Button>
@@ -252,7 +252,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
           <Button 
             onClick={handleMessageProvider}
             disabled={isMessaging}
-            className="flex-1 min-w-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] font-semibold rounded-2xl h-12 shadow-lg hover:shadow-xl transition-all duration-200 text-white border-0 text-sm disabled:opacity-50"
+            className="h-12 min-w-0 flex-1 rounded-2xl border-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] text-base font-semibold text-white shadow-lg transition-all duration-200 hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] hover:shadow-xl disabled:opacity-50"
           >
             <MessageCircle className="w-4 h-4 mr-1.5" />
             {isMessaging ? "Sending..." : user ? "Message" : "Sign In to Message"}

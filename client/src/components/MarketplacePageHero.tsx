@@ -60,13 +60,13 @@ export function MarketplacePageHero({
             {description}
           </p>
           {supportingText && (
-            <p className="mt-3 w-full max-w-full break-words text-sm font-medium leading-7 text-slate-500 sm:max-w-xl">
+            <p className="mt-3 w-full max-w-full break-words text-base font-medium leading-7 text-slate-500 sm:max-w-xl">
               {supportingText}
             </p>
           )}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <HeroLink href={primaryCta.href}>
-              <Button className="h-12 rounded-full bg-teal-500 px-6 text-sm font-bold text-white shadow-[0_14px_32px_rgba(20,184,166,0.26)] hover:bg-teal-600">
+              <Button className="h-12 rounded-full bg-teal-500 px-6 text-base font-bold text-white shadow-[0_14px_32px_rgba(20,184,166,0.26)] hover:bg-teal-600">
                 {primaryCta.label}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -75,7 +75,7 @@ export function MarketplacePageHero({
               <HeroLink href={secondaryCta.href}>
                 <Button
                   variant="outline"
-                  className="h-12 rounded-full border-sky-100 bg-white/85 px-6 text-sm font-bold text-blue-900 shadow-sm backdrop-blur hover:bg-white"
+                  className="h-12 rounded-full border-sky-100 bg-white/85 px-6 text-base font-bold text-blue-900 shadow-sm backdrop-blur hover:bg-white"
                 >
                   {secondaryCta.label}
                 </Button>
@@ -104,13 +104,13 @@ export function MarketplacePageHero({
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-teal-50 text-teal-600">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <div className="mt-2 text-[11px] font-black text-slate-700">{item.label}</div>
+                    <div className="mt-2 text-sm font-black text-slate-700">{item.label}</div>
                   </div>
                 );
               })}
             </div>
           </div>
-          <div className="absolute bottom-5 left-5 flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-4 py-3 text-sm font-bold text-blue-900 shadow-[0_16px_42px_rgba(15,76,117,0.14)] backdrop-blur sm:left-auto sm:right-5">
+          <div className="absolute bottom-5 left-5 flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-4 py-3 text-base font-bold text-blue-900 shadow-[0_16px_42px_rgba(15,76,117,0.14)] backdrop-blur sm:left-auto sm:right-5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600">
               <Stethoscope className="h-4 w-4" />
             </span>

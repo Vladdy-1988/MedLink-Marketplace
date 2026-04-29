@@ -168,6 +168,14 @@ function sortMarketplaceProviders<
   });
 }
 
+function getMarketplaceProviderConditions() {
+  return [
+    eq(providers.isApproved, true),
+    eq(providers.isVerified, true),
+    sql`LOWER(TRIM(${providers.specialization})) NOT IN ('cardiology', 'cardiac surgery', 'surgery')`,
+  ];
+}
+
 const liveProviderRating = sql<string>`
   COALESCE(
     ROUND(
@@ -861,7 +869,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(providers)
       .innerJoin(users, eq(providers.userId, users.id))
-      .where(and(eq(providers.isApproved, true), eq(providers.isVerified, true)))
+      .where(and(...getMarketplaceProviderConditions()))
       .orderBy(desc(providers.updatedAt), desc(providers.createdAt), desc(providers.id));
 
     const uniqueProviders = sortMarketplaceProviders(
@@ -897,8 +905,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(providers.id, id),
-          eq(providers.isApproved, true),
-          eq(providers.isVerified, true),
+          ...getMarketplaceProviderConditions(),
         ),
       );
 
@@ -947,14 +954,14 @@ export class DatabaseStorage implements IStorage {
     rating?: number;
     sortBy?: string;
   }): Promise<any[]> {
-    const conditions = [
-      eq(providers.isApproved, true),
-      eq(providers.isVerified, true),
-    ];
+    const conditions = getMarketplaceProviderConditions();
 
     if (filters.serviceType) {
+      const rawServiceType = filters.serviceType.trim();
+      const normalizedServiceType = rawServiceType.replace(/[-_]+/g, " ");
       const serviceTypeCondition = or(
-        ilike(providers.specialization, `%${filters.serviceType}%`),
+        ilike(providers.specialization, `%${rawServiceType}%`),
+        ilike(providers.specialization, `%${normalizedServiceType}%`),
         exists(
           db
             .select({ one: sql`1` })
@@ -963,8 +970,10 @@ export class DatabaseStorage implements IStorage {
               and(
                 eq(services.providerId, providers.id),
                 or(
-                  ilike(services.name, `%${filters.serviceType}%`),
-                  ilike(services.category, `%${filters.serviceType}%`),
+                  ilike(services.name, `%${rawServiceType}%`),
+                  ilike(services.name, `%${normalizedServiceType}%`),
+                  ilike(services.category, `%${rawServiceType}%`),
+                  ilike(services.category, `%${normalizedServiceType}%`),
                 ),
               ),
             ),

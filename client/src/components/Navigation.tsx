@@ -34,7 +34,7 @@ export default function Navigation() {
     closeMobileMenu();
   }, [location, closeMobileMenu]);
 
-  const navLinkClass = "block rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-sky-50 hover:text-blue-700";
+  const navLinkClass = "block rounded-xl px-3 py-2 text-base font-semibold text-slate-700 transition-colors hover:bg-sky-50 hover:text-blue-700";
 
   return (
     <nav className="sticky top-0 z-50 border-b border-sky-100/80 bg-white/90 shadow-[0_12px_34px_rgba(15,76,117,0.06)] backdrop-blur-xl">
@@ -47,17 +47,17 @@ export default function Navigation() {
 
             <div className="hidden md:block ml-10">
               <div className="flex items-center space-x-8">
-                <Link href="/providers" className="text-sm font-semibold text-slate-700 transition-colors hover:text-blue-700">
+                <Link href="/providers" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
                   Find Providers
                 </Link>
-                <Link href="/services" className="text-sm font-semibold text-slate-700 transition-colors hover:text-blue-700">
+                <Link href="/services" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
                   Services
                 </Link>
-                <Link href="/how-it-works" className="text-sm font-semibold text-slate-700 transition-colors hover:text-blue-700">
+                <Link href="/how-it-works" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
                   How It Works
                 </Link>
                 {!isAuthenticated && (
-                  <Link href="/apply" className="text-sm font-semibold text-slate-700 transition-colors hover:text-blue-700">
+                  <Link href="/apply" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
                     Become a Provider
                   </Link>
                 )}
