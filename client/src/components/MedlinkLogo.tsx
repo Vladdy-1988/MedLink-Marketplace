@@ -26,36 +26,23 @@ export function MedlinkLogo({ className = "", showText = true, size = "md" }: Me
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full"
         >
-          {/* Background circle */}
-          <circle
-            cx="20"
-            cy="20"
-            r="18"
-            fill="url(#gradient)"
+          <path
+            d="M17 7.5h6a2.2 2.2 0 0 1 2.2 2.2v6.1h6.1a2.2 2.2 0 0 1 2.2 2.2v6a2.2 2.2 0 0 1-2.2 2.2h-6.1v6.1a2.2 2.2 0 0 1-2.2 2.2h-6a2.2 2.2 0 0 1-2.2-2.2v-6.1H8.7a2.2 2.2 0 0 1-2.2-2.2v-6a2.2 2.2 0 0 1 2.2-2.2h6.1V9.7A2.2 2.2 0 0 1 17 7.5z"
+            fill="white"
+            stroke="url(#markGradient)"
+            strokeWidth="3"
+            strokeLinejoin="round"
             className="drop-shadow-md"
           />
-          
-          {/* House outline perfectly centered in circle - rounded corners, no door */}
           <path
-            d="M8 24l12-10 12 10v11a3 3 0 01-3 3H11a3 3 0 01-3-3V24z"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
+            d="M19.1 13.4h1.8a1 1 0 0 1 1 1v5.1h5.1a1 1 0 0 1 1 1v1.8a1 1 0 0 1-1 1h-5.1v5.1a1 1 0 0 1-1 1h-1.8a1 1 0 0 1-1-1v-5.1H13a1 1 0 0 1-1-1v-1.8a1 1 0 0 1 1-1h5.1v-5.1a1 1 0 0 1 1-1z"
+            fill="url(#markGradient)"
+            opacity="0.92"
           />
-          
-          {/* Heart perfectly centered in house */}
-          <path
-            d="M20 29c-1.8-1.6-4-3.5-4-5.5 0-1.5 1.2-2.7 2.7-2.7.7 0 1.3.3 1.7.7.4-.4 1-.7 1.7-.7 1.5 0 2.7 1.2 2.7 2.7 0 2-2.2 3.9-4 5.5z"
-            fill="white"
-          />
-          
-          {/* Gradient definition */}
           <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="markGradient" x1="5" y1="6" x2="35" y2="35" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="hsl(207, 90%, 54%)" />
-              <stop offset="100%" stopColor="hsl(174, 72%, 42%)" />
+              <stop offset="100%" stopColor="hsl(174, 68%, 46%)" />
             </linearGradient>
           </defs>
         </svg>
