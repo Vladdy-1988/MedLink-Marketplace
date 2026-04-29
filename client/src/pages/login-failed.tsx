@@ -6,6 +6,10 @@ export default function LoginFailed() {
   const retryLogin = () => {
     window.location.assign("/api/login");
   };
+  const reason =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("reason")
+      : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -22,6 +26,12 @@ export default function LoginFailed() {
           <p className="text-gray-600 mb-6">
             We couldn't sign you in. This might be because:
           </p>
+
+          {reason && (
+            <div className="mb-6 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-left text-sm text-red-700">
+              <span className="font-semibold">Auth detail:</span> {reason}
+            </div>
+          )}
           
           <ul className="text-left text-sm text-gray-600 mb-6 space-y-2">
             <li className="flex items-start">

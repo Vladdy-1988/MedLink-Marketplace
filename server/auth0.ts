@@ -222,13 +222,28 @@ export async function setupAuth(app: Express) {
     // URL used to generate the `state` param and the URL used to verify it,
     // which manifests as "user = false" and a redirect to /login-failed.
     app.get('/api/login', (req, res, next) => {
-      console.log('[auth] /api/login initiated', {
-        ...getAuthRequestContext(req),
-        callbackURL,
-      });
-      passport.authenticate('auth0', {
-        scope: 'openid email profile',
-      })(req, res, next);
+      const startAuth = () => {
+        console.log('[auth] /api/login initiated', {
+          ...getAuthRequestContext(req),
+          callbackURL,
+        });
+        passport.authenticate('auth0', {
+          scope: 'openid email profile',
+        })(req, res, next);
+      };
+
+      if (req.session?.regenerate) {
+        req.session.regenerate((err) => {
+          if (err) {
+            console.error("[auth] /api/login — session regenerate failed:", err);
+            return res.redirect("/login-failed?reason=session");
+          }
+          startAuth();
+        });
+        return;
+      }
+
+      startAuth();
     });
 
     app.get('/api/callback', (req, res, next) => {
@@ -250,7 +265,9 @@ export async function setupAuth(app: Express) {
             info: JSON.stringify(info),
             ...getAuthRequestContext(req),
           });
-          return res.redirect('/login-failed');
+          return res.redirect(
+            `/login-failed?reason=${encodeURIComponent(err?.message || "passport_error")}`,
+          );
         }
 
         if (!user) {
@@ -266,25 +283,32 @@ export async function setupAuth(app: Express) {
               errorDescription: req.query.error_description,
             },
           });
-          return res.redirect('/login-failed');
+          const reason =
+            req.query.error_description ||
+            req.query.error ||
+            info?.message ||
+            info?.error_description ||
+            info?.error ||
+            "authentication_failed";
+          return res.redirect(`/login-failed?reason=${encodeURIComponent(String(reason))}`);
         }
 
         console.log('[auth] /api/callback — user authenticated, starting session', { userId: user.id });
         req.logIn(user, (loginErr) => {
           if (loginErr) {
             console.error("[auth] /api/callback — req.logIn failed:", loginErr);
-            return res.redirect('/login-failed');
+            return res.redirect("/login-failed?reason=session_login");
           }
 
           if (!req.session) {
             console.error("[auth] /api/callback — req.session missing after req.logIn");
-            return res.redirect('/login-failed');
+            return res.redirect("/login-failed?reason=session_missing");
           }
 
           req.session.save((saveErr) => {
             if (saveErr) {
               console.error("[auth] /api/callback — session.save failed:", saveErr);
-              return res.redirect('/login-failed');
+              return res.redirect("/login-failed?reason=session_save");
             }
             console.log("[auth] /api/callback — session persisted", {
               ...getAuthRequestContext(req),
