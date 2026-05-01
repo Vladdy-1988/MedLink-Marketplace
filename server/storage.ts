@@ -357,6 +357,7 @@ export interface IStorage {
   getMessagesBetweenUsers(userId1: string, userId2: string): Promise<Message[]>;
   getConversationsForUser(userId: string): Promise<any[]>;
   markMessageAsRead(messageId: number): Promise<void>;
+  markConversationAsRead(userId: string, partnerId: string): Promise<void>;
   getMessagesWithAttachments(userId1: string, userId2: string): Promise<any[]>;
 
   // Message attachment operations
@@ -1622,6 +1623,9 @@ export class DatabaseStorage implements IStorage {
     const conversations = await db
       .select({
         partnerId: sql`CASE WHEN ${messages.senderId} = ${userId} THEN ${messages.receiverId} ELSE ${messages.senderId} END`.as('partnerId'),
+        senderId: messages.senderId,
+        receiverId: messages.receiverId,
+        isRead: messages.isRead,
         lastMessage: messages.content,
         lastMessageTime: messages.createdAt,
       })
@@ -1639,6 +1643,9 @@ export class DatabaseStorage implements IStorage {
           lastMessageTime: conv.lastMessageTime,
           unreadCount: 0
         };
+      }
+      if (conv.receiverId === userId && conv.senderId === partnerId && conv.isRead === false) {
+        acc[partnerId].unreadCount += 1;
       }
       return acc;
     }, {} as Record<string, any>);
@@ -1664,6 +1671,13 @@ export class DatabaseStorage implements IStorage {
       .update(messages)
       .set({ isRead: true })
       .where(eq(messages.id, messageId));
+  }
+
+  async markConversationAsRead(userId: string, partnerId: string): Promise<void> {
+    await db
+      .update(messages)
+      .set({ isRead: true })
+      .where(and(eq(messages.senderId, partnerId), eq(messages.receiverId, userId)));
   }
 
   async getMessagesWithAttachments(userId1: string, userId2: string): Promise<any[]> {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,24 +27,21 @@ import { useLocation } from "wouter";
 import { AssistantBubble } from "@/components/messages/AssistantBubble";
 
 interface Conversation {
-  id: string;
-  providerId: string;
-  providerName: string;
+  partnerId: string;
+  partnerName: string;
+  partnerRole: string;
   lastMessage: string;
-  lastMessageDate: string;
+  lastMessageTime: string;
   unreadCount: number;
-  status: 'active' | 'archived';
-  messages: Message[];
 }
 
 interface Message {
-  id: string;
-  conversationId: string;
+  id: number;
   senderId: string;
-  senderType: 'patient' | 'provider';
+  receiverId: string;
   content: string;
-  timestamp: string;
-  isRead: boolean;
+  createdAt: string;
+  isRead?: boolean;
   attachments?: Array<{
     id: string;
     fileName: string;
@@ -57,7 +54,7 @@ export function EnhancedMessages() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
@@ -77,17 +74,17 @@ export function EnhancedMessages() {
   });
 
   const { data: messages, isLoading: messagesLoading } = useQuery({
-    queryKey: ["/api/messages", selectedConversation],
-    enabled: !!selectedConversation,
+    queryKey: ["/api/messages", user?.id, selectedConversation],
+    enabled: !!user?.id && !!selectedConversation,
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: async (data: { conversationId: string; content: string; attachments?: any[] }) => {
+    mutationFn: async (data: { receiverId: string; content: string; attachments?: any[] }) => {
       return apiRequest("POST", "/api/messages", data);
     },
     onSuccess: () => {
       setMessageText("");
-      queryClient.invalidateQueries({ queryKey: ["/api/messages", selectedConversation] });
+      queryClient.invalidateQueries({ queryKey: ["/api/messages", user?.id, selectedConversation] });
       queryClient.invalidateQueries({ queryKey: ["/api/conversations", user?.id] });
       toast({
         title: "Message sent",
@@ -104,13 +101,22 @@ export function EnhancedMessages() {
   });
 
   const markAsReadMutation = useMutation({
-    mutationFn: async (conversationId: string) => {
-      return apiRequest("PUT", `/api/conversations/${conversationId}/mark-read`, {});
+    mutationFn: async (partnerId: string) => {
+      return apiRequest("PUT", `/api/conversations/${encodeURIComponent(partnerId)}/read`, {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations", user?.id] });
     }
   });
+
+  useEffect(() => {
+    const query = location.includes("?") ? location.split("?")[1] : "";
+    const partnerId = new URLSearchParams(query).get("partner");
+    if (partnerId) {
+      setSelectedConversation(partnerId);
+      markAsReadMutation.mutate(partnerId);
+    }
+  }, [location]);
 
   const callAssistant = (sentText: string) => {
     setAssistantLoading(true);
@@ -148,23 +154,16 @@ export function EnhancedMessages() {
 
     sendMessageMutation.mutate(
       {
-        conversationId: selectedConversation,
+        receiverId: selectedConversation,
         content: sentText,
-      },
-      {
-        onSuccess: () => {
-          const isNewInquiry = !selectedConversationData?.providerId;
-          if (isNewInquiry && user?.userType === "patient") {
-            callAssistant(sentText);
-          }
-        },
       },
     );
   };
 
-  const handleConversationSelect = (conversationId: string) => {
-    setSelectedConversation(conversationId);
-    markAsReadMutation.mutate(conversationId);
+  const handleConversationSelect = (partnerId: string) => {
+    setSelectedConversation(partnerId);
+    markAsReadMutation.mutate(partnerId);
+    setLocation(`/dashboard/patient?tab=messages&partner=${encodeURIComponent(partnerId)}`);
   };
 
   if (conversationsLoading) {
@@ -198,11 +197,11 @@ export function EnhancedMessages() {
   );
   const filteredConversations = conversationList.filter(conv =>
     searchQuery === "" ||
-    (conv.providerName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (conv.partnerName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     (conv.lastMessage || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const selectedConversationData = conversationList.find(c => c.id === selectedConversation);
+  const selectedConversationData = conversationList.find(c => c.partnerId === selectedConversation);
   const totalUnread = conversationList.reduce((sum, conv) => sum + conv.unreadCount, 0);
 
   return (
@@ -250,24 +249,24 @@ export function EnhancedMessages() {
                 <div className="space-y-1">
                   {filteredConversations.map((conversation) => (
                     <div
-                      key={conversation.id}
-                      onClick={() => handleConversationSelect(conversation.id)}
+                      key={conversation.partnerId}
+                      onClick={() => handleConversationSelect(conversation.partnerId)}
                       className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors border-l-4 ${
-                        selectedConversation === conversation.id 
+                        selectedConversation === conversation.partnerId
                           ? 'border-[hsl(207,90%,54%)] bg-blue-50' 
                           : 'border-transparent'
                       }`}
-                      data-testid={`conversation-${conversation.id}`}
+                      data-testid={`conversation-${conversation.partnerId}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3 flex-1">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            {(conversation.providerName || "?").charAt(0)}
+                            {(conversation.partnerName || "?").charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <h4 className="font-medium text-gray-900 truncate">
-                                {conversation.providerName}
+                                {conversation.partnerName}
                               </h4>
                               {conversation.unreadCount > 0 && (
                                 <Badge variant="secondary" className="bg-blue-500 text-white text-xs ml-2">
@@ -279,7 +278,7 @@ export function EnhancedMessages() {
                               {conversation.lastMessage}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {new Date(conversation.lastMessageDate).toLocaleDateString()}
+                              {new Date(conversation.lastMessageTime).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
@@ -352,13 +351,13 @@ export function EnhancedMessages() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {selectedConversationData?.providerName?.charAt(0) ?? "?"}
+                      {selectedConversationData?.partnerName?.charAt(0) ?? "?"}
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {selectedConversationData?.providerName}
+                        {selectedConversationData?.partnerName}
                       </h3>
-                      <p className="text-sm text-gray-600">Healthcare Provider</p>
+                      <p className="text-sm text-gray-600">{selectedConversationData?.partnerRole || "Healthcare Provider"}</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm" data-testid="conversation-options">
@@ -386,7 +385,7 @@ export function EnhancedMessages() {
                   ) : (
                     <div className="space-y-4">
                       {uniqueMessages.map((message, index) => {
-                        const isFromUser = message.senderType === 'patient';
+                        const isFromUser = message.senderId === user?.id;
                         const isLastMessage = index === uniqueMessages.length - 1;
                         
                         return (
@@ -397,7 +396,7 @@ export function EnhancedMessages() {
                           >
                             {!isFromUser && (
                               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                                {selectedConversationData?.providerName?.charAt(0) ?? "?"}
+                                {selectedConversationData?.partnerName?.charAt(0) ?? "?"}
                               </div>
                             )}
                             <div className={`max-w-xs lg:max-w-md ${isFromUser ? 'order-1' : ''}`}>
@@ -422,7 +421,7 @@ export function EnhancedMessages() {
                                 isFromUser ? 'justify-end' : ''
                               }`}>
                                 <Clock className="h-3 w-3" />
-                                <span>{new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>{new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 {isFromUser && (
                                   <>
                                     {message.isRead ? (

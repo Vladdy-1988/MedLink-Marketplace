@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Calendar,
   MessageCircle,
@@ -35,12 +35,27 @@ import { EnhancedSettings } from "@/components/dashboard/EnhancedSettings";
 export default function PatientDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const [location, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<'appointments' | 'providers' | 'messages' | 'billing' | 'settings'>('appointments');
   const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
     document.title = "My Dashboard — MedLink Marketplace";
   }, []);
+
+  useEffect(() => {
+    const query = location.includes("?") ? location.split("?")[1] : "";
+    const tab = new URLSearchParams(query).get("tab");
+    if (
+      tab === "appointments" ||
+      tab === "providers" ||
+      tab === "messages" ||
+      tab === "billing" ||
+      tab === "settings"
+    ) {
+      setActiveTab(tab);
+    }
+  }, [location]);
 
   // Redirect away if not authenticated or if the wrong role lands here.
   useEffect(() => {
@@ -449,14 +464,24 @@ export default function PatientDashboard() {
                     ) : (
                       <div className="divide-y divide-gray-200">
                     {(conversations as any[])?.slice(0, 3).map((conversation: any, index: number) => (
-                      <div key={index} className="p-6 hover:bg-gray-50 transition-colors cursor-pointer">
+                      <div
+                        key={conversation.partnerId || index}
+                        className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => {
+                          if (conversation.partnerId) {
+                            setLocation(`/dashboard/patient?tab=messages&partner=${encodeURIComponent(conversation.partnerId)}`);
+                          } else {
+                            setActiveTab("messages");
+                          }
+                        }}
+                      >
                         <div className="flex items-start">
                           <div className="w-10 h-10 bg-[hsl(207,90%,54%)] rounded-full flex items-center justify-center text-white font-semibold">
-                            P
+                            {(conversation.partnerName || "Provider").charAt(0)}
                           </div>
                           <div className="ml-4 flex-1">
                             <div className="flex items-center justify-between">
-                              <h4 className="font-medium text-gray-900">Healthcare Provider</h4>
+                              <h4 className="font-medium text-gray-900">{conversation.partnerName || "Healthcare Provider"}</h4>
                               <span className="text-sm text-gray-500">
                                 {conversation.lastMessageTime ? new Date(conversation.lastMessageTime).toLocaleDateString() : 'Recently'}
                               </span>

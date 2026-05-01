@@ -8,7 +8,9 @@ const { mockStorage } = vi.hoisted(() => ({
   mockStorage: {
     createEmergencyContact: vi.fn(),
     createFamilyMember: vi.fn(),
+    createInsuranceInfo: vi.fn(),
     createPaymentMethod: vi.fn(),
+    createAuditLog: vi.fn(),
   },
 }));
 
@@ -57,7 +59,10 @@ describe("Profile route contracts", () => {
     vi.resetModules();
     mockStorage.createEmergencyContact.mockReset();
     mockStorage.createFamilyMember.mockReset();
+    mockStorage.createInsuranceInfo.mockReset();
     mockStorage.createPaymentMethod.mockReset();
+    mockStorage.createAuditLog.mockReset();
+    mockStorage.createAuditLog.mockResolvedValue(undefined);
 
     mockStorage.createEmergencyContact.mockResolvedValue({
       id: 1,
@@ -95,6 +100,17 @@ describe("Profile route contracts", () => {
       expiryYear: 2030,
       isDefault: false,
       billingAddressId: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    mockStorage.createInsuranceInfo.mockResolvedValue({
+      id: 1,
+      userId: "user-1",
+      provider: "Blue Cross",
+      policyNumber: "ABC123456789",
+      groupNumber: "GRP001",
+      isPrimary: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -173,6 +189,32 @@ describe("Profile route contracts", () => {
         userId: "user-1",
         expiryMonth: 12,
         expiryYear: 2030,
+      }),
+    );
+  });
+
+  it("accepts simplified insurance details and injects authenticated userId", async () => {
+    const response = await request(app).post("/api/user/insurance").send({
+      provider: "Blue Cross",
+      policyNumber: "ABC123456789",
+      groupNumber: "GRP001",
+      isPrimary: true,
+    });
+
+    expect(response.status).toBe(201);
+    expect(mockStorage.createInsuranceInfo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-1",
+        provider: "Blue Cross",
+        policyNumber: "ABC123456789",
+        groupNumber: "GRP001",
+        isPrimary: true,
+      }),
+    );
+    expect(mockStorage.createInsuranceInfo).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        copayAmount: expect.anything(),
+        deductibleAmount: expect.anything(),
       }),
     );
   });

@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Plus, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
@@ -16,14 +15,8 @@ import { z } from "zod";
 
 const insuranceSchema = z.object({
   provider: z.string().min(1, "Provider is required"),
-  policyNumber: z.string().min(1, "Policy number is required"),
+  policyNumber: z.string().min(1, "Member or policy number is required"),
   groupNumber: z.string().optional(),
-  memberNumber: z.string().optional(),
-  planType: z.string().optional(),
-  effectiveDate: z.string().optional(),
-  expiryDate: z.string().optional(),
-  copayAmount: z.string().optional(),
-  deductibleAmount: z.string().optional(),
   isPrimary: z.boolean().default(true),
 });
 
@@ -32,6 +25,12 @@ type InsuranceFormData = z.infer<typeof insuranceSchema>;
 interface Insurance extends InsuranceFormData {
   id: number;
   userId: string;
+  memberNumber?: string | null;
+  planType?: string | null;
+  effectiveDate?: string | null;
+  expiryDate?: string | null;
+  copayAmount?: string | null;
+  deductibleAmount?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -48,12 +47,6 @@ export function InsuranceManagement() {
       provider: "",
       policyNumber: "",
       groupNumber: "",
-      memberNumber: "",
-      planType: "",
-      effectiveDate: "",
-      expiryDate: "",
-      copayAmount: "",
-      deductibleAmount: "",
       isPrimary: true,
     },
   });
@@ -68,12 +61,6 @@ export function InsuranceManagement() {
       apiRequest("POST", "/api/user/insurance", {
         ...data,
         groupNumber: data.groupNumber || null,
-        memberNumber: data.memberNumber || null,
-        planType: data.planType || null,
-        copayAmount: data.copayAmount || null,
-        deductibleAmount: data.deductibleAmount || null,
-        effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
-        expiryDate: data.expiryDate ? new Date(data.expiryDate) : null,
       }),
     onSuccess: () => {
       toast({
@@ -98,13 +85,6 @@ export function InsuranceManagement() {
       apiRequest("PUT", `/api/user/insurance/${id}`, {
         ...data,
         groupNumber: data.groupNumber === "" ? null : data.groupNumber,
-        memberNumber: data.memberNumber === "" ? null : data.memberNumber,
-        planType: data.planType === "" ? null : data.planType,
-        copayAmount: data.copayAmount === "" ? null : data.copayAmount,
-        deductibleAmount: data.deductibleAmount === "" ? null : data.deductibleAmount,
-        effectiveDate:
-          data.effectiveDate === undefined ? undefined : data.effectiveDate ? new Date(data.effectiveDate) : null,
-        expiryDate: data.expiryDate === undefined ? undefined : data.expiryDate ? new Date(data.expiryDate) : null,
       }),
     onSuccess: () => {
       toast({
@@ -157,12 +137,6 @@ export function InsuranceManagement() {
       provider: insurance.provider,
       policyNumber: insurance.policyNumber,
       groupNumber: insurance.groupNumber || "",
-      memberNumber: insurance.memberNumber || "",
-      planType: insurance.planType || "",
-      effectiveDate: insurance.effectiveDate ? new Date(insurance.effectiveDate).toISOString().slice(0, 10) : "",
-      expiryDate: insurance.expiryDate ? new Date(insurance.expiryDate).toISOString().slice(0, 10) : "",
-      copayAmount: insurance.copayAmount || "",
-      deductibleAmount: insurance.deductibleAmount || "",
       isPrimary: insurance.isPrimary,
     });
     setIsDialogOpen(true);
@@ -222,151 +196,50 @@ export function InsuranceManagement() {
                 Add Insurance
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle>{editingInsurance ? "Edit Insurance Information" : "Add Insurance Information"}</DialogTitle>
                 <DialogDescription>
-                  {editingInsurance ? "Update your insurance policy" : "Add your insurance policy details"}
+                  {editingInsurance ? "Update the basics we need for billing support." : "Add the basic details most patients have available."}
                 </DialogDescription>
               </DialogHeader>
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="provider"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Insurance Provider</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Blue Cross" data-testid="input-provider" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="policyNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Policy Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="ABC123456789" data-testid="input-policy-number" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="groupNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Group Number (Optional)</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="GRP001" data-testid="input-group-number" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="memberNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Member Number (Optional)</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="MEM001" data-testid="input-member-number" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="planType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Plan Type (Optional)</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-plan-type">
-                                <SelectValue placeholder="Select plan type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="individual">Individual</SelectItem>
-                              <SelectItem value="family">Family</SelectItem>
-                              <SelectItem value="group">Group</SelectItem>
-                              <SelectItem value="self">Self</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="effectiveDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Effective Date (Optional)</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="date" data-testid="input-effective-date" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="expiryDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Expiry Date (Optional)</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="date" data-testid="input-expiry-date" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="copayAmount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Copay Amount (Optional)</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="25.00" data-testid="input-copay" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
                   <FormField
                     control={form.control}
-                    name="deductibleAmount"
+                    name="provider"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Deductible Amount (Optional)</FormLabel>
+                        <FormLabel>Insurance Provider</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="500.00" data-testid="input-deductible" />
+                          <Input {...field} placeholder="Blue Cross" data-testid="input-provider" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="policyNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Member or Policy Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="ABC123456789" data-testid="input-policy-number" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="groupNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Group Number (Optional)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="GRP001" data-testid="input-group-number" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -1,6 +1,7 @@
 import { useEffect, type MouseEvent } from "react";
 import { Link } from "wouter";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
+import { MARKETPLACE_NAV_LINKS } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -135,7 +136,7 @@ const careStats: StatCard[] = [
   },
 ];
 
-function LandingHeader({ onHowItWorks }: { onHowItWorks: (e: MouseEvent<HTMLAnchorElement>) => void }) {
+function LandingHeader() {
   const handleLogin = () => {
     window.location.href = "/api/login";
   };
@@ -152,18 +153,11 @@ function LandingHeader({ onHowItWorks }: { onHowItWorks: (e: MouseEvent<HTMLAnch
             Home
             <span className="absolute -bottom-3 left-1/2 h-0.5 w-7 -translate-x-1/2 rounded-full bg-teal-500" />
           </Link>
-          <Link href="/providers" className="transition-colors hover:text-blue-800">
-            Find Care
-          </Link>
-          <a href="#how-it-works" onClick={onHowItWorks} className="transition-colors hover:text-blue-800">
-            How It Works
-          </a>
-          <Link href="/apply" className="transition-colors hover:text-blue-800">
-            For Providers
-          </Link>
-          <Link href="/about" className="transition-colors hover:text-blue-800">
-            About Us
-          </Link>
+          {MARKETPLACE_NAV_LINKS.map((item) => (
+            <Link key={item.href} href={item.href} className="transition-colors hover:text-blue-800">
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -227,7 +221,7 @@ export default function Landing() {
     <div className="min-h-screen overflow-hidden bg-[#f7fbff] text-slate-900 scroll-smooth">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_16%_8%,rgba(45,212,191,0.14),transparent_28%),radial-gradient(circle_at_88%_4%,rgba(147,197,253,0.2),transparent_30%),linear-gradient(180deg,#ffffff_0%,#f7fbff_58%,#ffffff_100%)]" />
 
-      <LandingHeader onHowItWorks={scrollToHowItWorks} />
+      <LandingHeader />
 
       <main>
         <section className="relative px-5 pb-10 pt-10 sm:px-6 lg:pb-14 lg:pt-12">
@@ -261,7 +255,7 @@ export default function Landing() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <a href="#how-it-works" onClick={scrollToHowItWorks}>
+                <Link href="/how-it-works">
                   <Button
                     size="lg"
                     variant="outline"
@@ -270,7 +264,7 @@ export default function Landing() {
                     How It Works
                     <PlayCircle className="ml-2 h-4 w-4 text-blue-500" />
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
 

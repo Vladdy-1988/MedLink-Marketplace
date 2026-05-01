@@ -5,6 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { MedlinkLogo } from "./MedlinkLogo";
 import { Menu, X } from "lucide-react";
 
+export const MARKETPLACE_NAV_LINKS = [
+  { href: "/providers", label: "Find Care" },
+  { href: "/how-it-works", label: "How It Works" },
+  { href: "/apply", label: "For Providers" },
+  { href: "/about", label: "About Us" },
+] as const;
+
 export default function Navigation() {
   const { isAuthenticated, user, loginWithRedirect, logout } = useAuth();
   const [location] = useLocation();
@@ -47,20 +54,15 @@ export default function Navigation() {
 
             <div className="hidden md:block ml-10">
               <div className="flex items-center space-x-8">
-                <Link href="/providers" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
-                  Find Providers
-                </Link>
-                <Link href="/services" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
-                  Services
-                </Link>
-                <Link href="/how-it-works" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
-                  How It Works
-                </Link>
-                {!isAuthenticated && (
-                  <Link href="/apply" className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700">
-                    Become a Provider
+                {MARKETPLACE_NAV_LINKS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-base font-semibold text-slate-700 transition-colors hover:text-blue-700"
+                  >
+                    {item.label}
                   </Link>
-                )}
+                ))}
               </div>
             </div>
           </div>
@@ -134,20 +136,16 @@ export default function Navigation() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-sky-100 py-3">
             <div className="space-y-1">
-              <Link href="/providers" className={navLinkClass} onClick={closeMobileMenu}>
-                Find Providers
-              </Link>
-              <Link href="/services" className={navLinkClass} onClick={closeMobileMenu}>
-                Services
-              </Link>
-              <Link href="/how-it-works" className={navLinkClass} onClick={closeMobileMenu}>
-                How It Works
-              </Link>
-              {!isAuthenticated && (
-                <Link href="/apply" className={navLinkClass} onClick={closeMobileMenu}>
-                  Become a Provider
+              {MARKETPLACE_NAV_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={navLinkClass}
+                  onClick={closeMobileMenu}
+                >
+                  {item.label}
                 </Link>
-              )}
+              ))}
             </div>
 
             <div className="mt-3 pt-3 border-t border-sky-100 space-y-2">

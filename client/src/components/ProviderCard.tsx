@@ -80,8 +80,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
         description: `Your message has been sent to ${provider.name}`,
       });
 
-      // Navigate to messages page
-      setLocation("/dashboard/patient?tab=messages");
+      setLocation(`/dashboard/patient?tab=messages&partner=${encodeURIComponent(receiverId)}`);
     } catch (error) {
       console.error("Error sending message:", error);
       toast({

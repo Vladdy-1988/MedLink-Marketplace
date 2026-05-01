@@ -4,7 +4,6 @@ import { Link, useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import ServiceCategories from "@/components/ServiceCategories";
 import ProviderCard from "@/components/ProviderCard";
-import { ClinicalHeroArt } from "@/components/ClinicalVisuals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,16 +53,16 @@ export default function Home() {
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-white/75 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-teal-700 shadow-sm backdrop-blur">
               <Sparkles className="h-4 w-4" />
-              Patient care dashboard
+              House-call service marketplace
             </div>
             <h1 className="max-w-3xl text-5xl font-black leading-[0.95] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
-              Healthcare at your door,
+              Healthcare services
               <span className="block bg-gradient-to-r from-teal-500 to-blue-600 bg-clip-text text-transparent">
-                simplified.
+                brought home.
               </span>
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
-              Experience in-home medical services with Calgary's trusted healthcare professionals. Search, compare, book, and manage care from one secure place.
+              Browse Calgary in-home care across nursing, mobile lab work, therapy, dental care, mental health, and wellness. Compare verified providers and book secure house-call visits from one place.
             </p>
 
             <div className="mt-7 grid gap-3 text-sm font-semibold text-slate-600 sm:grid-cols-3">
@@ -84,12 +83,12 @@ export default function Home() {
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link href="/providers">
                 <Button size="lg" className="rounded-full bg-teal-500 px-8 text-white shadow-[0_14px_32px_rgba(20,184,166,0.28)] hover:bg-teal-600">
-                  Find Providers
+                  Book a Service
                 </Button>
               </Link>
-              <Link href="/dashboard/patient">
+              <Link href="/how-it-works">
                 <Button size="lg" variant="outline" className="rounded-full border-sky-100 bg-white/80 px-8 text-slate-800 shadow-sm backdrop-blur hover:bg-white">
-                  My Dashboard
+                  How it works
                 </Button>
               </Link>
             </div>
@@ -149,7 +148,29 @@ export default function Home() {
             </div>
           </div>
 
-          <ClinicalHeroArt className="lg:mt-6" />
+          <div className="relative min-h-[360px] overflow-hidden rounded-[1.5rem] border border-white/90 bg-white shadow-[0_24px_70px_rgba(15,76,117,0.14)] sm:min-h-[460px]">
+            <img
+              src="/assets/medlink-housecall-care.png"
+              alt="A clinician providing in-home healthcare to a patient"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-white/5 to-transparent" />
+            <div className="absolute left-5 top-5 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_16px_42px_rgba(15,76,117,0.14)] backdrop-blur">
+              <div className="grid grid-cols-3 gap-3 text-center">
+                {["Verified", "Booked", "At home"].map((label) => (
+                  <div key={label}>
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-teal-50 text-teal-600">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <div className="mt-2 text-sm font-black text-slate-700">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="absolute bottom-5 left-5 rounded-2xl border border-white/80 bg-white/90 px-4 py-3 text-base font-bold text-blue-900 shadow-[0_16px_42px_rgba(15,76,117,0.14)] backdrop-blur sm:left-auto sm:right-5">
+              House-call ready
+            </div>
+          </div>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import ProviderCard from "@/components/ProviderCard";
@@ -24,6 +24,13 @@ function toDisplaySpecialization(value: unknown): string {
     ) ||
     raw.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
   );
+}
+
+function normalizeFilterText(value: unknown): string {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 export default function Providers() {
@@ -94,6 +101,17 @@ export default function Providers() {
     document.title = "Find Providers — MedLink Marketplace";
   }, []);
 
+  const categoryFilterOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...serviceCategories.map((category) => category.name),
+          ...providerSpecializations,
+        ]),
+      ).sort((a, b) => a.localeCompare(b)),
+    [],
+  );
+
   // Check URL parameters to auto-enable rapid services filter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -140,16 +158,32 @@ export default function Providers() {
       : false,
   }));
 
-  // Derive sidebar filter options from live provider data (self-heals as providers onboard)
-  const uniqueSpecializations = Array.from(new Set(allProviders.map((p) => p.specialty))).sort();
-
   const displayedProviders = allProviders
     .filter((p) => !filters.rapidOnly || p.rapidService === true)
-    .filter(
-      (p) =>
-        filters.serviceTypes.length === 0 ||
-        filters.serviceTypes.some((t) => p.specialty.toLowerCase() === t.toLowerCase()),
-    );
+    .filter((provider) => {
+      if (filters.serviceTypes.length === 0) return true;
+
+      const specialty = normalizeFilterText(provider.specialty);
+      const serviceTexts: string[] = provider.services.flatMap((service: any): string[] => [
+        normalizeFilterText(service?.name),
+        normalizeFilterText(service?.category),
+      ]);
+
+      return filters.serviceTypes.some((selected) => {
+        const selectedText = normalizeFilterText(selected);
+        return (
+          specialty === selectedText ||
+          specialty.includes(selectedText) ||
+          selectedText.includes(specialty) ||
+          serviceTexts.some(
+            (serviceText) =>
+              serviceText === selectedText ||
+              serviceText.includes(selectedText) ||
+              selectedText.includes(serviceText),
+          )
+        );
+      });
+    });
 
   const resetAllFilters = () => {
     setSearchInput("");
@@ -355,31 +389,27 @@ export default function Providers() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Service Type Filter — options derived from live provider data */}
+                {/* Service Type Filter */}
                 <div>
-                  <Label className="mb-3 block text-base font-semibold text-gray-700">Specialization</Label>
+                  <Label className="mb-3 block text-base font-semibold text-gray-700">Service Categories</Label>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {uniqueSpecializations.length === 0 ? (
-                      <p className="text-sm text-gray-400">No providers loaded</p>
-                    ) : (
-                      uniqueSpecializations.map((spec) => (
-                        <div key={spec} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`spec-${spec}`}
-                            checked={filters.serviceTypes.includes(spec)}
-                            onCheckedChange={(checked) =>
-                              setFilters((prev) => ({
-                                ...prev,
-                                serviceTypes: checked === true
-                                  ? [...prev.serviceTypes, spec]
-                                  : prev.serviceTypes.filter((s) => s !== spec),
-                              }))
-                            }
-                          />
-                          <Label htmlFor={`spec-${spec}`} className="text-base text-gray-700">{spec}</Label>
-                        </div>
-                      ))
-                    )}
+                    {categoryFilterOptions.map((category) => (
+                      <div key={category} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`category-${category}`}
+                          checked={filters.serviceTypes.includes(category)}
+                          onCheckedChange={(checked) =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              serviceTypes: checked === true
+                                ? [...prev.serviceTypes, category]
+                                : prev.serviceTypes.filter((item) => item !== category),
+                            }))
+                          }
+                        />
+                        <Label htmlFor={`category-${category}`} className="text-base text-gray-700">{category}</Label>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 

@@ -15,7 +15,7 @@ router.post("/messages", checkAuth, async (req: any, res) => {
       senderId: userId,
     });
     const message = await storage.createMessage(messageData);
-    res.json(message);
+    res.status(201).json(message);
   } catch (error) {
     console.error("Error creating message:", error);
     res.status(400).json({ message: "Failed to send message" });
@@ -55,6 +55,21 @@ router.get("/conversations/:userId", checkAuth, async (req, res) => {
   } catch (error) {
     console.error("Error fetching conversations:", error);
     res.status(500).json({ message: "Failed to fetch conversations" });
+  }
+});
+
+router.put("/conversations/:partnerId/read", checkAuth, async (req: any, res) => {
+  try {
+    const userId = getAuthUserId(req);
+    const { partnerId } = req.params;
+    if (!partnerId) {
+      return res.status(400).json({ message: "Conversation partner is required" });
+    }
+    await storage.markConversationAsRead(userId, partnerId);
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error marking conversation as read:", error);
+    res.status(500).json({ message: "Failed to mark conversation as read" });
   }
 });
 
