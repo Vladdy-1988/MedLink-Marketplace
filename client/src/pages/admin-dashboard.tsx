@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,9 @@ import {
   Eye,
   Check,
   X,
-  UserPlus
+  UserPlus,
+  ShieldCheck,
+  MessageSquare
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -194,6 +196,43 @@ export default function AdminDashboard() {
     approveProviderMutation.mutate({ providerId, isApproved });
   };
 
+  const adminLinks = [
+    { href: "/dashboard/admin", label: "Overview", icon: BarChart3, active: true },
+    { href: "/admin-portal?tab=providers", label: "Providers", icon: UserCheck },
+    { href: "/comprehensive-admin-portal?tab=users", label: "Patients", icon: Users },
+    { href: "/admin-portal?tab=bookings", label: "Bookings", icon: Calendar },
+    { href: "/comprehensive-admin-portal?tab=communications", label: "Communications", icon: MessageSquare },
+    { href: "/comprehensive-admin-portal?tab=analytics", label: "Analytics", icon: TrendingUp },
+    { href: "/comprehensive-admin-portal?tab=settings", label: "Settings", icon: Settings },
+  ];
+
+  const quickActions = [
+    {
+      href: "/admin-portal?tab=providers",
+      label: "Provider approvals",
+      description: "Review marketplace applications and house-call readiness.",
+      icon: UserCheck,
+    },
+    {
+      href: "/comprehensive-admin-portal?tab=verification",
+      label: "Credential checks",
+      description: "Verify documents before providers appear in search.",
+      icon: ShieldCheck,
+    },
+    {
+      href: "/admin-portal?tab=bookings",
+      label: "Bookings",
+      description: "Monitor scheduled in-home visits and booking status.",
+      icon: Calendar,
+    },
+    {
+      href: "/comprehensive-admin-portal?tab=communications",
+      label: "Communications",
+      description: "Audit assistant and provider-patient message handoffs.",
+      icon: MessageSquare,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -201,7 +240,39 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage providers, bookings, and platform analytics</p>
+          <p className="text-gray-600">Manage MedLink's Calgary house-call healthcare marketplace.</p>
+        </div>
+
+        <div className="mb-8 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
+          <div className="grid gap-6 p-6 lg:grid-cols-[1fr_0.9fr] lg:p-8">
+            <div>
+              <Badge variant="secondary" className="mb-4 bg-teal-50 text-teal-700">
+                House-call marketplace operations
+              </Badge>
+              <h2 className="text-2xl font-bold text-slate-900">
+                Keep provider approvals, bookings, and patient communications aligned.
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                This admin workspace supports the patient journey Paula outlined: patients start with the
+                assistant, verified providers are matched for in-home care, and direct communication follows
+                after the right provider is selected.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-sky-700">Marketplace focus</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">In-home care across Calgary</div>
+              </div>
+              <div className="rounded-xl border border-teal-100 bg-teal-50/60 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-teal-700">Workflow</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">Assistant first, provider second</div>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-600">Navigation</div>
+                <div className="mt-1 text-sm font-semibold text-slate-900">Same marketplace menu everywhere</div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -210,30 +281,23 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <nav className="space-y-2">
-                  <div className="flex items-center px-4 py-3 text-[hsl(207,90%,54%)] bg-blue-50 rounded-lg">
-                    <BarChart3 className="h-5 w-5 mr-3" />
-                    Overview
-                  </div>
-                  <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <UserCheck className="h-5 w-5 mr-3" />
-                    Providers
-                  </div>
-                  <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <Users className="h-5 w-5 mr-3" />
-                    Patients
-                  </div>
-                  <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <Calendar className="h-5 w-5 mr-3" />
-                    Bookings
-                  </div>
-                  <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <TrendingUp className="h-5 w-5 mr-3" />
-                    Analytics
-                  </div>
-                  <div className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <Settings className="h-5 w-5 mr-3" />
-                    Settings
-                  </div>
+                  {adminLinks.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition-colors ${
+                          item.active
+                            ? "bg-blue-50 text-[hsl(207,90%,54%)]"
+                            : "text-gray-700 hover:bg-gray-50 hover:text-blue-700"
+                        }`}
+                      >
+                        <Icon className="mr-3 h-5 w-5" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
                 </nav>
               </CardContent>
             </Card>
@@ -306,6 +370,27 @@ export default function AdminDashboard() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link key={action.href} href={action.href} className="group block">
+                    <Card className="h-full transition-colors hover:border-sky-200 hover:bg-sky-50/40">
+                      <CardContent className="flex h-full items-start gap-4 p-5">
+                        <div className="rounded-xl bg-teal-50 p-3 text-teal-600 group-hover:bg-teal-100">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-900">{action.label}</h3>
+                          <p className="mt-1 text-sm leading-5 text-slate-600">{action.description}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
             
             {/* Pending Provider Approvals */}

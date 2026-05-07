@@ -6,6 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { Calendar, User, UserCheck } from "lucide-react";
 import { useLocation } from "wouter";
+import Navigation from "@/components/Navigation";
 
 interface Booking {
   id: number;
@@ -127,8 +128,9 @@ export default function AdminData() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <div className="max-w-7xl mx-auto p-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">MedLink Admin Data View</h1>
           <p className="text-gray-600">View current bookings, users, and providers in the system</p>

@@ -126,10 +126,29 @@ interface AdminUser {
   createdAt: string;
 }
 
+const COMPREHENSIVE_ADMIN_TABS = [
+  "dashboard",
+  "verification",
+  "transactions",
+  "users",
+  "communications",
+  "settings",
+  "audit",
+  "analytics",
+] as const;
+
+function getInitialComprehensiveAdminTab() {
+  if (typeof window === "undefined") return "dashboard";
+  const requestedTab = new URLSearchParams(window.location.search).get("tab");
+  return requestedTab && COMPREHENSIVE_ADMIN_TABS.includes(requestedTab as any)
+    ? requestedTab
+    : "dashboard";
+}
+
 export default function ComprehensiveAdminPortal() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(getInitialComprehensiveAdminTab);
   const [selectedCredential, setSelectedCredential] = useState<PendingCredential | null>(null);
   const [reviewNotes, setReviewNotes] = useState("");
   const [transactionFilter, setTransactionFilter] = useState({ status: "", type: "" });
@@ -287,36 +306,36 @@ export default function ComprehensiveAdminPortal() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-8 w-full">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+          <TabsList className="flex h-auto w-full flex-nowrap justify-start gap-2 overflow-x-auto rounded-2xl bg-white p-2 shadow-sm">
+            <TabsTrigger value="dashboard" className="h-10 shrink-0 rounded-xl px-3">
               <BarChart3 className="w-4 h-4" />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="verification" className="flex items-center gap-2">
+            <TabsTrigger value="verification" className="h-10 shrink-0 rounded-xl px-3">
               <FileText className="w-4 h-4" />
               Verification
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex items-center gap-2">
+            <TabsTrigger value="transactions" className="h-10 shrink-0 rounded-xl px-3">
               <DollarSign className="w-4 h-4" />
               Financial
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
+            <TabsTrigger value="users" className="h-10 shrink-0 rounded-xl px-3">
               <Users className="w-4 h-4" />
               Users
             </TabsTrigger>
-            <TabsTrigger value="communications" className="flex items-center gap-2">
+            <TabsTrigger value="communications" className="h-10 shrink-0 rounded-xl px-3">
               <MessageSquare className="w-4 h-4" />
               Communications
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings" className="h-10 shrink-0 rounded-xl px-3">
               <Settings className="w-4 h-4" />
               Settings
             </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center gap-2">
+            <TabsTrigger value="audit" className="h-10 shrink-0 rounded-xl px-3">
               <History className="w-4 h-4" />
               Audit Logs
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <TabsTrigger value="analytics" className="h-10 shrink-0 rounded-xl px-3">
               <TrendingUp className="w-4 h-4" />
               Analytics
             </TabsTrigger>
@@ -425,8 +444,8 @@ export default function ComprehensiveAdminPortal() {
                           <span className="font-semibold">{formatCurrency(stats?.platformCommission || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Monthly Revenue</span>
-                          <span className="font-semibold">{formatCurrency(stats?.monthlyBookings || 0)}</span>
+                          <span className="text-sm text-gray-600">Monthly Bookings</span>
+                          <span className="font-semibold">{stats?.monthlyBookings || 0}</span>
                         </div>
                       </div>
                     </CardContent>

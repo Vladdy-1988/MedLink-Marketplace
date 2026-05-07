@@ -30,6 +30,16 @@ import {
 // Charts will be implemented later - using simple data display for now
 import Navigation from "@/components/Navigation";
 
+const ADMIN_PORTAL_TABS = ["dashboard", "providers", "bookings", "feedback"] as const;
+
+function getInitialAdminPortalTab() {
+  if (typeof window === "undefined") return "dashboard";
+  const requestedTab = new URLSearchParams(window.location.search).get("tab");
+  return requestedTab && ADMIN_PORTAL_TABS.includes(requestedTab as any)
+    ? requestedTab
+    : "dashboard";
+}
+
 // Stats Overview Component
 function StatsOverview({ stats }: { stats: any }) {
   if (!stats) return null;
@@ -542,6 +552,7 @@ function PatientFeedback() {
 
 export default function AdminPortal() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState(getInitialAdminPortalTab);
 
   // UI-only role check for rendering. Server/API enforce real authorization.
   if (!user || user.userType !== 'admin') {
@@ -580,21 +591,21 @@ export default function AdminPortal() {
           <p className="text-gray-600">Manage your healthcare marketplace platform</p>
         </div>
 
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="dashboard" data-testid="tab-dashboard">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="flex h-auto w-full flex-nowrap justify-start gap-2 overflow-x-auto rounded-2xl bg-white p-2 shadow-sm">
+            <TabsTrigger value="dashboard" data-testid="tab-dashboard" className="h-10 shrink-0 rounded-xl px-3">
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="providers" data-testid="tab-providers">
+            <TabsTrigger value="providers" data-testid="tab-providers" className="h-10 shrink-0 rounded-xl px-3">
               <Users className="h-4 w-4 mr-2" />
               Providers
             </TabsTrigger>
-            <TabsTrigger value="bookings" data-testid="tab-bookings">
+            <TabsTrigger value="bookings" data-testid="tab-bookings" className="h-10 shrink-0 rounded-xl px-3">
               <Calendar className="h-4 w-4 mr-2" />
               Bookings
             </TabsTrigger>
-            <TabsTrigger value="feedback" data-testid="tab-feedback">
+            <TabsTrigger value="feedback" data-testid="tab-feedback" className="h-10 shrink-0 rounded-xl px-3">
               <MessageCircle className="h-4 w-4 mr-2" />
               Feedback
             </TabsTrigger>
