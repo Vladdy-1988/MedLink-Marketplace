@@ -391,8 +391,11 @@ export default function Providers() {
               <CardContent className="space-y-6">
                 {/* Service Type Filter */}
                 <div>
-                  <Label className="mb-3 block text-base font-semibold text-gray-700">Service Categories</Label>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                  <Label className="mb-1 block text-base font-semibold text-gray-700">Service Categories</Label>
+                  <p className="mb-3 text-sm text-gray-500">
+                    All marketplace categories are available here.
+                  </p>
+                  <div className="space-y-2">
                     {categoryFilterOptions.map((category) => (
                       <div key={category} className="flex items-center space-x-2">
                         <Checkbox

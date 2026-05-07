@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Plus, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
+import { Shield, Plus, Edit, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest, apiRequestJson } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -15,22 +15,25 @@ import { z } from "zod";
 
 const insuranceSchema = z.object({
   provider: z.string().min(1, "Provider is required"),
-  policyNumber: z.string().min(1, "Member or policy number is required"),
-  groupNumber: z.string().optional(),
-  isPrimary: z.boolean().default(true),
+  policyNumber: z.string().min(1, "Policy number is required"),
+  memberNumber: z.string().optional(),
 });
 
 type InsuranceFormData = z.infer<typeof insuranceSchema>;
 
-interface Insurance extends InsuranceFormData {
+interface Insurance {
   id: number;
   userId: string;
+  provider: string;
+  policyNumber: string;
+  groupNumber?: string | null;
   memberNumber?: string | null;
   planType?: string | null;
   effectiveDate?: string | null;
   expiryDate?: string | null;
   copayAmount?: string | null;
   deductibleAmount?: string | null;
+  isPrimary: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,8 +49,7 @@ export function InsuranceManagement() {
     defaultValues: {
       provider: "",
       policyNumber: "",
-      groupNumber: "",
-      isPrimary: true,
+      memberNumber: "",
     },
   });
 
@@ -60,7 +62,9 @@ export function InsuranceManagement() {
     mutationFn: (data: InsuranceFormData) =>
       apiRequest("POST", "/api/user/insurance", {
         ...data,
-        groupNumber: data.groupNumber || null,
+        memberNumber: data.memberNumber || null,
+        groupNumber: null,
+        isPrimary: true,
       }),
     onSuccess: () => {
       toast({
@@ -84,7 +88,9 @@ export function InsuranceManagement() {
     mutationFn: ({ id, data }: { id: number; data: Partial<InsuranceFormData> }) =>
       apiRequest("PUT", `/api/user/insurance/${id}`, {
         ...data,
-        groupNumber: data.groupNumber === "" ? null : data.groupNumber,
+        memberNumber: data.memberNumber === "" ? null : data.memberNumber,
+        groupNumber: null,
+        isPrimary: true,
       }),
     onSuccess: () => {
       toast({
@@ -136,8 +142,7 @@ export function InsuranceManagement() {
     form.reset({
       provider: insurance.provider,
       policyNumber: insurance.policyNumber,
-      groupNumber: insurance.groupNumber || "",
-      isPrimary: insurance.isPrimary,
+      memberNumber: insurance.memberNumber || "",
     });
     setIsDialogOpen(true);
   };
@@ -146,19 +151,6 @@ export function InsuranceManagement() {
     if (confirm("Are you sure you want to delete this insurance information?")) {
       deleteInsuranceMutation.mutate(id);
     }
-  };
-
-  const isExpired = (expirationDate: string) => {
-    if (!expirationDate) return false;
-    return new Date(expirationDate) < new Date();
-  };
-
-  const isExpiringSoon = (expirationDate: string) => {
-    if (!expirationDate) return false;
-    const expDate = new Date(expirationDate);
-    const today = new Date();
-    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-    return expDate >= today && expDate <= thirtyDaysFromNow;
   };
 
   if (isLoading) {
@@ -200,7 +192,7 @@ export function InsuranceManagement() {
               <DialogHeader>
                 <DialogTitle>{editingInsurance ? "Edit Insurance Information" : "Add Insurance Information"}</DialogTitle>
                 <DialogDescription>
-                  {editingInsurance ? "Update the basics we need for billing support." : "Add the basic details most patients have available."}
+                  {editingInsurance ? "Update the basic details we need for billing support." : "Add only the basic details most patients have available."}
                 </DialogDescription>
               </DialogHeader>
 
@@ -224,7 +216,7 @@ export function InsuranceManagement() {
                     name="policyNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Member or Policy Number</FormLabel>
+                        <FormLabel>Policy Number</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="ABC123456789" data-testid="input-policy-number" />
                         </FormControl>
@@ -234,36 +226,14 @@ export function InsuranceManagement() {
                   />
                   <FormField
                     control={form.control}
-                    name="groupNumber"
+                    name="memberNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Group Number (Optional)</FormLabel>
+                        <FormLabel>Member ID (Optional)</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="GRP001" data-testid="input-group-number" />
+                          <Input {...field} placeholder="MEM001" data-testid="input-member-number" />
                         </FormControl>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="isPrimary"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Primary Insurance</FormLabel>
-                          <div className="text-sm text-muted-foreground">Mark this as your main insurance policy</div>
-                        </div>
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="form-checkbox h-4 w-4 text-primary"
-                            data-testid="checkbox-primary-insurance"
-                          />
-                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -320,36 +290,11 @@ export function InsuranceManagement() {
                         {insurance.isPrimary && (
                           <Badge variant="default" className="text-xs">Primary</Badge>
                         )}
-                        {insurance.expiryDate && isExpired(insurance.expiryDate) && (
-                          <Badge variant="destructive" className="text-xs flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
-                            Expired
-                          </Badge>
-                        )}
-                        {insurance.expiryDate && isExpiringSoon(insurance.expiryDate) && !isExpired(insurance.expiryDate) && (
-                          <Badge variant="outline" className="text-xs text-yellow-700 border-yellow-300">Expiring Soon</Badge>
-                        )}
-                        {insurance.expiryDate && !isExpired(insurance.expiryDate) && !isExpiringSoon(insurance.expiryDate) && (
-                          <Badge variant="outline" className="text-xs text-green-700 border-green-300 flex items-center gap-1">
-                            <CheckCircle className="h-3 w-3" />
-                            Active
-                          </Badge>
-                        )}
                       </div>
                     </div>
                     <div className="space-y-2 text-sm">
                       <p><span className="font-medium">Policy:</span> {insurance.policyNumber}</p>
-                      {insurance.groupNumber && <p><span className="font-medium">Group:</span> {insurance.groupNumber}</p>}
-                      {insurance.memberNumber && <p><span className="font-medium">Member:</span> {insurance.memberNumber}</p>}
-                      {insurance.planType && <p className="capitalize"><span className="font-medium">Plan:</span> {insurance.planType}</p>}
-                      {insurance.effectiveDate && <p><span className="font-medium">Effective:</span> {new Date(insurance.effectiveDate).toLocaleDateString()}</p>}
-                      {insurance.expiryDate && <p><span className="font-medium">Expires:</span> {new Date(insurance.expiryDate).toLocaleDateString()}</p>}
-                      {(insurance.copayAmount || insurance.deductibleAmount) && (
-                        <div className="flex gap-4">
-                          {insurance.copayAmount && <p><span className="font-medium">Copay:</span> ${insurance.copayAmount}</p>}
-                          {insurance.deductibleAmount && <p><span className="font-medium">Deductible:</span> ${insurance.deductibleAmount}</p>}
-                        </div>
-                      )}
+                      {insurance.memberNumber && <p><span className="font-medium">Member ID:</span> {insurance.memberNumber}</p>}
                     </div>
                   </div>
                 </div>

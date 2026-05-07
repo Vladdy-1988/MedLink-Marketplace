@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 
 export const MARKETPLACE_NAV_LINKS = [
   { href: "/providers", label: "Find Care" },
+  { href: "/services", label: "Services" },
   { href: "/how-it-works", label: "How It Works" },
   { href: "/apply", label: "For Providers" },
   { href: "/about", label: "About Us" },

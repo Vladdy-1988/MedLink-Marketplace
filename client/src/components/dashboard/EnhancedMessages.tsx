@@ -111,15 +111,28 @@ export function EnhancedMessages() {
 
   useEffect(() => {
     const query = location.includes("?") ? location.split("?")[1] : "";
-    const partnerId = new URLSearchParams(query).get("partner");
+    const params = new URLSearchParams(query);
+    const partnerId = params.get("partner");
     if (partnerId) {
       setSelectedConversation(partnerId);
       markAsReadMutation.mutate(partnerId);
+      return;
+    }
+
+    if (params.get("assistant") === "provider") {
+      const providerName = params.get("providerName") || "this provider";
+      const serviceName = params.get("serviceName");
+      setSelectedConversation(null);
+      setAssistantResponse({
+        message: `I can help you decide whether ${providerName} is the right fit${serviceName ? ` for ${serviceName}` : ""} before you message directly. Tell me what care you need, your Calgary area, and how soon you need the visit.`,
+        suggestedProviders: [],
+      });
     }
   }, [location]);
 
   const callAssistant = (sentText: string) => {
     setAssistantLoading(true);
+    setAssistantResponse(null);
     fetch("/api/assistant/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -145,7 +158,14 @@ export function EnhancedMessages() {
           { role: "assistant", content: data.message },
         ]);
       })
-      .catch(() => setAssistantLoading(false));
+      .catch(() => {
+        setAssistantLoading(false);
+        setAssistantResponse({
+          message:
+            "I'm having trouble reaching the assistant right now. You can still browse verified providers, or try your question again in a moment.",
+          suggestedProviders: [],
+        });
+      });
   };
 
   const handleSendMessage = () => {

@@ -1,15 +1,13 @@
 import { useEffect, type MouseEvent } from "react";
 import { Link } from "wouter";
 import { MedlinkLogo } from "@/components/MedlinkLogo";
-import { MARKETPLACE_NAV_LINKS } from "@/components/Navigation";
+import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Bot,
   Building2,
   CalendarCheck,
-  ChevronDown,
-  Globe2,
   HeartPulse,
   Headphones,
   LockKeyhole,
@@ -64,45 +62,45 @@ const careSteps = [
     icon: Search,
     number: "1",
     title: "Find",
-    body: "Search for doctors, clinics, or specialists near you.",
+    body: "Tell us what kind of in-home care you need.",
   },
   {
     icon: Scale,
     number: "2",
     title: "Compare",
-    body: "Compare profiles, ratings, fees, and availability.",
+    body: "Review verified house-call providers and service options.",
   },
   {
     icon: CalendarCheck,
     number: "3",
     title: "Book",
-    body: "Choose your time and book with ease.",
+    body: "Choose the right provider, time, and next step.",
   },
   {
     icon: UserRoundCheck,
     number: "4",
     title: "Manage",
-    body: "Manage appointments, records, and reminders in one place.",
+    body: "Use MedLink to manage visits, messages, and reminders.",
   },
 ];
 
 const conciergeActions = [
   {
     icon: Stethoscope,
-    title: "Find a specialist",
-    body: "for knee pain",
+    title: "Find a nurse",
+    body: "for a home visit",
     href: "/providers",
   },
   {
     icon: HeartPulse,
     title: "Compare",
-    body: "heart doctors",
+    body: "dental care",
     href: "/providers",
   },
   {
     icon: MapPin,
-    title: "Find a clinic",
-    body: "near me",
+    title: "Book mobile",
+    body: "lab work",
     href: "/providers",
   },
   {
@@ -136,59 +134,11 @@ const careStats: StatCard[] = [
   },
 ];
 
-function LandingHeader() {
-  const handleLogin = () => {
-    window.location.href = "/api/login";
-  };
-
-  return (
-    <header className="relative z-50 px-5 pt-6 sm:px-6">
-      <div className="mx-auto flex h-14 max-w-[1040px] items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <MedlinkLogo size="sm" />
-        </Link>
-
-        <nav className="hidden items-center gap-8 text-sm font-bold text-slate-700 lg:flex">
-          <Link href="/" className="relative text-blue-900">
-            Home
-            <span className="absolute -bottom-3 left-1/2 h-0.5 w-7 -translate-x-1/2 rounded-full bg-teal-500" />
-          </Link>
-          {MARKETPLACE_NAV_LINKS.map((item) => (
-            <Link key={item.href} href={item.href} className="transition-colors hover:text-blue-800">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className="hidden items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-semibold text-slate-600 transition-colors hover:bg-sky-50 sm:inline-flex"
-            aria-label="Language selector"
-          >
-            <Globe2 className="h-3.5 w-3.5" />
-            English
-            <ChevronDown className="h-3 w-3" />
-          </button>
-          <Button
-            onClick={handleLogin}
-            variant="outline"
-            size="sm"
-            className="h-9 rounded-full border-blue-100 bg-white px-4 text-sm font-bold text-blue-800 shadow-sm hover:bg-sky-50"
-          >
-            Sign In
-          </Button>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function ReferenceHeroArt() {
   return (
     <div className="relative mx-auto w-full max-w-[calc(100vw-2.5rem)] overflow-visible sm:max-w-[680px]" aria-hidden="true">
       <img
-        src="/assets/medlink-journey-hero.png"
+        src="/assets/medlink-housecall-care.png"
         alt=""
         className="block w-full select-none rounded-[1.5rem]"
         draggable={false}
@@ -221,7 +171,7 @@ export default function Landing() {
     <div className="min-h-screen overflow-hidden bg-[#f7fbff] text-slate-900 scroll-smooth">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_16%_8%,rgba(45,212,191,0.14),transparent_28%),radial-gradient(circle_at_88%_4%,rgba(147,197,253,0.2),transparent_30%),linear-gradient(180deg,#ffffff_0%,#f7fbff_58%,#ffffff_100%)]" />
 
-      <LandingHeader />
+      <Navigation />
 
       <main>
         <section className="relative px-5 pb-10 pt-10 sm:px-6 lg:pb-14 lg:pt-12">
@@ -229,20 +179,19 @@ export default function Landing() {
             <div className="relative z-20 min-w-0 max-w-[calc(100vw-2.5rem)] sm:max-w-none">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-teal-50/85 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-teal-700">
                 <Sparkles className="h-3.5 w-3.5" />
-                AI-powered care concierge
+                House-call service marketplace
               </div>
               <h1 className="max-w-full text-4xl font-black leading-[1.03] tracking-tight text-blue-950 sm:max-w-[520px] sm:text-5xl lg:text-[3.5rem]">
-                <span className="block">Your journey</span>
-                <span className="block">to better health,</span>
-                <span className="block text-teal-500">simplified.</span>
+                <span className="block">Healthcare services</span>
+                <span className="block text-teal-500">brought home.</span>
               </h1>
               <p className="mt-6 max-w-full text-base font-medium leading-8 text-slate-600 sm:max-w-[460px]">
-                We help you find the right care, at the right time.
+                Browse professional in-home care across Calgary.
                 <span className="block">
-                  Compare options, book with confidence,
+                  Compare verified providers, message with guidance,
                 </span>
                 <span className="block">
-                  and manage your health - all in one place.
+                  and book non-emergency house-call visits from one place.
                 </span>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -278,8 +227,8 @@ export default function Landing() {
                   <Bot className="h-5 w-5" />
                 </span>
                 <div>
-                  <div className="text-base font-bold text-blue-700">Hi, I'm MedLink AI.</div>
-                  <div className="text-sm text-slate-500">How can I help you today?</div>
+                  <div className="text-base font-bold text-blue-700">Hi, I'm the MedLink assistant.</div>
+                  <div className="text-sm text-slate-500">Tell me what in-home care you need.</div>
                 </div>
               </div>
 
@@ -432,7 +381,7 @@ export default function Landing() {
             <div>
               <MedlinkLogo size="sm" />
               <p className="mt-3 max-w-sm text-sm leading-6 text-slate-500">
-                AI-powered care concierge that helps you find the right care, at the right time, all in one place.
+                House-call healthcare marketplace helping Calgary patients find verified in-home care.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-x-10 gap-y-3 text-sm font-medium text-slate-600 sm:grid-cols-3">

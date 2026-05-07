@@ -5,7 +5,6 @@ import { Star, MapPin, CheckCircle, Heart, Clock, MessageCircle, Zap } from "luc
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface Provider {
@@ -36,12 +35,11 @@ interface ProviderCardProps {
 
 export default function ProviderCard({ provider }: ProviderCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isMessaging, setIsMessaging] = useState(false);
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const handleMessageProvider = async () => {
+  const handleMessageProvider = () => {
     if (!user) {
       toast({
         title: "Sign In Required",
@@ -54,43 +52,9 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
       return;
     }
 
-    setIsMessaging(true);
-    try {
-      let receiverId = provider.userId;
-      if (!receiverId) {
-        const providerResponse = await apiRequest("GET", `/api/providers/${provider.id}`);
-        const providerData = await providerResponse.json();
-        receiverId = providerData.userId;
-      }
-
-      if (!receiverId) {
-        throw new Error("Provider user ID not found");
-      }
-
-      // Send an initial message
-      const messageData = {
-        receiverId,
-        content: `Hi ${provider.name}, I'm interested in your healthcare services and would like to get a personalized quote. Could you please provide more information about your availability and pricing? Thank you!`,
-      };
-
-      await apiRequest("POST", "/api/messages", messageData);
-      
-      toast({
-        title: "Message Sent",
-        description: `Your message has been sent to ${provider.name}`,
-      });
-
-      setLocation(`/dashboard/patient?tab=messages&partner=${encodeURIComponent(receiverId)}`);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsMessaging(false);
-    }
+    setLocation(
+      `/dashboard/patient?tab=messages&assistant=provider&providerId=${provider.id}&providerName=${encodeURIComponent(provider.name)}`,
+    );
   };
 
   return (
@@ -250,11 +214,10 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
           </Link>
           <Button 
             onClick={handleMessageProvider}
-            disabled={isMessaging}
             className="h-12 min-w-0 flex-1 rounded-2xl border-0 bg-gradient-to-r from-[hsl(207,90%,54%)] to-[hsl(207,90%,44%)] text-base font-semibold text-white shadow-lg transition-all duration-200 hover:from-[hsl(207,90%,44%)] hover:to-[hsl(207,90%,34%)] hover:shadow-xl disabled:opacity-50"
           >
             <MessageCircle className="w-4 h-4 mr-1.5" />
-            {isMessaging ? "Sending..." : user ? "Message" : "Sign In to Message"}
+            {user ? "Ask Assistant" : "Sign In to Message"}
           </Button>
         </div>
       </CardContent>

@@ -27,7 +27,6 @@ export default function ProviderProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [isMessaging, setIsMessaging] = useState(false);
   const [isJoiningWaitlist, setIsJoiningWaitlist] = useState(false);
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   
@@ -139,7 +138,7 @@ export default function ProviderProfile() {
     "House-call care profile",
   ];
 
-  const sendProviderMessage = async (serviceName?: string) => {
+  const sendProviderMessage = (serviceName?: string) => {
     if (!user) {
       toast({
         title: "Sign In Required",
@@ -152,32 +151,12 @@ export default function ProviderProfile() {
       return;
     }
 
-    setIsMessaging(true);
-    try {
-      const subject = serviceName ? ` regarding ${serviceName}` : "";
-      const messageData = {
-        receiverId: provider.userId,
-        content: `Hi ${fullName}, I'm interested in your healthcare services${subject} and would like to get a personalized quote. Could you please share your availability and next steps? Thank you!`,
-      };
-
-      await apiRequest("POST", "/api/messages", messageData);
-
-      toast({
-        title: "Message Sent",
-        description: `Your message has been sent to ${fullName}`,
-      });
-
-      setLocation("/dashboard/patient?tab=messages");
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsMessaging(false);
-    }
+    const serviceParam = serviceName
+      ? `&serviceName=${encodeURIComponent(serviceName)}`
+      : "";
+    setLocation(
+      `/dashboard/patient?tab=messages&assistant=provider&providerId=${provider.id}&providerName=${encodeURIComponent(fullName)}${serviceParam}`,
+    );
   };
 
   const joinWaitlist = async () => {
@@ -355,10 +334,9 @@ export default function ProviderProfile() {
                 
                 <Button 
                   onClick={() => sendProviderMessage()}
-                  disabled={isMessaging}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group mb-4"
                 >
-                  {isMessaging ? "Sending..." : user ? "Message Provider" : "Sign In to Message"}
+                  {user ? "Ask Assistant First" : "Sign In to Message"}
                   <MessageCircle className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                 </Button>
                 
@@ -425,7 +403,11 @@ export default function ProviderProfile() {
                     <Heart className="h-4 w-4 mr-2" />
                     Save
                   </Button>
-                  <Button variant="outline" className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl">
+                  <Button
+                    variant="outline"
+                    onClick={() => sendProviderMessage()}
+                    className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm rounded-xl"
+                  >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Message
                   </Button>
@@ -506,7 +488,7 @@ export default function ProviderProfile() {
                       onClick={() => sendProviderMessage(service.name)}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     >
-                      Message Provider
+                      Ask Assistant First
                     </Button>
                   </CardContent>
                 </Card>
